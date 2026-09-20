@@ -92,6 +92,11 @@
     <p><span class="lbl">Today:</span> a field officer visits twelve schools a week and writes the report by hand every Friday. Most of it is the same every week and it takes three hours.</p>
     <p><span class="lbl">With AI:</span> an agent reads the visit notes and last week's report, and drafts this week's. Friday becomes twenty minutes.</p>
     <p><span class="lbl">Five minute demo:</span> open a folder with three real visit notes, run the agent live, show the finished report, then change one note and run it again so they can see it is not a template.</p>
+    <p class="low" style="margin-top:14px">A second one, so you do not just copy the first.</p>
+    <p><span class="lbl">Use case:</span> the buyer stops guessing which component is about to run out.</p>
+    <p><span class="lbl">Today:</span> a planner on a contract manufacturing line tracks hundreds of component line items per order across three spreadsheets and finds out something is short when the line stops.</p>
+    <p><span class="lbl">With AI:</span> an agent reads the open orders and the stock sheet every morning and writes one short list: what will run out, when, and which order it stops.</p>
+    <p><span class="lbl">Five minute demo:</span> show today's real spreadsheets, run it, read the list out loud, then mark one part as delivered and run it again so the list changes in front of them.</p>
     <p class="low">Notice what makes it good. It names the person, it names what they do today, and it shows something happening. "AI chatbot for customer service" is not a use case.</p>
   </div>
 </header>
@@ -123,9 +128,9 @@ function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt
 function render(){
   const q = document.getElementById("q").value.trim().toLowerCase();
   let list = ORGS.filter(o=>{
-    if (sector && o.sector !== sector) return false;
+    if (sector && o.bucket !== sector) return false;
     if (!q) return true;
-    return (o.name+" "+o.sector+" "+o.country+" "+o.what_they_do+" "+o.how_they_work).toLowerCase().includes(q);
+    return (o.name+" "+o.sector+" "+o.bucket+" "+o.country+" "+o.what_they_do+" "+o.how_they_work).toLowerCase().includes(q);
   });
   list = list.slice().sort((a,b)=>{
     if (untouchedFirst && (a.n||0)!==(b.n||0)) return (a.n||0)-(b.n||0);
@@ -151,7 +156,7 @@ function render(){
 }
 
 function chips(){
-  const secs = [...new Set(ORGS.map(o=>o.sector))].sort();
+  const secs = [...new Set(ORGS.map(o=>o.bucket))].sort();
   document.getElementById("chips").innerHTML = secs.map(s=>
     '<button class="chip" data-s="'+esc(s)+'" aria-pressed="false">'+esc(s)+'</button>').join("");
   document.querySelectorAll("#chips .chip").forEach(b=>b.onclick=()=>{
