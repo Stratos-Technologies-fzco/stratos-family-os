@@ -1,67 +1,83 @@
 # Stratos Family OS
 
-One team, one board, one question in front of every organisation on it:
+A live collaborative wall. One repo, many terminals.
 
-**What could AI actually do inside this company, and what would five minutes of it look like?**
+**Live: https://stratos-technologies-fzco.github.io/stratos-family-os/**
 
-**The page: https://stratos-technologies-fzco.github.io/stratos-family-os/**
+Forty nine real organisations, one card each, all of them empty. Your job is to fill them with
+what AI could actually do inside those companies.
 
----
+## Your job
 
-## What this is
+Pick a card. Read what the people inside that organisation do all day. Then write down every AI
+use case you can see, and for at least one of them, what five minutes on a screen would look like.
 
-Forty nine organisations are on the board. Each one has a card on the page and an issue in this
-repo. The card tells you what the company does and what the people inside it spend their days
-doing. That is all you need to start thinking.
+Not one use case. As many as you can see.
 
-Your homework is to open any card and add use cases. Not one. As many as you can see.
+## How to contribute, from your terminal
 
-## What a good answer looks like
+**You have push access. No pull request, no waiting for anyone to merge.**
+
+    git clone https://github.com/Stratos-Technologies-fzco/stratos-family-os.git
+    cd stratos-family-os
+
+Open `docs/index.html` and search for the company name. Every card sits between its markers:
+
+    <!-- ===== START zerodha ===== -->
+    ...the card...
+    <!-- ===== END zerodha ===== -->
+
+Paste your block inside that card's `<div class="cases">`. Then push straight to `main`:
+
+    git pull --rebase
+    git add -A
+    git commit -m "yourname: use cases for Zerodha"
+    git push
+
+The site rebuilds and your use case is on the wall in about a minute, with your name on it.
+
+### The block to copy
+
+```html
+<div class="case">
+  <h3>The weekly field report writes itself</h3>
+  <p><b>Today</b> a field officer visits twelve schools a week and writes the report by hand every Friday. Three hours, and most of it is the same every week.</p>
+  <p><b>With AI</b> an agent reads the visit notes and last week's report and drafts this week's. Friday becomes twenty minutes.</p>
+  <p><b>Five minutes</b> open three real visit notes, run it live, read the report out, change one note and run it again so they see it is not a template.</p>
+  <p class="by">@yourhandle</p>
+</div>
+```
+
+Keep the four lines. The last one is your GitHub name, that is how the counter knows it is yours.
+
+### If the push is rejected
+
+Somebody else pushed while you were editing. Pull their work in and push again:
+
+    git pull --rebase
+    git push
+
+If that reports a conflict, open `docs/index.html`, find the `<<<<<<<` markers, keep both people's
+cards, delete the marker lines, then `git add -A && git rebase --continue && git push`.
+
+## What makes a good one
 
 Bad: "AI chatbot for customer service."
 
-Good:
+Good names the person, says what they do today and how long it takes, then shows something moving
+on a screen. Every card has a "What they do" section that tells you what the people inside actually
+spend their days on. That is where the use case comes from, not from the industry.
 
-> **Use case: the weekly field report writes itself**
-> Field officers visit twelve schools a week and each writes a report by hand on Friday. Most
-> of it is the same every week. An agent reads their visit notes and last week's report and
-> drafts this week's, so Friday becomes twenty minutes instead of three hours.
->
-> **Five minute demo:** open a folder of three real visit notes, run the agent live, show the
-> finished report, then change one note and run it again so they see it is not a template.
-
-The difference is that the second one names the person, names what they do today, and shows
-something happening on a screen. That is what we sell.
-
-## How to take part
-
-1. Open the page and pick an organisation. Pick one nobody has touched yet if you can.
-2. Click through to its issue.
-3. Add a comment with as many use cases as you can think of. One comment can hold several.
-4. For at least one of them, write what the five minute demo would look like.
-5. If somebody has already posted, build on theirs instead of repeating it.
-
-There is no limit and no deadline on how many you add. The count on each card is public.
-
-## The shape to copy
-
-```
-**Use case:** <one line, naming the person it happens to>
-**Today:** <what that person does now, and how long it takes>
-**With AI:** <what happens instead>
-**Five minute demo:** <what you would put on a screen, step by step>
-```
+If you are guessing about how a company works, say so in the card. That is fine and useful.
 
 ## Rules
 
-- Everything here is public. Write nothing about prices, contracts, or private conversations.
-- Nothing on this board is a statement about a commercial relationship with any organisation.
-  It is a training exercise and a thinking exercise.
-- If you do not know enough about a company to be useful, go and read about it first. The card
-  has the domain.
-- Do not invent facts about an organisation. "I am guessing here" is a fine thing to write.
+- Edit inside a card only. Everything outside its markers belongs to somebody else.
+- This page is public. Never write anything about prices, contracts, or private conversations.
+- Nothing here is a client list or a claim about a commercial relationship with any organisation.
+- Do not invent facts about a company.
 
 ## Who runs it
 
-Sarfaraj manages this repo and the board. Sahariar reviews the use cases that are worth turning
-into a real demo. Sahil decides which demos get built and shown.
+Sarfaraj manages this repo. Sahariar reviews which use cases are worth turning into a real demo.
+Sahil decides which demos get built and shown.

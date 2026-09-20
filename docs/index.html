@@ -4,67 +4,69 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Stratos Family OS</title>
-<meta name="description" content="Pick an organisation. Work out what AI could do inside it. Show it in five minutes.">
+<meta name="description" content="One card per organisation. Everyone adds the AI use cases they can see, and what five minutes of it looks like.">
 <style>
-  :root{
-    color-scheme: light dark;
-    --bg:#f6f6f4; --surface:#ffffff; --ink:#15171a; --muted:#5e646e; --line:#e3e4e2;
-    --accent:#0f5f56; --accent-soft:#e6f0ee; --chip:#eceeed; --shadow:0 1px 2px rgba(0,0,0,.05);
-    --max:1180px;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#111314; --surface:#181b1d; --ink:#eceeef; --muted:#9aa1a8; --line:#272b2e;
-      --accent:#6fd1c0; --accent-soft:#16302c; --chip:#22262a; --shadow:none;
-    }
-  }
+  :root{color-scheme:light dark;
+    --bg:#f6f6f4;--surface:#fff;--ink:#15171a;--muted:#5e646e;--line:#e3e4e2;
+    --accent:#0f5f56;--soft:#e6f0ee;--chip:#eceeed;--shadow:0 1px 2px rgba(0,0,0,.05);--case:#fbfbfa}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#111314;--surface:#181b1d;--ink:#eceeef;--muted:#9aa1a8;--line:#272b2e;
+    --accent:#6fd1c0;--soft:#16302c;--chip:#22262a;--shadow:none;--case:#1e2225}}
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-       font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-       -webkit-font-smoothing:antialiased;
-       padding:0 20px env(safe-area-inset-bottom,0px)}
-  .wrap{max-width:var(--max);margin:0 auto}
-  header{padding:56px 0 30px;border-bottom:1px solid var(--line)}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:0 20px env(safe-area-inset-bottom,0px);
+    font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1180px;margin:0 auto}
+  header.top{padding:54px 0 28px}
   .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:650}
-  h1{font-size:clamp(30px,5.2vw,46px);line-height:1.1;margin:14px 0 0;letter-spacing:-.02em;font-weight:700}
-  .lede{font-size:clamp(17px,2.4vw,21px);color:var(--muted);margin:16px 0 0;max-width:62ch}
-  .lede b{color:var(--ink);font-weight:650}
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;margin:32px 0 0}
-  .step{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 20px;box-shadow:var(--shadow)}
-  .step .n{width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);
-           display:grid;place-items:center;font-size:13px;font-weight:700;margin-bottom:10px}
-  .step h3{margin:0 0 6px;font-size:15px;font-weight:650}
-  .step p{margin:0;font-size:14px;color:var(--muted)}
-  .example{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);
-           border-radius:10px;padding:18px 20px;margin:28px 0 0}
-  .example h3{margin:0 0 10px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
-  .example p{margin:0 0 8px;font-size:15px}
-  .example .lbl{font-weight:650}
-  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:36px 0 22px;position:sticky;
-            top:env(safe-area-inset-top,0px);background:var(--bg);padding:14px 0;z-index:5}
-  input[type=search]{flex:1 1 240px;min-width:0;padding:10px 14px;border-radius:9px;border:1px solid var(--line);
-         background:var(--surface);color:var(--ink);font:inherit;font-size:15px}
+  h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin:14px 0 0;letter-spacing:-.02em}
+  .lede{font-size:clamp(17px,2.3vw,20px);color:var(--muted);margin:16px 0 0;max-width:64ch}
+  .lede b{color:var(--ink)}
+  .stats{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0 0}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;box-shadow:var(--shadow);min-width:130px}
+  .stat .big{font-size:26px;font-weight:700;letter-spacing:-.02em;display:block;line-height:1.1}
+  .stat .lbl{font-size:12.5px;color:var(--muted)}
+  details.how{margin:26px 0 0;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 18px;box-shadow:var(--shadow)}
+  details.how>summary{cursor:pointer;padding:16px 0;font-weight:650;font-size:15px;list-style:none}
+  details.how>summary::-webkit-details-marker{display:none}
+  details.how>summary::before{content:"+ ";color:var(--accent);font-weight:700}
+  details.how[open]>summary::before{content:"– "}
+  details.how .body{padding:0 0 18px;font-size:15px;color:var(--muted)}
+  details.how .body b{color:var(--ink)}
+  details.how ol{padding-left:20px;margin:10px 0}
+  details.how li{margin:7px 0}
+  pre{background:var(--case);border:1px solid var(--line);border-radius:9px;padding:14px;overflow-x:auto;
+      font:12.5px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink)}
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:30px 0 16px;position:sticky;
+    top:env(safe-area-inset-top,0px);background:var(--bg);padding:14px 0;z-index:5;border-bottom:1px solid var(--line)}
+  input[type=search]{flex:1 1 230px;min-width:0;padding:10px 14px;border-radius:9px;border:1px solid var(--line);
+    background:var(--surface);color:var(--ink);font:inherit;font-size:15px}
   .chip{border:1px solid var(--line);background:var(--chip);color:var(--muted);border-radius:99px;
-        padding:7px 14px;font-size:13px;cursor:pointer;white-space:nowrap}
+    padding:7px 13px;font-size:13px;cursor:pointer;white-space:nowrap}
   .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
-  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0c1a18}}
-  .count{color:var(--muted);font-size:14px;margin:0 0 16px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;padding-bottom:64px}
-  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;
-        display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);transition:transform .12s ease,border-color .12s ease}
-  .card:hover{transform:translateY(-2px);border-color:var(--accent)}
-  .card h2{margin:0;font-size:18px;font-weight:680;letter-spacing:-.01em}
-  .meta{font-size:12.5px;color:var(--accent);font-weight:600;letter-spacing:.02em}
-  .what{margin:0;font-size:14.5px;color:var(--ink)}
-  .how{margin:0;font-size:14px;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
-  .how b{color:var(--ink);font-weight:640}
-  .foot{margin-top:auto;padding-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .badge{font-size:12.5px;color:var(--muted);background:var(--chip);border-radius:99px;padding:5px 11px;white-space:nowrap}
-  .badge.hot{background:var(--accent-soft);color:var(--accent);font-weight:650}
-  .go{font-size:14px;font-weight:650;color:var(--accent);text-decoration:none;white-space:nowrap}
-  .go:hover{text-decoration:underline}
-  .low{font-size:11.5px;color:var(--muted);opacity:.8}
-  footer{border-top:1px solid var(--line);padding:26px 0 60px;color:var(--muted);font-size:13.5px}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip[aria-pressed="true"]{color:#0c1a18}}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px;padding:8px 0 70px;align-items:start}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;box-shadow:var(--shadow)}
+  .card.filled{border-color:var(--accent)}
+  .ch h2{margin:0;font-size:18px;font-weight:680;letter-spacing:-.01em}
+  .meta{font-size:12.5px;color:var(--accent);font-weight:600;margin:4px 0 0}
+  .n{float:right;font-size:12px;color:var(--muted);background:var(--chip);border-radius:99px;padding:4px 10px;margin-left:8px}
+  .card.filled .n{background:var(--soft);color:var(--accent);font-weight:650}
+  details.about{margin:12px 0 0}
+  details.about>summary{cursor:pointer;font-size:13px;color:var(--muted);list-style:none}
+  details.about>summary::-webkit-details-marker{display:none}
+  details.about>summary::before{content:"▸ ";color:var(--accent)}
+  details.about[open]>summary::before{content:"▾ "}
+  details.about p{font-size:13.5px;color:var(--muted);margin:9px 0 0}
+  details.about p b{color:var(--ink)}
+  .cases{margin:12px 0 0;display:flex;flex-direction:column;gap:10px}
+  .cases:empty{display:none}
+  .case{background:var(--case);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:9px;padding:12px 14px}
+  .case h3{margin:0 0 7px;font-size:14.5px;font-weight:670;line-height:1.35}
+  .case p{margin:0 0 5px;font-size:13.5px;color:var(--muted)}
+  .case p b{color:var(--ink);font-weight:640}
+  .case .by{font-size:12px;color:var(--accent);font-weight:650;margin-top:7px}
+  .empty{font-size:13px;color:var(--muted);font-style:italic;margin:12px 0 0;opacity:.75}
+  footer{border-top:1px solid var(--line);padding:24px 0 60px;color:var(--muted);font-size:13.5px}
   footer a{color:var(--accent)}
   [hidden]{display:none!important}
 </style>
@@ -72,117 +74,858 @@
 <body>
 <div class="wrap">
 
-<header>
+<header class="top">
   <div class="eyebrow">Stratos Family OS</div>
-  <h1>Pick an organisation. Work out what AI could really do inside it. Show it in five minutes.</h1>
-  <p class="lede">Every card below is a real organisation. Your job is to read what the people inside
-  it actually do all day, and then write down as many AI use cases as you can see. <b>Not one. As many
-  as you can.</b> For at least one of them, say what five minutes on a screen would look like.</p>
+  <h1>Every card is empty. Fill them with what AI could actually do inside these companies.</h1>
+  <p class="lede">Forty nine real organisations, one card each. Pick one, work out what the people
+  inside it could stop doing by hand, and write it on the card. <b>Not one use case. As many as you
+  can see.</b> For at least one of them, say what five minutes on a screen would look like.</p>
 
-  <div class="steps">
-    <div class="step"><div class="n">1</div><h3>Pick a card</h3><p>Start with one nobody has touched. The count on each card tells you.</p></div>
-    <div class="step"><div class="n">2</div><h3>Read how they work</h3><p>The use case comes from the daily job, not from the industry.</p></div>
-    <div class="step"><div class="n">3</div><h3>Write it up</h3><p>Open the issue and add your use cases as a comment. Build on what is there.</p></div>
-    <div class="step"><div class="n">4</div><h3>Design the demo</h3><p>Five minutes. Something moving on a screen. Not slides.</p></div>
+  <div class="stats">
+    <div class="stat"><span class="big" id="s-cases">0</span><span class="lbl">use cases on the wall</span></div>
+    <div class="stat"><span class="big" id="s-people">0</span><span class="lbl">people who have added one</span></div>
+    <div class="stat"><span class="big" id="s-empty">49</span><span class="lbl">cards still empty</span></div>
   </div>
 
-  <div class="example">
-    <h3>What a good one looks like</h3>
-    <p><span class="lbl">Use case:</span> the weekly field report writes itself.</p>
-    <p><span class="lbl">Today:</span> a field officer visits twelve schools a week and writes the report by hand every Friday. Most of it is the same every week and it takes three hours.</p>
-    <p><span class="lbl">With AI:</span> an agent reads the visit notes and last week's report, and drafts this week's. Friday becomes twenty minutes.</p>
-    <p><span class="lbl">Five minute demo:</span> open a folder with three real visit notes, run the agent live, show the finished report, then change one note and run it again so they can see it is not a template.</p>
-    <p class="low" style="margin-top:14px">A second one, so you do not just copy the first.</p>
-    <p><span class="lbl">Use case:</span> the buyer stops guessing which component is about to run out.</p>
-    <p><span class="lbl">Today:</span> a planner on a contract manufacturing line tracks hundreds of component line items per order across three spreadsheets and finds out something is short when the line stops.</p>
-    <p><span class="lbl">With AI:</span> an agent reads the open orders and the stock sheet every morning and writes one short list: what will run out, when, and which order it stops.</p>
-    <p><span class="lbl">Five minute demo:</span> show today's real spreadsheets, run it, read the list out loud, then mark one part as delivered and run it again so the list changes in front of them.</p>
-    <p class="low">Notice what makes it good. It names the person, it names what they do today, and it shows something happening. "AI chatbot for customer service" is not a use case.</p>
-  </div>
+  <details class="how">
+    <summary>How to add yours, from your terminal</summary>
+    <div class="body">
+      <p><b>You have push access. No pull request, no waiting for anyone.</b></p>
+      <ol>
+        <li>Clone it: <code>git clone https://github.com/Stratos-Technologies-fzco/stratos-family-os.git</code></li>
+        <li>Open <code>docs/index.html</code> and search for the company name. Every card sits between
+            <code>&lt;!-- ===== START name ===== --&gt;</code> and <code>&lt;!-- ===== END name ===== --&gt;</code>.</li>
+        <li>Paste the block below inside that card's <code>&lt;div class="cases"&gt;</code>. Add as many as you like.</li>
+        <li><code>git pull --rebase</code>, then <code>git add -A</code>, <code>git commit -m "yourname: use cases for X"</code>, <code>git push</code>.</li>
+      </ol>
+      <p>The page rebuilds in about a minute and your use case is on the wall with your name on it.
+      Edit inside a card only. Everything outside belongs to somebody else.</p>
+      <p><b>The block to copy.</b> Keep the four lines. The last one is your GitHub name.</p>
+      <pre>&lt;div class="case"&gt;
+  &lt;h3&gt;The weekly field report writes itself&lt;/h3&gt;
+  &lt;p&gt;&lt;b&gt;Today&lt;/b&gt; a field officer visits twelve schools a week and writes the report by hand every Friday. Three hours, and most of it is the same every week.&lt;/p&gt;
+  &lt;p&gt;&lt;b&gt;With AI&lt;/b&gt; an agent reads the visit notes and last week's report and drafts this week's. Friday becomes twenty minutes.&lt;/p&gt;
+  &lt;p&gt;&lt;b&gt;Five minutes&lt;/b&gt; open three real visit notes, run it live, read the report out, change one note and run it again so they see it is not a template.&lt;/p&gt;
+  &lt;p class="by"&gt;@yourhandle&lt;/p&gt;
+&lt;/div&gt;</pre>
+      <p><b>What makes one good.</b> Name the person it happens to. Say what they do today and how
+      long it takes. Then show something moving on a screen. "AI chatbot for customer service" is
+      not a use case. If you are guessing about how a company works, say so in the card.</p>
+      <p>Never write anything about prices, contracts or private conversations here. This page is public.</p>
+    </div>
+  </details>
 </header>
 
 <div class="controls">
-  <input type="search" id="q" placeholder="Search an organisation, a sector, a country" aria-label="Search">
-  <button class="chip" id="untouched" aria-pressed="false">Show untouched first</button>
+  <input type="search" id="q" placeholder="Search a company, a sector, a country" aria-label="Search">
+  <button class="chip" id="emptyfirst" aria-pressed="true">Empty cards first</button>
   <span id="chips"></span>
 </div>
 
-<p class="count" id="count"></p>
-<div class="grid" id="grid"></div>
+<div class="grid" id="grid">
+
+<!-- ===== START advaith-foundation ===== -->
+<article class="card" data-name="Advaith Foundation" data-bucket="Nonprofit and social impact">
+  <div class="ch"><span class="n"></span><h2>Advaith Foundation</h2>
+  <p class="meta">Education nonprofit · Bangalore, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>A charitable trust set up in 2004 that pays for the entire schooling, food and housing of children from very poor families in and around Bangalore, free to the family. Its Ankur programme puts those children into small residential homes and sends them to The Samhita Academy, a CBSE school off Bannerghatta Road, where they sit in the same classrooms as children whose parents pay fees; the money comes from donors and company CSR budgets, not from the children.</p>
+    <p><b>Inside, day to day.</b> Teachers plan and mark lessons and run after-school tuition, house parents and wardens live with the children and track each one&#x27;s attendance, health, marks and behaviour largely on paper, and a small office team writes the donor and CSR reports, keeps the trust&#x27;s compliance filings in order, and handles the visits and paperwork that come with taking in a child.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END advaith-foundation ===== -->
+
+<!-- ===== START adysphere ===== -->
+<article class="card" data-name="AdySphere" data-bucket="Technology and software">
+  <div class="ch"><span class="n"></span><h2>AdySphere</h2>
+  <p class="meta">Enterprise systems, automation · United Kingdom and UAE</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>A small consulting firm, founded by Adyasha Mallick, that builds the internal systems a company runs on: management dashboards and reporting, ERP and CRM setups, and automation that carries data between departments so nobody has to retype it. Its customers are mid-sized and larger companies in the UK and the Gulf that already own a lot of software and want it mapped, joined up and made to run without manual handoffs.</p>
+    <p><b>Inside, day to day.</b> Consultants sit with a client&#x27;s finance, operations or sales team to work out how the work actually flows today and draw it out, and then engineers build the dashboards, data pipelines and integrations that replace the spreadsheets, so the days go on discovery interviews, process diagrams, and writing and testing integration code against somebody else&#x27;s systems.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END adysphere ===== -->
+
+<!-- ===== START al-ain-university ===== -->
+<article class="card" data-name="Al Ain University" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Al Ain University</h2>
+  <p class="meta">Private university · Al Ain and Abu Dhabi, UAE</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>A private university with two campuses in the UAE, teaching roughly 5,000 students from more than twenty nationalities across eight colleges: engineering, pharmacy, law, education and humanities, business, communication and media, dentistry, and nursing. It sells degrees from bachelor&#x27;s through doctorate, and its customers are students and the families who pay the tuition.</p>
+    <p><b>Inside, day to day.</b> Around 370 faculty and staff spend their days lecturing, setting and grading coursework and exams, supervising masters and PhD students through their research and thesis writing, publishing their own papers, and producing the accreditation and quality-assurance evidence that UAE regulators demand of a licensed university every year.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END al-ain-university ===== -->
+
+<!-- ===== START altinad-partners ===== -->
+<article class="card" data-name="Altinad Partners" data-bucket="Finance and capital">
+  <div class="ch"><span class="n"></span><h2>Altinad Partners</h2>
+  <p class="meta">Capital advisory, finance · New York and Dubai</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>A small advisory firm that stands between people who need money and people who have it. It gets fund managers and company founders ready to raise capital, brings deals to family offices and institutional investors, and sets up the legal vehicles (SPVs, syndicates, co-investments) that let several investors go into one deal together, charging retainers and fees rather than selling a product.</p>
+    <p><b>Inside, day to day.</b> A handful of partners and associates spend their days on calls with fund managers and family offices, reading decks and financial models to judge which deals are worth passing on, writing investment memos and assembling data rooms, and keeping track of which investor has seen which opportunity and what they said back.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END altinad-partners ===== -->
+
+<!-- ===== START bharat-sikka-studio ===== -->
+<article class="card" data-name="Bharat Sikka Studio" data-bucket="Media and creative">
+  <div class="ch"><span class="n"></span><h2>Bharat Sikka Studio</h2>
+  <p class="meta">Photography, film studio · New Delhi, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>A studio built around one photographer, Bharat Sikka, who makes fine-art photography shown in galleries and published as books, and who also directs and shoots advertising campaigns. He has two sets of customers: galleries, publishers and collectors on the art side, and brand and agency marketing teams on the commercial side, who have included Spotify, IndiGo, BMW, Royal Enfield and Tinder.</p>
+    <p><b>Inside, day to day.</b> A tiny core team hires freelance crews job by job, so the days split between preparing shoots (locations, permits, casting, crew, kit), shooting, and then long stretches of selecting and retouching images, sending selects back and forth with clients and galleries, and keeping twenty-five years of archive, captions and image licensing straight; he also publishes a photography magazine, Neither, with its own submissions, editing and printing to run.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END bharat-sikka-studio ===== -->
+
+<!-- ===== START cognitive-prism ===== -->
+<article class="card" data-name="Cognitive Prism" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Cognitive Prism</h2>
+  <p class="meta">Behavioural science lab · Bengaluru, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Cognitive Prism Consulting Pvt Ltd says it measures how a person thinks, learns and makes decisions, turns those measurements into a written profile, and then gives advice and ongoing coaching off the back of it. It works in three areas, schools and universities, sport, and social programmes, so the buyers are institutions and teams wanting profiles of their students or athletes rather than individuals buying a test. Note: this is the Bengaluru company at cognitiveprism.in; several unrelated outfits use the name Prism, and the match has not been fully confirmed.</p>
+    <p><b>Inside, day to day.</b> A team of roughly 11 to 50 people, still hiring research, sales and marketing roles, runs assessments on students and athletes, with analysts turning raw scores into a readable written profile for each person, counsellors and psychologists taking those profiles into one-to-one sessions, and a business-development side building a pipeline of schools and sports bodies by hand.</p><p class="empty">We are not certain we have the right organisation here. Check before you write.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END cognitive-prism ===== -->
+
+<!-- ===== START colab-global ===== -->
+<article class="card" data-name="CoLab Global" data-bucket="Nonprofit and social impact">
+  <div class="ch"><span class="n"></span><h2>CoLab Global</h2>
+  <p class="meta">Social-impact consulting · Bengaluru, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>A consulting firm, founded and led by Rucha Pande, that works for nonprofits, foundations and government-facing education programmes in India. It is hired to answer whether a programme is really working and how to make it bigger: running research studies and needs assessments, designing the programme and its measurement framework, co-running small pilots, and then building the toolkits and open-source platforms that let the programme be copied by somebody else.</p>
+    <p><b>Inside, day to day.</b> Consultants spend their days in the field and on video calls interviewing teachers, head teachers, field staff and programme leads, then come back and turn hours of notes and survey data into theory-of-change diagrams, evaluation reports and decks for the funder, so writing, rewriting and formatting long documents is most of the actual job.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END colab-global ===== -->
+
+<!-- ===== START curio-lifestyle ===== -->
+<article class="card" data-name="Curio Lifestyle" data-bucket="Consumer and retail">
+  <div class="ch"><span class="n"></span><h2>Curio Lifestyle</h2>
+  <p class="meta">Organic food brand · Jammu, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Curio Lifestyle buys honey, ghee, cold-pressed oils, nuts, spices and tea from small farmers in Himalayan villages, packs them under its own label, and sells them online and in bulk. Shoppers buy directly from its Shopify website and from Amazon, and shops, grocers and wellness brands buy the same products wholesale.</p>
+    <p><b>Inside, day to day.</b> It is a very small founder-run operation: the same handful of people arrange buying from farmers and self-help groups, get the goods bottled and labelled, then spend their days running the Shopify store, answering customer messages, keeping the Amazon and IndiaMART listings current, packing and tracking courier shipments, and chasing the supermarket and wholesale buyers who owe them money.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END curio-lifestyle ===== -->
+
+<!-- ===== START delta ===== -->
+<article class="card" data-name="Delta" data-bucket="Nonprofit and social impact">
+  <div class="ch"><span class="n"></span><h2>Delta</h2>
+  <p class="meta">Livelihoods incubator, nonprofit · Delhi, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Delta (written &quot;the^delta&quot;) helps small Indian nonprofits and social enterprises that are trying to create jobs and income for poor people — farm workers, women in informal work, young people looking for their first job. It runs open competitions to find promising ideas, then takes the best of them through an incubator and an accelerator, giving them money, advice and introductions; philanthropic funders and companies pay for the programmes.</p>
+    <p><b>Inside, day to day.</b> The staff are programme people rather than field workers: they read piles of applications from small organisations, run selection panels, sit in coaching and review calls with founders, collect numbers back from every organisation in the cohort, and write the progress reports the funders expect.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END delta ===== -->
+
+<!-- ===== START drishtee-quiver-catalyst ===== -->
+<article class="card" data-name="Drishtee / Quiver Catalyst" data-bucket="Nonprofit and social impact">
+  <div class="ch"><span class="n"></span><h2>Drishtee / Quiver Catalyst</h2>
+  <p class="meta">Rural livelihoods, India · Noida, India (works across Bihar, Uttar Pradesh, Assam, Chhattisgarh, Karnataka)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Drishtee sets up small businesses inside villages — training centres, banking kiosks, women&#x27;s production groups making food, textiles and handicrafts — and connects what those villages make to buyers in the cities. Quiver Catalyst is the money side of the same family: it puts investment and loans into rural enterprises that are ready to grow, and runs training with them.</p>
+    <p><b>Inside, day to day.</b> Most of the real work happens in villages: field staff hold community meetings, recruit and hand-hold village entrepreneurs, run training camps, staff banking kiosks with micro-ATMs, collect goods made by women&#x27;s groups and move them to urban buyers, and then fill in attendance, sales and beneficiary records on paper and phone forms that head office has to add up.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END drishtee-quiver-catalyst ===== -->
+
+<!-- ===== START gritworks-ai ===== -->
+<article class="card" data-name="GritWorks.ai" data-bucket="Technology and software">
+  <div class="ch"><span class="n"></span><h2>GritWorks.ai</h2>
+  <p class="meta">AI data privacy software · Bengaluru, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>GritWorks sells software that strips personal details out of a company&#x27;s documents, images and audio recordings, and separately generates realistic fake documents and records that never belonged to a real person. Banks, insurers, hospitals and law firms buy it so their teams can build and test AI systems without passing real customer files around.</p>
+    <p><b>Inside, day to day.</b> A small engineering team builds and tunes the models that spot sensitive information, makes the software run inside each customer&#x27;s own systems rather than on GritWorks servers, and produces the audit trails a compliance officer will later inspect, while the founders spend their days in front of security, privacy and AI teams at large regulated companies. The same company earlier built conversational AI for collecting customer feedback, so both threads may show up in what you read about them.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END gritworks-ai ===== -->
+
+<!-- ===== START groupe-eram-gbo-asia ===== -->
+<article class="card" data-name="Groupe Eram (GBO Asia)" data-bucket="Consumer and retail">
+  <div class="ch"><span class="n"></span><h2>Groupe Eram (GBO Asia)</h2>
+  <p class="meta">Apparel footwear sourcing · Dongguan and Shanghai (China), Hong Kong, Dhaka (Bangladesh); parent group in France</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Groupe Eram is a French family company that has been making and selling shoes and clothes since 1927 and owns about ten retail brands. GBO is its buying office in Asia: it finds the factories, develops the products with them and manages the suppliers who actually manufacture the footwear and clothing those brands sell in Europe.</p>
+    <p><b>Inside, day to day.</b> The day is merchandising and quality control across four offices: staff chase factories for samples, prices and delivery dates, walk inspection lines checking stitching, materials and sizing, keep order and shipment trackers up to date, and email back and forth across time zones between factories in China and Bangladesh and brand teams in France.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END groupe-eram-gbo-asia ===== -->
+
+<!-- ===== START hello-chef ===== -->
+<article class="card" data-name="Hello Chef" data-bucket="Consumer and retail">
+  <div class="ch"><span class="n"></span><h2>Hello Chef</h2>
+  <p class="meta">Meal-kit subscription · Dubai, UAE</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Hello Chef sells a weekly subscription box of pre-measured ingredients and printed recipe cards to households across the UAE. You choose your recipes on their website each week, a chilled box arrives at your door, and you cook the meals yourself at home.</p>
+    <p><b>Inside, day to day.</b> Chefs write around forty new recipes every week and the whole company works backwards from that: buyers order the exact quantity of each ingredient, a kitchen and warehouse team butchers meat in-house, weighs out every portion and packs the boxes, drivers run chilled delivery routes on fixed days, and a customer service team handles recipe swaps, skipped weeks, missing items and refunds.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END hello-chef ===== -->
+
+<!-- ===== START hippocampos ===== -->
+<article class="card" data-name="Hippocampos" data-bucket="Technology and software">
+  <div class="ch"><span class="n"></span><h2>Hippocampos</h2>
+  <p class="meta">AI memory software</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Hippocampos (written &quot;hippocampOS&quot;) sells a low-cost monthly subscription that connects to your email, notes, meeting records and files and turns them into a private, searchable memory. You give each memory a name — a work brain, a personal brain, a client brain — and then call it up inside Claude or ChatGPT so the AI already knows your context instead of you re-explaining it every time.</p>
+    <p><b>Inside, day to day.</b> Judging only from the product, this is a small software team: they build and maintain the connectors that pull in Gmail, Notion, meeting notes and files, run the nightly syncing and the search that pulls the right slice of a person&#x27;s history into a chat, and support paying subscribers. We could not establish who runs the company, where it is based, or how many people work there — the website names no founder, city or company details, so treat everything except the product itself as unknown.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END hippocampos ===== -->
+
+<!-- ===== START ibpg ===== -->
+<article class="card" data-name="IBPG" data-bucket="Professional services">
+  <div class="ch"><span class="n"></span><h2>IBPG</h2>
+  <p class="meta">Business chamber, UAE · Abu Dhabi, UAE</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>IBPG is a membership association in Abu Dhabi, set up in 1991, for Indian business owners and professionals working in the UAE. Members pay a subscription and in return get networking events, a member directory, introductions, and information on tenders and on doing business between India and the UAE; it is one of the business groups registered under the Abu Dhabi Chamber of Commerce.</p>
+    <p><b>Inside, day to day.</b> It is run by an elected volunteer committee of members who all have full-time jobs elsewhere, backed by a very small secretariat, so the actual daily work is organising events, chasing speakers and sponsors, keeping the membership list and renewals current, answering member enquiries by phone and email, and maintaining the website and directory.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END ibpg ===== -->
+
+<!-- ===== START indic-ems ===== -->
+<article class="card" data-name="Indic EMS" data-bucket="Manufacturing and deep tech">
+  <div class="ch"><span class="n"></span><h2>Indic EMS</h2>
+  <p class="meta">Electronics contract manufacturing · Bengaluru, India (second plant in Barcelona, Spain)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Indic EMS builds electronic circuit boards and finished electronic products for other companies: the customer designs the product, Indic buys the components and manufactures, assembles and tests it. Its buyers are automotive, telecom, medical, industrial, IoT and renewable-energy companies in India and abroad, and most of what it makes is exported.</p>
+    <p><b>Inside, day to day.</b> Production operators, around 80 percent of them women, spend the day on surface-mount assembly lines placing and soldering components onto boards; engineers write test programs, quality staff inspect boards for defects, and planners and buyers juggle hundreds of component line items per order across many suppliers, largely on spreadsheets and email because every customer order is a different small batch rather than one long repeat run.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END indic-ems ===== -->
+
+<!-- ===== START involve-learning-solutions ===== -->
+<article class="card" data-name="Involve Learning Solutions" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Involve Learning Solutions</h2>
+  <p class="meta">Education nonprofit · Bangalore, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Involve trains older children in Indian government schools to teach younger ones, so a student in grade 6 or 7 runs regular learning sessions for children in grades 3 to 5. It is a nonprofit paid for by donors and foundations; its customers are really state education departments and government schools that agree to let the programme run in their classrooms.</p>
+    <p><b>Inside, day to day.</b> Field staff spend their days inside government schools and district offices, training teachers to run peer-learning sessions, coaching the student peer-teachers, and filling in observation forms and attendance and assessment sheets, which a small central team in Bangalore then has to chase, clean and turn into reports for governments and funders.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END involve-learning-solutions ===== -->
+
+<!-- ===== START iron-lady-foundation ===== -->
+<article class="card" data-name="Iron Lady Foundation" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Iron Lady Foundation</h2>
+  <p class="meta">Community nonprofit · Palo Alto, USA, with its fieldwork in Udaipur, Rajasthan, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Iron Lady Foundation is a small private nonprofit started in 2023 by Rashi Mehta that funds and runs projects for women and children in poor parts of Rajasthan, India. It pays for school scholarships, school toilets and clean water, sewing equipment so women can earn an income, and free medical days; it sells nothing and is funded by the founder and donations. (Note: it is a different organisation from the Bengaluru women&#x27;s-leadership training company also called Iron Lady.)</p>
+    <p><b>Inside, day to day.</b> No staff beyond the founder appears anywhere public, so the work runs founder-first: pick one school or one village project at a time, arrange the vendors and local volunteers over WhatsApp and email, run the camp or the class, then photograph it, write it up and report it back to donors, which means a large share of the effort is coordination and storytelling about each individual project.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END iron-lady-foundation ===== -->
+
+<!-- ===== START jis ===== -->
+<article class="card" data-name="JIS" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>JIS</h2>
+  <p class="meta">Not established · India (city not established)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Not established. What is actually on record is that JIS is an organisation in India that has its own in-house content and marketing team of digital marketers and graphic designers, and its own student body; it reached us through an intermediary and all correspondence has run through his personal email, so its registered name, website and sector have never been confirmed.</p>
+    <p><b>Inside, day to day.</b> The only part that can be described honestly is the team that was met: digital marketers and graphic designers who take a brief and produce creatives, campaign copy, social posts and a weekly performance report, plus a student group large enough to fill a forty-person workshop. Anyone writing use cases for JIS should treat the organisation itself as unknown until someone confirms the legal name and website.</p><p class="empty">We are not certain we have the right organisation here. Check before you write.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END jis ===== -->
+
+<!-- ===== START kayali ===== -->
+<article class="card" data-name="Kayali" data-bucket="Consumer and retail">
+  <div class="ch"><span class="n"></span><h2>Kayali</h2>
+  <p class="meta">Luxury fragrance brand · Dubai, UAE (offices also in London and New York)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Kayali makes and sells perfume under its own name, founded in Dubai in 2018 by Mona Kattan and known for sweet, dessert-like scents. It sells through big retailers including Sephora, Boots, Selfridges and Harrods as well as its own website, so its buyers are both retail chains that stock it and individual shoppers who wear it.</p>
+    <p><b>Inside, day to day.</b> It is a lean team of roughly 180 people where most of the day goes into brand and social content, shooting, writing and scheduling campaigns for a brand built on social media, alongside retail account managers handling Sephora and Boots orders, supply-chain planners forecasting stock for well over a thousand store doors, and finance and operations staff running an ERP and an online store that were stood up in a hurry after the company was separated out of Huda Beauty.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END kayali ===== -->
+
+<!-- ===== START lals-group ===== -->
+<article class="card" data-name="Lals Group" data-bucket="Consumer and retail">
+  <div class="ch"><span class="n"></span><h2>Lals Group</h2>
+  <p class="meta">Retail conglomerate · Dubai, UAE</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Lals Group is a family-owned retail company in Dubai, started in 1979, that runs more than 190 shops across the Gulf, some its own brands such as Homes r Us and some franchises of foreign brands such as Daiso, Carter&#x27;s and US Polo Assn. It also owns two shopping malls, Lamcy Plaza and Arabian Centre, and the distribution and logistics operation that supplies its stores.</p>
+    <p><b>Inside, day to day.</b> Several thousand people work mostly on shop floors across six countries selling and restocking, while at head office buyers and merchandisers decide what each brand orders and at what price, mall teams chase tenants and leases, warehouse teams move goods out to stores, and an HR function recruits at very high volume all year just to keep 190-plus outlets staffed.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END lals-group ===== -->
+
+<!-- ===== START makerghat ===== -->
+<article class="card" data-name="MakerGhat" data-bucket="Nonprofit and social impact">
+  <div class="ch"><span class="n"></span><h2>MakerGhat</h2>
+  <p class="meta">Education nonprofit, India · India (Mumbai, works across Maharashtra, Karnataka, Andhra Pradesh, Tamil Nadu)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>MakerGhat is an Indian non-profit that builds cheap workshop rooms, called makerspaces, inside government schools and community centres, and trains the teachers there to run hands on building projects with students roughly aged 12 to 18. Nobody pays a fee for this: the money comes from grants and donations, so in practice its two customers are the funders who pay for the work and the state education departments that let it into their schools.</p>
+    <p><b>Inside, day to day.</b> Staff spend their days training teachers in batches, travelling out to hundreds of school sites to check the makerspaces are actually being used, collecting weekly assessment data by hand from each site, and then turning that pile of paper and spreadsheets into progress reports for the funders who paid for it.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END makerghat ===== -->
+
+<!-- ===== START mantra4change ===== -->
+<article class="card" data-name="Mantra4Change" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Mantra4Change</h2>
+  <p class="meta">Education nonprofit, India · India (Bengaluru, operating in about eight states)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Mantra4Change is an Indian non-profit that works with state and district governments to improve government schools, but it does not teach children. It trains the adults in the system instead: head teachers, classroom teachers, and government education officers, paid for by philanthropic funders and company social responsibility budgets rather than by the schools.</p>
+    <p><b>Inside, day to day.</b> Roughly 150 to 175 people, most of them field staff scattered across eight states, spend their days driving to schools and district education offices, running teacher discussion groups and workshops, writing up visit notes and school progress data, while a head office research and design team turns all of that into programme designs and reports back to funders.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END mantra4change ===== -->
+
+<!-- ===== START mashmupa-international-media ===== -->
+<article class="card" data-name="Mashmupa International Media" data-bucket="Media and creative">
+  <div class="ch"><span class="n"></span><h2>Mashmupa International Media</h2>
+  <p class="meta">Photo and video production · United Arab Emirates (Dubai Studio City)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Mashmupa International Media is a Dubai photography and video production company that trades publicly under the Vikram Kacher Photography name. Brands, hotels, car companies, sports events and private clients hire it to shoot stills and video, including corporate portraits, product and car shoots, events, drone and aerial work, and fitness, and it hands back the finished edited files. Named clients on the public record include Armani, Nike, Mercedes Benz, Puma and Novotel.</p>
+    <p><b>Inside, day to day.</b> The work comes in bursts around each booking: planning and scouting a shoot, then a day or two on location or in their own Dubai Studio City studio with lights and cameras, then much longer sitting at screens throwing away thousands of frames, retouching the ones that survive, cutting video, and going back and forth with the client until a selection is approved.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END mashmupa-international-media ===== -->
+
+<!-- ===== START mckinsey ===== -->
+<article class="card" data-name="McKinsey" data-bucket="Professional services">
+  <div class="ch"><span class="n"></span><h2>McKinsey</h2>
+  <p class="meta">Management consulting · Global, headquartered in New York, with offices in most major cities</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>McKinsey is a management consulting firm that big companies and governments hire when they need help deciding what to do, for example cutting costs, entering a new market, reorganising, or fixing how something is run. It sells the time and analysis of its consultants by the project, usually for a few months at a stretch, and the client pays a fee for the advice and the recommendations.</p>
+    <p><b>Inside, day to day.</b> Consultants work in small teams of about three to six on one client at a time, spending their days interviewing that client&#x27;s executives and staff, pulling their data apart in spreadsheets, comparing them against competitors, and turning it all into slide decks presented to the client&#x27;s leadership, while the senior partners above them spend their days on client relationships and winning the next project.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END mckinsey ===== -->
+
+<!-- ===== START mcr-consulting ===== -->
+<article class="card" data-name="MCR Consulting" data-bucket="Professional services">
+  <div class="ch"><span class="n"></span><h2>MCR Consulting</h2>
+  <p class="meta">Retail advisory, small firm · United Arab Emirates (Dubai), not fully established</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>MCR Consulting is a small independent consultancy associated with Eric Macaire, who is based in Dubai and has around twenty years of background in luxury and fashion retail, specifically merchandising, buying and retail transformation. Its own website at mcrconsulting.net currently shows only a Launching Soon page, and no public record confirms its services, client list, team size or legal registration, so what it sells and to whom cannot be stated with confidence. What is visible is senior advisory work in and around fashion, luxury and retail businesses.</p>
+    <p><b>Inside, day to day.</b> Almost certainly a one person or very small operation rather than a staffed office, where the day is meetings, calls, market watching and introductions across a long standing retail network, but treat this sentence as an assumption drawn from the founder&#x27;s profile and not as an established fact.</p><p class="empty">We are not certain we have the right organisation here. Check before you write.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END mcr-consulting ===== -->
+
+<!-- ===== START motivation-for-excellence ===== -->
+<article class="card" data-name="Motivation for Excellence" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Motivation for Excellence</h2>
+  <p class="meta">Grantmaking foundation · India (Mumbai), with an affiliated US foundation in Greenwich, Connecticut</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Motivation for Excellence, whose legal name is The RG Manudhane Foundation for Excellence, is an Indian charitable foundation that gives money to other non-profits instead of running programmes itself. It funds roughly twenty to thirty partner organisations across healthcare, education and training, livelihoods, and what it calls nurturing excellence, with a stated focus on rural and tribal communities, and it was set up as a family legacy rather than as a fundraising charity.</p>
+    <p><b>Inside, day to day.</b> A small board of trustees, made up of the founding family plus people from finance and public health, several of them living in the United States and doing this alongside full time careers, spends its time reading funding proposals from non-profits, meeting the organisations it backs, and reading the progress reports those partners send back in order to decide whether to keep funding them.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END motivation-for-excellence ===== -->
+
+<!-- ===== START mychips ===== -->
+<article class="card" data-name="MyChips" data-bucket="Technology and software">
+  <div class="ch"><span class="n"></span><h2>MyChips</h2>
+  <p class="meta">Mobile advertising technology · Italy (Imola), acquired in May 2026 by Mistplay, based in Canada</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>MyChips, the product behind the maf.ad brand and originally built by an Italian company called MyAppFree, sells an offerwall. That is the screen inside a mobile game or app where a player can try other apps or watch adverts in exchange for in game rewards, and it has two sets of customers at once: game and app studios that install it to earn money from players who would never pay cash, and advertisers who pay to put their app in front of those players.</p>
+    <p><b>Inside, day to day.</b> It is an advertising business, so people there spend their days on integrations and account management: helping a game studio plug the offerwall in through a software kit or an embedded frame, negotiating and pricing advertiser campaigns, and watching dashboards of revenue per thousand impressions, fill rates and country level performance to decide which offers to show to which players.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END mychips ===== -->
+
+<!-- ===== START opticsurg-inc ===== -->
+<article class="card" data-name="OpticSurg Inc" data-bucket="Manufacturing and deep tech">
+  <div class="ch"><span class="n"></span><h2>OpticSurg Inc</h2>
+  <p class="meta">Healthcare AR software · United States (New York)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>OpticSurg makes software for smart glasses that lets a nurse or doctor standing next to a patient show exactly what they are seeing, live, to a specialist who is somewhere else entirely. Hospitals, surgery centres, urgent care clinics, nursing homes and home-care companies buy it so one expert can be useful in several places in a day without getting on a plane.</p>
+    <p><b>Inside, day to day.</b> It is a very small company (roughly 2 to 10 people) founded in 2017 by a surgeon who is also a biomedical engineer, so the days split between engineers writing the video and augmented-reality software, clinical staff testing it on real wards and grinding through the medical-device regulatory paperwork that any hospital product needs, and a couple of people running demos for hospital buyers and answering their procurement and security questionnaires.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END opticsurg-inc ===== -->
+
+<!-- ===== START oxford ===== -->
+<article class="card" data-name="Oxford" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Oxford</h2>
+  <p class="meta">University business school · United Kingdom (Oxford)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>This is almost certainly not a real organisation on this board. The domain oxford.edu is held by the University of Oxford, and the address it actually appears in (said.oxford.edu) is the mail domain of Saïd Business School, Oxford&#x27;s business school, which teaches MBA and executive courses and issues lifelong alumni email addresses to its graduates.</p>
+    <p><b>Inside, day to day.</b> Not established as a counterparty. The record exists because a person&#x27;s personal alumni email address was turned into a company record automatically, so there is no organisation here to invent a use case for. The card should be checked against the person it came from before anybody spends time on it; if you want a real Oxford use case you would be inventing one for a university (admissions, teaching, research administration), not for anyone we are talking to.</p><p class="empty">We are not certain we have the right organisation here. Check before you write.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END oxford ===== -->
+
+<!-- ===== START partners-in-prime ===== -->
+<article class="card" data-name="Partners in Prime" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Partners in Prime</h2>
+  <p class="meta">Community events, Dubai · Dubai, UAE</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>A small Dubai community run by two women who organise paid workshops and talks for parents, mostly mothers, and their teenage children, on subjects like using AI in everyday life and work. They sell tickets to each session and find their audience entirely through their Instagram page and WhatsApp groups, not through a website or advertising.</p>
+    <p><b>Inside, day to day.</b> The two founders spend their days inside WhatsApp groups and Instagram messages recruiting people one by one, booking venues, agreeing the running order with whoever is teaching the session, making the flyers and posts by hand for every single event, and chasing ticket payments, no-shows and refunds afterwards; everything lives in Gmail, Instagram and WhatsApp and nothing is automated.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END partners-in-prime ===== -->
+
+<!-- ===== START pataka-group ===== -->
+<article class="card" data-name="Pataka Group" data-bucket="Consumer and retail">
+  <div class="ch"><span class="n"></span><h2>Pataka Group</h2>
+  <p class="meta">Indian family conglomerate · Kolkata, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>A family-owned Indian group started in 1952 that manufactures everyday goods across five businesses: hand-rolled biris (a cheap Indian cigarette, where they are the country&#x27;s largest maker at roughly 110 million sticks a day across 500+ brands), packaged tea, biscuits, silk yarn and healthcare, plus a property arm. Their buyers are Indian wholesalers and small shops reached through a distribution network of more than 150,000 outlets, and for the silk arm (East End Silks, in Malda and Kolkata) textile mills in India and abroad that buy spun silk yarn and silk top sliver.</p>
+    <p><b>Inside, day to day.</b> This is a factory-and-distribution business run on spreadsheets, paper and phone calls: shop-floor supervisors tracking daily output across hundreds of biri brands and silk yarn lots, purchasing managers buying tobacco leaf, tea and raw silk at prices that move constantly and decide whether a month is profitable, quality staff logging test results by hand, and area sales officers ringing and visiting distributors every day to keep stock moving and money coming back.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END pataka-group ===== -->
+
+<!-- ===== START payrlabs ===== -->
+<article class="card" data-name="PayrLabs" data-bucket="Technology and software">
+  <div class="ch"><span class="n"></span><h2>PayrLabs</h2>
+  <p class="meta">Software services, India · Mumbai, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>PayrLabs Softwares Private Limited is a Mumbai software company that builds and runs systems for other organisations in three separate areas: payment software for banks, fintech firms and payment processors; a healthcare platform (HealthNEXAA) for handling diagnostics and coordinating a patient&#x27;s care across different providers; and an online learning product (NEXAA EDGE) that teaches job skills and career guidance to young people. Their customers are banks and payment companies, healthcare providers, and the colleges, employers and youth programmes that want people trained.</p>
+    <p><b>Inside, day to day.</b> Most of the week is engineers and project managers building, testing and babysitting software that runs inside a client bank or hospital, which means a lot of requirement documents, integration work against someone else&#x27;s old systems, and support tickets when something breaks; alongside that a smaller training side writes course material and runs batches of young learners through sessions, which involves recruiting each batch, tracking who turned up and who finished, and reporting outcomes back to whoever paid.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END payrlabs ===== -->
+
+<!-- ===== START quantum-partners ===== -->
+<article class="card" data-name="Quantum Partners" data-bucket="Finance and capital">
+  <div class="ch"><span class="n"></span><h2>Quantum Partners</h2>
+  <p class="meta">Corporate finance advisory · Dubai, UAE (DIFC)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Quantum Partners (DIFC) Limited is a small advisory firm in Dubai&#x27;s financial district that helps business owners sell a company or part of one, buy other companies, and raise money from investors or lenders. Its clients are company owners and companies rather than the public, and it is licensed and inspected by the DIFC&#x27;s financial regulator, the DFSA (reference F010044, licensed September 2024).</p>
+    <p><b>Inside, day to day.</b> A handful of senior dealmakers spend their days reading company accounts and building valuation spreadsheets, writing the long information document that describes a business for sale, working the phone and their own address book to find the right buyer or investor for each mandate, sitting in negotiation meetings, and keeping a compliance and know-your-client file on every single client because the regulator can ask to see it.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END quantum-partners ===== -->
+
+<!-- ===== START ramesh-family-office ===== -->
+<article class="card" data-name="Ramesh Family Office" data-bucket="Finance and capital">
+  <div class="ch"><span class="n"></span><h2>Ramesh Family Office</h2>
+  <p class="meta">Family office, philanthropy · Chennai, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>The private office of Ramesh Mangaleswaran, a retired senior partner of the consulting firm McKinsey &amp; Company who founded its Chennai and Bangalore offices, and his wife Meenakshi Ramesh. It looks after the family&#x27;s own money and, mainly, their giving into Indian education, skills training and disability causes; it has no outside clients and sells nothing.</p>
+    <p><b>Inside, day to day.</b> A tiny team, effectively the family plus a small amount of support: reading funding proposals and progress reports from the nonprofits they back, sitting on charity boards such as Pratham Education Foundation and Bala Mandir Kamaraj Trust and preparing for those meetings, meeting nonprofit founders to pressure-test their plans, and writing up analyses and memos about where money should go, which is essentially the same consulting work done for charities instead of corporations. Note: the domain given, therameshfamilyoffice.com, does not resolve; the working one is therameshfamily.com, a private page.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END ramesh-family-office ===== -->
+
+<!-- ===== START rostrum-education ===== -->
+<article class="card" data-name="Rostrum Education" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Rostrum Education</h2>
+  <p class="meta">University admissions consultancy · London, UK (offices in Dubai, New Delhi and Hong Kong)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Rostrum Education sells help getting into university: one-to-one admissions counselling for Ivy League, Oxbridge, boarding schools and medical or law school, plus subject tutoring for IB, A-Level, AP and IGCSE and prep for tests like the SAT, GMAT and UCAT. The customers are fee-paying families, mostly in the UAE, India, the UK and Hong Kong, who buy packages of hours with a counsellor and a tutor for a teenager applying abroad.</p>
+    <p><b>Inside, day to day.</b> Counsellors sit on video calls with a student and their parents working through the same personal essay draft after draft, tutors teach scheduled lessons across four time zones, and a coordination team keeps track of which student is applying where, which deadline is next and which tutor is free at 7pm Dubai time.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END rostrum-education ===== -->
+
+<!-- ===== START saint-gobain-nordic-and-baltic ===== -->
+<article class="card" data-name="Saint-Gobain Nordic and Baltic" data-bucket="Manufacturing and deep tech">
+  <div class="ch"><span class="n"></span><h2>Saint-Gobain Nordic and Baltic</h2>
+  <p class="meta">Building materials, manufacturing and distribution · Nordic and Baltic region (Norway, Denmark, Sweden, Finland, Poland)</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Saint-Gobain Nordic and Baltic is the regional arm of Saint-Gobain, a very large French company that manufactures building materials such as plasterboard, insulation, flat glass and plumbing products. In this region it also owns the builders&#x27; merchant chains that sell those materials, around 400 branches trading as Dahl, Brodrene Dahl, Optimera and Tadmar, so the buyers are construction firms, plumbers, installers and contractors picking up materials for a specific job.</p>
+    <p><b>Inside, day to day.</b> Roughly 14,000 people: factory shifts making insulation and board, branch staff behind trade counters serving a contractor who walks in with a materials list, warehouse and delivery crews moving stock out of six central warehouses to 400 stores, and technical advisors answering a builder&#x27;s question about which wall system to use where.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END saint-gobain-nordic-and-baltic ===== -->
+
+<!-- ===== START shikshalokam ===== -->
+<article class="card" data-name="ShikshaLokam" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>ShikshaLokam</h2>
+  <p class="meta">Education nonprofit · Bengaluru, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>ShikshaLokam is a nonprofit, funded by the Shibulal family, that tries to improve India&#x27;s government schools by supporting the people who run them rather than by running schools itself. It builds free open-source software and training programmes for head teachers and district and block education officers, and it convenes a movement called Shikshagraha aimed at reaching a million public schools; nobody pays for it, the money comes from philanthropy.</p>
+    <p><b>Inside, day to day.</b> Programme staff spend their days on workshops and mentoring calls with head teachers and district officials, a product and engineering team builds and maintains the open-source platforms those officials use to observe schools and log improvements, and a lot of hours go into writing reports, newsletters, case stories and funder updates about what changed in which district.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END shikshalokam ===== -->
+
+<!-- ===== START shiksharth ===== -->
+<article class="card" data-name="Shiksharth" data-bucket="Education">
+  <div class="ch"><span class="n"></span><h2>Shiksharth</h2>
+  <p class="meta">Education nonprofit, tribal India · Sukma, Bastar, Chhattisgarh, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Shiksharth is a small trust, started in 2015, that works on schooling for tribal children in Sukma in south Bastar, a remote district shaped by decades of armed conflict. It works alongside the district government inside existing state schools on reading and numeracy, safe spaces and locally relevant lessons, reaching a reported 480 schools and 20,000-plus children; there are no paying customers, it is funded by philanthropies such as Wipro Foundation.</p>
+    <p><b>Inside, day to day.</b> Around fifty-odd educators travel out to scattered village schools, run classroom sessions and teacher training in local tribal languages, and record attendance and reading levels largely on paper; a small product team designs the learning materials and kits, and a handful of operations people handle logistics, finances and the reports funders ask for.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END shiksharth ===== -->
+
+<!-- ===== START solinas-integrity ===== -->
+<article class="card" data-name="Solinas Integrity" data-bucket="Manufacturing and deep tech">
+  <div class="ch"><span class="n"></span><h2>Solinas Integrity</h2>
+  <p class="meta">Deep tech, water robotics · Chennai, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Solinas Integrity builds robots that go inside underground pipes and sewers so that people do not have to. It sells a camera-crawler robot for inspecting water and sewer lines, a robot for cleaning septic tanks and manholes, and a software platform that turns the footage into a condition report, and the buyers are city water boards and municipal corporations across India plus industrial customers like Suez, Veolia and vehicle plants.</p>
+    <p><b>Inside, day to day.</b> Field crews drive to a city, open a manhole, lower a robot in and spend hours driving it through pipe; back in Chennai engineers watch that footage to mark every crack, blockage and joint failure and write it up as a report for the municipality, while robotics and software engineers build the next version and a business development team writes government tender bids.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END solinas-integrity ===== -->
+
+<!-- ===== START tan90 ===== -->
+<article class="card" data-name="Tan90" data-bucket="Manufacturing and deep tech">
+  <div class="ch"><span class="n"></span><h2>Tan90</h2>
+  <p class="meta">STEAM education, schools · Bengaluru, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Tan90 (legally Plumeria Learning Solutions, trading at tan-ninety.com, and not to be confused with the separate cold-chain company Tan90 Thermal) sells hands-on science and maths learning to schools. It sets up physical lab spaces called Natkhat STEAM Labs, supplies experiment kits and a structured science-and-maths programme, trains the schools&#x27; own teachers to run them, and also sells DIY kits direct to families; the paying customers are private schools, with a reported 264 schools and 293 labs across 19 states.</p>
+    <p><b>Inside, day to day.</b> A small team of about forty: people writing lesson plans and designing experiments, trainers travelling out to schools to install a lab and run teacher workshops, and an operations team packing and shipping physical kits and keeping track of which school has which lab and what it needs restocked.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END tan90 ===== -->
+
+<!-- ===== START tier-two-capital ===== -->
+<article class="card" data-name="Tier Two Capital" data-bucket="Finance and capital">
+  <div class="ch"><span class="n"></span><h2>Tier Two Capital</h2>
+  <p class="meta">Venture studio, investment advisory · Patna, Bihar, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Tier Two Capital is a small venture studio and investment advisory firm whose stated aim is to make businesses in Bihar investable. Rather than writing cheques at scale it works hands-on with a small number of local companies to get their numbers, systems and story into a state where outside investors and micro-VC funds will back them, and it advises those investors on deals in India&#x27;s smaller cities.</p>
+    <p><b>Inside, day to day.</b> A handful of partners plus analysts and interns embed inside a few portfolio companies at a time, cleaning up messy books and monthly management reports, building financial models, writing investment memos and diligence notes, and spending a lot of hours on calls with founders and with prospective investors including the Bihari diaspora.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END tier-two-capital ===== -->
+
+<!-- ===== START tip-tales ===== -->
+<article class="card" data-name="Tip Tales" data-bucket="Media and creative">
+  <div class="ch"><span class="n"></span><h2>Tip Tales</h2>
+  <p class="meta">Animation and content studio · Singapore and Mumbai, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Tip Tales is a small studio that makes animated films, explainer videos, brand films, websites and character designs for companies and organisations that need to explain or launch something. It also owns its own children&#x27;s cartoon series, Piku N Tuki, which runs on YouTube across six languages with more than 120 episodes.</p>
+    <p><b>Inside, day to day.</b> A lean in-house core of animators, editors and designers works brief by brief, reading a client brief, drawing and animating scenes, cutting versions, sending them out for review, taking change notes, re-cutting and packaging the final files for delivery, and then re-versioning the same episode into six languages, pulling in freelance sound, production and tech specialists per project.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END tip-tales ===== -->
+
+<!-- ===== START traveazy-group ===== -->
+<article class="card" data-name="Traveazy Group" data-bucket="Consumer and retail">
+  <div class="ch"><span class="n"></span><h2>Traveazy Group</h2>
+  <p class="meta">Online travel, pilgrimage · Dubai, UAE</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Traveazy runs online travel booking platforms. Its main brand, Umrahme, sells Umrah pilgrimage trips to Makkah and Madinah with the visa, flights, hotels, transport and Haramain train tickets in one booking, and its other brand, Holidayme, sells holiday packages; the buyers are individual travellers and roughly ten thousand travel agents who resell the trips.</p>
+    <p><b>Inside, day to day.</b> Contracting staff negotiate and load hotel rooms and transport in Saudi Arabia into the system, a technology team builds and runs the booking site and app, visa and operations staff push each pilgrim&#x27;s paperwork through Saudi government systems, support agents across the Dubai, Pune, Jeddah and Cairo offices handle changes, cancellations and problems while people are mid-trip, and account managers onboard and chase the agent network.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END traveazy-group ===== -->
+
+<!-- ===== START trustin ===== -->
+<article class="card" data-name="TrustIn" data-bucket="Technology and software">
+  <div class="ch"><span class="n"></span><h2>TrustIn</h2>
+  <p class="meta">Legal tech, workplace compliance · Bengaluru, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>TrustIn sells software and services that help employers deal with workplace harassment and misconduct complaints under India&#x27;s POSH law. Companies and nonprofits buy it to write their policy, train their staff, take complaints confidentially and run each case through to a decision.</p>
+    <p><b>Inside, day to day.</b> The days go on casework and compliance paperwork: writing and updating a policy for each client, running training sessions including in Kannada, staffing a confidential reporting channel and a Telegram bot so an employee can report something without being identified, walking an employer&#x27;s internal committee step by step through the legal process of judging a complaint, and filing the reports employers are legally required to submit, while a small product team builds the case-management tool the rest of them use.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END trustin ===== -->
+
+<!-- ===== START tvarita-collective ===== -->
+<article class="card" data-name="Tvarita Collective" data-bucket="Nonprofit and social impact">
+  <div class="ch"><span class="n"></span><h2>Tvarita Collective</h2>
+  <p class="meta">Arts and culture · Bengaluru, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Tvarita finds traditional Indian folk and classical artists and puts them into paid work. It sells live performances, storytelling shows, art workshops and handmade artist products to schools, colleges, companies, festivals and households, and pays the artists out of what it earns.</p>
+    <p><b>Inside, day to day.</b> Two co-founders and a small team spend their days tracking down and verifying artists across dozens of regional art forms, matching the right troupe to an enquiry from a school or a company, quoting and scheduling the event, arranging travel and logistics for performers coming in from villages, documenting each artist&#x27;s story and tradition in writing and video, and then running the event on the day.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END tvarita-collective ===== -->
+
+<!-- ===== START vidhya-vidhai ===== -->
+<article class="card" data-name="Vidhya Vidhai" data-bucket="Nonprofit and social impact">
+  <div class="ch"><span class="n"></span><h2>Vidhya Vidhai</h2>
+  <p class="meta">Education nonprofit · Chennai, Tamil Nadu, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Vidhya Vidhai is a nonprofit that trains head teachers and teachers in government and low-income schools across Tamil Nadu and Puducherry to run their schools better. The schools do not pay: funders such as Wipro Foundation pay for the programmes, and one idea they built, a student house system called Magizh Mutram, was picked up by the Tamil Nadu education department and rolled out across government schools.</p>
+    <p><b>Inside, day to day.</b> Around twenty-five to forty staff, split into district field teams (Coimbatore, Nagapattinam, Tirunelveli, Cuddalore, Sivagangai) and central teams for programme design, research, people and culture, growth and communications, spend their days travelling out to schools, running leadership workshops with head teachers, writing up visit notes and filling trackers and reports afterwards, and gathering data across hundreds of schools to show funders what actually changed.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END vidhya-vidhai ===== -->
+
+<!-- ===== START zerodha ===== -->
+<article class="card" data-name="Zerodha" data-bucket="Finance and capital">
+  <div class="ch"><span class="n"></span><h2>Zerodha</h2>
+  <p class="meta">Retail stockbroking, fintech · Bengaluru, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Zerodha is India&#x27;s largest stockbroker. Ordinary people open an account and buy and sell shares, mutual funds and derivatives through its apps, Kite for trading, Coin for mutual funds and Console for statements, and Zerodha charges a flat fee of up to twenty rupees per order, with nothing charged on ordinary share purchases.</p>
+    <p><b>Inside, day to day.</b> It serves more than ten million customers with only about a thousand staff and no sales team, no advertising and no sales targets, so most of the work is support and back office: answering an enormous daily volume of customer tickets and phone calls, checking identity documents to open new accounts, and doing the daily regulatory filings the exchanges and the regulator demand, alongside a famously small in-house engineering team (reported at around thirty-six people) that builds the trading platforms and a team that writes free investor-education material called Varsity.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END zerodha ===== -->
+
+<!-- ===== START zuva-life ===== -->
+<article class="card" data-name="Zuva Life" data-bucket="Consumer and retail">
+  <div class="ch"><span class="n"></span><h2>Zuva Life</h2>
+  <p class="meta">Midlife transitions, coaching · Bengaluru, India</p></div>
+  <details class="about"><summary>What they do</summary>
+    <p>Zuva Life runs programmes for people in midlife and beyond who are working out what they do next, covering longer careers, new kinds of work, money, learning and staying connected. It sells workshops, small-group cohort journeys, retreats and one-to-one sessions, mostly through employers, wellness and longevity companies, career platforms and coaches rather than straight to individuals.</p>
+    <p><b>Inside, day to day.</b> A very small team around founder Vandana Srivastava, with a co-founder, an associate, a brand designer and a bench of outside coaches and advisors, spends its days designing session content and exercises, recruiting and then running each cohort, holding one-to-one conversations with participants, writing brand and social content, and pitching the programme to HR teams and wellness partners who will bring a group.</p>
+  </details>
+  <div class="cases">
+    <!-- PASTE YOUR USE CASE BLOCKS IN HERE. Copy the block from "How to add yours" at the top of the page. -->
+  </div>
+  <p class="empty">Nobody has written a use case for this one yet.</p>
+</article>
+<!-- ===== END zuva-life ===== -->
+</div>
 
 <footer>
-  <p><b>This is a training exercise.</b> Nothing on this board is a client list or a statement about
-  a commercial relationship with any organisation named here. No prices, no contracts and no private
+  <p><b>This is a thinking exercise.</b> Nothing on this board is a client list or a statement about a
+  commercial relationship with any organisation named here. No prices, no contracts and no private
   conversations belong anywhere in this repository.</p>
-  <p>Run by Sarfaraj. Use cases reviewed by Sahariar. <a href="https://github.com/Stratos-Technologies-fzco/stratos-family-os">The repository</a>.</p>
+  <p>Run by Sarfaraj. Use cases reviewed by Sahariar.
+  <a href="https://github.com/Stratos-Technologies-fzco/stratos-family-os">The repository</a>.</p>
 </footer>
-
 </div>
 
 <script>
-const REPO = "Stratos-Technologies-fzco/stratos-family-os";
-let ORGS = [], sector = null, untouchedFirst = false;
-
-function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
-
-function render(){
-  const q = document.getElementById("q").value.trim().toLowerCase();
-  let list = ORGS.filter(o=>{
-    if (sector && o.bucket !== sector) return false;
-    if (!q) return true;
-    return (o.name+" "+o.sector+" "+o.bucket+" "+o.country+" "+o.what_they_do+" "+o.how_they_work).toLowerCase().includes(q);
+(function(){
+  var cards = [].slice.call(document.querySelectorAll(".card"));
+  var people = {};
+  cards.forEach(function(c){
+    var cases = c.querySelectorAll(".case");
+    var n = cases.length;
+    c.dataset.n = n;
+    if (n) c.classList.add("filled");
+    var badge = c.querySelector(".n");
+    badge.textContent = n === 0 ? "empty" : n + (n === 1 ? " use case" : " use cases");
+    var e = c.querySelector(".empty");
+    if (e) e.hidden = n > 0;
+    [].forEach.call(cases, function(x){
+      var by = x.querySelector(".by");
+      if (by) { var h = by.textContent.trim().replace(/^@/, ""); if (h && h !== "yourhandle") people[h] = 1; }
+    });
   });
-  list = list.slice().sort((a,b)=>{
-    if (untouchedFirst && (a.n||0)!==(b.n||0)) return (a.n||0)-(b.n||0);
-    return a.name.localeCompare(b.name);
+  var total = cards.reduce(function(s,c){ return s + (+c.dataset.n); }, 0);
+  document.getElementById("s-cases").textContent = total;
+  document.getElementById("s-people").textContent = Object.keys(people).length;
+  document.getElementById("s-empty").textContent = cards.filter(function(c){ return +c.dataset.n === 0; }).length;
+
+  var grid = document.getElementById("grid"), bucket = null, emptyFirst = true;
+  var buckets = [];
+  cards.forEach(function(c){ if (buckets.indexOf(c.dataset.bucket) < 0) buckets.push(c.dataset.bucket); });
+  buckets.sort();
+  document.getElementById("chips").innerHTML = buckets.map(function(b){
+    return '<button class="chip" data-b="' + b + '" aria-pressed="false">' + b + '</button>'; }).join("");
+
+  function apply(){
+    var q = document.getElementById("q").value.trim().toLowerCase();
+    cards.forEach(function(c){
+      var ok = (!bucket || c.dataset.bucket === bucket) &&
+               (!q || c.textContent.toLowerCase().indexOf(q) > -1);
+      c.hidden = !ok;
+    });
+    var order = cards.slice().sort(function(a,b){
+      if (emptyFirst && (+a.dataset.n) !== (+b.dataset.n)) return (+a.dataset.n) - (+b.dataset.n);
+      return a.dataset.name.localeCompare(b.dataset.name);
+    });
+    order.forEach(function(c){ grid.appendChild(c); });
+  }
+  document.getElementById("q").addEventListener("input", apply);
+  document.getElementById("emptyfirst").onclick = function(e){
+    emptyFirst = !emptyFirst; e.currentTarget.setAttribute("aria-pressed", emptyFirst); apply();
+  };
+  document.querySelectorAll("#chips .chip").forEach(function(b){
+    b.onclick = function(){
+      bucket = bucket === b.dataset.b ? null : b.dataset.b;
+      document.querySelectorAll("#chips .chip").forEach(function(x){
+        x.setAttribute("aria-pressed", x.dataset.b === bucket); });
+      apply();
+    };
   });
-  const total = ORGS.reduce((s,o)=>s+(o.n||0),0);
-  document.getElementById("count").textContent =
-    list.length + " of " + ORGS.length + " organisations" + (total? " · " + total + " use case posts so far" : "");
-  document.getElementById("grid").innerHTML = list.map(o=>{
-    const n = o.n||0;
-    const badge = n===0 ? '<span class="badge">nobody yet</span>'
-                        : '<span class="badge hot">'+n+' post'+(n===1?'':'s')+'</span>';
-    const link = o.issue ? "https://github.com/"+REPO+"/issues/"+o.issue : "https://github.com/"+REPO+"/issues";
-    return '<article class="card">'
-      + '<div class="meta">'+esc(o.sector)+(o.country&&o.country!=="not established"?" · "+esc(o.country):"")+'</div>'
-      + '<h2>'+esc(o.name)+'</h2>'
-      + '<p class="what">'+esc(o.what_they_do)+'</p>'
-      + '<p class="how"><b>Inside, day to day.</b> '+esc(o.how_they_work)+'</p>'
-      + (o.confidence==="low"?'<p class="low">We are not certain we have the right organisation here. Check before you write.</p>':'')
-      + '<div class="foot">'+badge+'<a class="go" href="'+link+'">Add use cases &rarr;</a></div>'
-      + '</article>';
-  }).join("");
-}
-
-function chips(){
-  const secs = [...new Set(ORGS.map(o=>o.bucket))].sort();
-  document.getElementById("chips").innerHTML = secs.map(s=>
-    '<button class="chip" data-s="'+esc(s)+'" aria-pressed="false">'+esc(s)+'</button>').join("");
-  document.querySelectorAll("#chips .chip").forEach(b=>b.onclick=()=>{
-    const s=b.dataset.s; sector = sector===s?null:s;
-    document.querySelectorAll("#chips .chip").forEach(x=>x.setAttribute("aria-pressed", x.dataset.s===sector));
-    render();
-  });
-}
-
-document.getElementById("q").addEventListener("input", render);
-document.getElementById("untouched").onclick = (e)=>{
-  untouchedFirst = !untouchedFirst;
-  e.currentTarget.setAttribute("aria-pressed", untouchedFirst);
-  render();
-};
-
-fetch("organisations.json").then(r=>r.json()).then(d=>{
-  ORGS = d; chips(); render();
-  return fetch("https://api.github.com/repos/"+REPO+"/issues?state=all&per_page=100");
-}).then(r=>r&&r.ok?r.json():null).then(issues=>{
-  if(!issues) return;
-  const byTitle = {};
-  issues.forEach(i=>{ byTitle[i.title.split(" — ")[0].trim().toLowerCase()] = i; });
-  ORGS.forEach(o=>{ const i = byTitle[o.name.toLowerCase()]; if(i){ o.issue = i.number; o.n = i.comments; }});
-  render();
-}).catch(()=>{});
+  apply();
+})();
 </script>
 </body>
 </html>
