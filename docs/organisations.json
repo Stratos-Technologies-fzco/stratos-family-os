@@ -1,1 +1,492 @@
-[]
+[
+ {
+  "name": "Advaith Foundation",
+  "sector": "Education nonprofit",
+  "country": "Bangalore, India",
+  "what_they_do": "A charitable trust set up in 2004 that pays for the entire schooling, food and housing of children from very poor families in and around Bangalore, free to the family. Its Ankur programme puts those children into small residential homes and sends them to The Samhita Academy, a CBSE school off Bannerghatta Road, where they sit in the same classrooms as children whose parents pay fees; the money comes from donors and company CSR budgets, not from the children.",
+  "how_they_work": "Teachers plan and mark lessons and run after-school tuition, house parents and wardens live with the children and track each one's attendance, health, marks and behaviour largely on paper, and a small office team writes the donor and CSR reports, keeps the trust's compliance filings in order, and handles the visits and paperwork that come with taking in a child.",
+  "confidence": "high",
+  "bucket": "Nonprofit and social impact",
+  "issue": 1
+ },
+ {
+  "name": "AdySphere",
+  "sector": "Enterprise systems, automation",
+  "country": "United Kingdom and UAE",
+  "what_they_do": "A small consulting firm, founded by Adyasha Mallick, that builds the internal systems a company runs on: management dashboards and reporting, ERP and CRM setups, and automation that carries data between departments so nobody has to retype it. Its customers are mid-sized and larger companies in the UK and the Gulf that already own a lot of software and want it mapped, joined up and made to run without manual handoffs.",
+  "how_they_work": "Consultants sit with a client's finance, operations or sales team to work out how the work actually flows today and draw it out, and then engineers build the dashboards, data pipelines and integrations that replace the spreadsheets, so the days go on discovery interviews, process diagrams, and writing and testing integration code against somebody else's systems.",
+  "confidence": "high",
+  "bucket": "Technology and software",
+  "issue": 2
+ },
+ {
+  "name": "Al Ain University",
+  "sector": "Private university",
+  "country": "Al Ain and Abu Dhabi, UAE",
+  "what_they_do": "A private university with two campuses in the UAE, teaching roughly 5,000 students from more than twenty nationalities across eight colleges: engineering, pharmacy, law, education and humanities, business, communication and media, dentistry, and nursing. It sells degrees from bachelor's through doctorate, and its customers are students and the families who pay the tuition.",
+  "how_they_work": "Around 370 faculty and staff spend their days lecturing, setting and grading coursework and exams, supervising masters and PhD students through their research and thesis writing, publishing their own papers, and producing the accreditation and quality-assurance evidence that UAE regulators demand of a licensed university every year.",
+  "confidence": "high",
+  "bucket": "Education",
+  "issue": 3
+ },
+ {
+  "name": "Altinad Partners",
+  "sector": "Capital advisory, finance",
+  "country": "New York and Dubai",
+  "what_they_do": "A small advisory firm that stands between people who need money and people who have it. It gets fund managers and company founders ready to raise capital, brings deals to family offices and institutional investors, and sets up the legal vehicles (SPVs, syndicates, co-investments) that let several investors go into one deal together, charging retainers and fees rather than selling a product.",
+  "how_they_work": "A handful of partners and associates spend their days on calls with fund managers and family offices, reading decks and financial models to judge which deals are worth passing on, writing investment memos and assembling data rooms, and keeping track of which investor has seen which opportunity and what they said back.",
+  "confidence": "high",
+  "bucket": "Finance and capital",
+  "issue": 4
+ },
+ {
+  "name": "Bharat Sikka Studio",
+  "sector": "Photography, film studio",
+  "country": "New Delhi, India",
+  "what_they_do": "A studio built around one photographer, Bharat Sikka, who makes fine-art photography shown in galleries and published as books, and who also directs and shoots advertising campaigns. He has two sets of customers: galleries, publishers and collectors on the art side, and brand and agency marketing teams on the commercial side, who have included Spotify, IndiGo, BMW, Royal Enfield and Tinder.",
+  "how_they_work": "A tiny core team hires freelance crews job by job, so the days split between preparing shoots (locations, permits, casting, crew, kit), shooting, and then long stretches of selecting and retouching images, sending selects back and forth with clients and galleries, and keeping twenty-five years of archive, captions and image licensing straight; he also publishes a photography magazine, Neither, with its own submissions, editing and printing to run.",
+  "confidence": "high",
+  "bucket": "Media and creative",
+  "issue": 5
+ },
+ {
+  "name": "Cognitive Prism",
+  "sector": "Behavioural science lab",
+  "country": "Bengaluru, India",
+  "what_they_do": "Cognitive Prism Consulting Pvt Ltd says it measures how a person thinks, learns and makes decisions, turns those measurements into a written profile, and then gives advice and ongoing coaching off the back of it. It works in three areas, schools and universities, sport, and social programmes, so the buyers are institutions and teams wanting profiles of their students or athletes rather than individuals buying a test. Note: this is the Bengaluru company at cognitiveprism.in; several unrelated outfits use the name Prism, and the match has not been fully confirmed.",
+  "how_they_work": "A team of roughly 11 to 50 people, still hiring research, sales and marketing roles, runs assessments on students and athletes, with analysts turning raw scores into a readable written profile for each person, counsellors and psychologists taking those profiles into one-to-one sessions, and a business-development side building a pipeline of schools and sports bodies by hand.",
+  "confidence": "low",
+  "bucket": "Education",
+  "issue": 6
+ },
+ {
+  "name": "CoLab Global",
+  "sector": "Social-impact consulting",
+  "country": "Bengaluru, India",
+  "what_they_do": "A consulting firm, founded and led by Rucha Pande, that works for nonprofits, foundations and government-facing education programmes in India. It is hired to answer whether a programme is really working and how to make it bigger: running research studies and needs assessments, designing the programme and its measurement framework, co-running small pilots, and then building the toolkits and open-source platforms that let the programme be copied by somebody else.",
+  "how_they_work": "Consultants spend their days in the field and on video calls interviewing teachers, head teachers, field staff and programme leads, then come back and turn hours of notes and survey data into theory-of-change diagrams, evaluation reports and decks for the funder, so writing, rewriting and formatting long documents is most of the actual job.",
+  "confidence": "high",
+  "bucket": "Nonprofit and social impact",
+  "issue": 7
+ },
+ {
+  "name": "Curio Lifestyle",
+  "sector": "Organic food brand",
+  "country": "Jammu, India",
+  "what_they_do": "Curio Lifestyle buys honey, ghee, cold-pressed oils, nuts, spices and tea from small farmers in Himalayan villages, packs them under its own label, and sells them online and in bulk. Shoppers buy directly from its Shopify website and from Amazon, and shops, grocers and wellness brands buy the same products wholesale.",
+  "how_they_work": "It is a very small founder-run operation: the same handful of people arrange buying from farmers and self-help groups, get the goods bottled and labelled, then spend their days running the Shopify store, answering customer messages, keeping the Amazon and IndiaMART listings current, packing and tracking courier shipments, and chasing the supermarket and wholesale buyers who owe them money.",
+  "confidence": "high",
+  "bucket": "Consumer and retail",
+  "issue": 8
+ },
+ {
+  "name": "Delta",
+  "sector": "Livelihoods incubator, nonprofit",
+  "country": "Delhi, India",
+  "what_they_do": "Delta (written \"the^delta\") helps small Indian nonprofits and social enterprises that are trying to create jobs and income for poor people \u2014 farm workers, women in informal work, young people looking for their first job. It runs open competitions to find promising ideas, then takes the best of them through an incubator and an accelerator, giving them money, advice and introductions; philanthropic funders and companies pay for the programmes.",
+  "how_they_work": "The staff are programme people rather than field workers: they read piles of applications from small organisations, run selection panels, sit in coaching and review calls with founders, collect numbers back from every organisation in the cohort, and write the progress reports the funders expect.",
+  "confidence": "high",
+  "bucket": "Nonprofit and social impact",
+  "issue": 9
+ },
+ {
+  "name": "Drishtee / Quiver Catalyst",
+  "sector": "Rural livelihoods, India",
+  "country": "Noida, India (works across Bihar, Uttar Pradesh, Assam, Chhattisgarh, Karnataka)",
+  "what_they_do": "Drishtee sets up small businesses inside villages \u2014 training centres, banking kiosks, women's production groups making food, textiles and handicrafts \u2014 and connects what those villages make to buyers in the cities. Quiver Catalyst is the money side of the same family: it puts investment and loans into rural enterprises that are ready to grow, and runs training with them.",
+  "how_they_work": "Most of the real work happens in villages: field staff hold community meetings, recruit and hand-hold village entrepreneurs, run training camps, staff banking kiosks with micro-ATMs, collect goods made by women's groups and move them to urban buyers, and then fill in attendance, sales and beneficiary records on paper and phone forms that head office has to add up.",
+  "confidence": "high",
+  "bucket": "Nonprofit and social impact",
+  "issue": 10
+ },
+ {
+  "name": "GritWorks.ai",
+  "sector": "AI data privacy software",
+  "country": "Bengaluru, India",
+  "what_they_do": "GritWorks sells software that strips personal details out of a company's documents, images and audio recordings, and separately generates realistic fake documents and records that never belonged to a real person. Banks, insurers, hospitals and law firms buy it so their teams can build and test AI systems without passing real customer files around.",
+  "how_they_work": "A small engineering team builds and tunes the models that spot sensitive information, makes the software run inside each customer's own systems rather than on GritWorks servers, and produces the audit trails a compliance officer will later inspect, while the founders spend their days in front of security, privacy and AI teams at large regulated companies. The same company earlier built conversational AI for collecting customer feedback, so both threads may show up in what you read about them.",
+  "confidence": "high",
+  "bucket": "Technology and software",
+  "issue": 11
+ },
+ {
+  "name": "Groupe Eram (GBO Asia)",
+  "sector": "Apparel footwear sourcing",
+  "country": "Dongguan and Shanghai (China), Hong Kong, Dhaka (Bangladesh); parent group in France",
+  "what_they_do": "Groupe Eram is a French family company that has been making and selling shoes and clothes since 1927 and owns about ten retail brands. GBO is its buying office in Asia: it finds the factories, develops the products with them and manages the suppliers who actually manufacture the footwear and clothing those brands sell in Europe.",
+  "how_they_work": "The day is merchandising and quality control across four offices: staff chase factories for samples, prices and delivery dates, walk inspection lines checking stitching, materials and sizing, keep order and shipment trackers up to date, and email back and forth across time zones between factories in China and Bangladesh and brand teams in France.",
+  "confidence": "high",
+  "bucket": "Consumer and retail",
+  "issue": 12
+ },
+ {
+  "name": "Hello Chef",
+  "sector": "Meal-kit subscription",
+  "country": "Dubai, UAE",
+  "what_they_do": "Hello Chef sells a weekly subscription box of pre-measured ingredients and printed recipe cards to households across the UAE. You choose your recipes on their website each week, a chilled box arrives at your door, and you cook the meals yourself at home.",
+  "how_they_work": "Chefs write around forty new recipes every week and the whole company works backwards from that: buyers order the exact quantity of each ingredient, a kitchen and warehouse team butchers meat in-house, weighs out every portion and packs the boxes, drivers run chilled delivery routes on fixed days, and a customer service team handles recipe swaps, skipped weeks, missing items and refunds.",
+  "confidence": "high",
+  "bucket": "Consumer and retail",
+  "issue": 13
+ },
+ {
+  "name": "Hippocampos",
+  "sector": "AI memory software",
+  "country": "not established",
+  "what_they_do": "Hippocampos (written \"hippocampOS\") sells a low-cost monthly subscription that connects to your email, notes, meeting records and files and turns them into a private, searchable memory. You give each memory a name \u2014 a work brain, a personal brain, a client brain \u2014 and then call it up inside Claude or ChatGPT so the AI already knows your context instead of you re-explaining it every time.",
+  "how_they_work": "Judging only from the product, this is a small software team: they build and maintain the connectors that pull in Gmail, Notion, meeting notes and files, run the nightly syncing and the search that pulls the right slice of a person's history into a chat, and support paying subscribers. We could not establish who runs the company, where it is based, or how many people work there \u2014 the website names no founder, city or company details, so treat everything except the product itself as unknown.",
+  "confidence": "medium",
+  "bucket": "Technology and software",
+  "issue": 14
+ },
+ {
+  "name": "IBPG",
+  "sector": "Business chamber, UAE",
+  "country": "Abu Dhabi, UAE",
+  "what_they_do": "IBPG is a membership association in Abu Dhabi, set up in 1991, for Indian business owners and professionals working in the UAE. Members pay a subscription and in return get networking events, a member directory, introductions, and information on tenders and on doing business between India and the UAE; it is one of the business groups registered under the Abu Dhabi Chamber of Commerce.",
+  "how_they_work": "It is run by an elected volunteer committee of members who all have full-time jobs elsewhere, backed by a very small secretariat, so the actual daily work is organising events, chasing speakers and sponsors, keeping the membership list and renewals current, answering member enquiries by phone and email, and maintaining the website and directory.",
+  "confidence": "high",
+  "bucket": "Professional services",
+  "issue": 15
+ },
+ {
+  "name": "Indic EMS",
+  "sector": "Electronics contract manufacturing",
+  "country": "Bengaluru, India (second plant in Barcelona, Spain)",
+  "what_they_do": "Indic EMS builds electronic circuit boards and finished electronic products for other companies: the customer designs the product, Indic buys the components and manufactures, assembles and tests it. Its buyers are automotive, telecom, medical, industrial, IoT and renewable-energy companies in India and abroad, and most of what it makes is exported.",
+  "how_they_work": "Production operators, around 80 percent of them women, spend the day on surface-mount assembly lines placing and soldering components onto boards; engineers write test programs, quality staff inspect boards for defects, and planners and buyers juggle hundreds of component line items per order across many suppliers, largely on spreadsheets and email because every customer order is a different small batch rather than one long repeat run.",
+  "confidence": "high",
+  "bucket": "Manufacturing and deep tech",
+  "issue": 16
+ },
+ {
+  "name": "Involve Learning Solutions",
+  "sector": "Education nonprofit",
+  "country": "Bangalore, India",
+  "what_they_do": "Involve trains older children in Indian government schools to teach younger ones, so a student in grade 6 or 7 runs regular learning sessions for children in grades 3 to 5. It is a nonprofit paid for by donors and foundations; its customers are really state education departments and government schools that agree to let the programme run in their classrooms.",
+  "how_they_work": "Field staff spend their days inside government schools and district offices, training teachers to run peer-learning sessions, coaching the student peer-teachers, and filling in observation forms and attendance and assessment sheets, which a small central team in Bangalore then has to chase, clean and turn into reports for governments and funders.",
+  "confidence": "high",
+  "bucket": "Education",
+  "issue": 17
+ },
+ {
+  "name": "Iron Lady Foundation",
+  "sector": "Community nonprofit",
+  "country": "Palo Alto, USA, with its fieldwork in Udaipur, Rajasthan, India",
+  "what_they_do": "Iron Lady Foundation is a small private nonprofit started in 2023 by Rashi Mehta that funds and runs projects for women and children in poor parts of Rajasthan, India. It pays for school scholarships, school toilets and clean water, sewing equipment so women can earn an income, and free medical days; it sells nothing and is funded by the founder and donations. (Note: it is a different organisation from the Bengaluru women's-leadership training company also called Iron Lady.)",
+  "how_they_work": "No staff beyond the founder appears anywhere public, so the work runs founder-first: pick one school or one village project at a time, arrange the vendors and local volunteers over WhatsApp and email, run the camp or the class, then photograph it, write it up and report it back to donors, which means a large share of the effort is coordination and storytelling about each individual project.",
+  "confidence": "high",
+  "bucket": "Education",
+  "issue": 18
+ },
+ {
+  "name": "JIS",
+  "sector": "Not established",
+  "country": "India (city not established)",
+  "what_they_do": "Not established. What is actually on record is that JIS is an organisation in India that has its own in-house content and marketing team of digital marketers and graphic designers, and its own student body; it reached us through an intermediary and all correspondence has run through his personal email, so its registered name, website and sector have never been confirmed.",
+  "how_they_work": "The only part that can be described honestly is the team that was met: digital marketers and graphic designers who take a brief and produce creatives, campaign copy, social posts and a weekly performance report, plus a student group large enough to fill a forty-person workshop. Anyone writing use cases for JIS should treat the organisation itself as unknown until someone confirms the legal name and website.",
+  "confidence": "low",
+  "bucket": "Education",
+  "issue": 19
+ },
+ {
+  "name": "Kayali",
+  "sector": "Luxury fragrance brand",
+  "country": "Dubai, UAE (offices also in London and New York)",
+  "what_they_do": "Kayali makes and sells perfume under its own name, founded in Dubai in 2018 by Mona Kattan and known for sweet, dessert-like scents. It sells through big retailers including Sephora, Boots, Selfridges and Harrods as well as its own website, so its buyers are both retail chains that stock it and individual shoppers who wear it.",
+  "how_they_work": "It is a lean team of roughly 180 people where most of the day goes into brand and social content, shooting, writing and scheduling campaigns for a brand built on social media, alongside retail account managers handling Sephora and Boots orders, supply-chain planners forecasting stock for well over a thousand store doors, and finance and operations staff running an ERP and an online store that were stood up in a hurry after the company was separated out of Huda Beauty.",
+  "confidence": "high",
+  "bucket": "Consumer and retail",
+  "issue": 20
+ },
+ {
+  "name": "Lals Group",
+  "sector": "Retail conglomerate",
+  "country": "Dubai, UAE",
+  "what_they_do": "Lals Group is a family-owned retail company in Dubai, started in 1979, that runs more than 190 shops across the Gulf, some its own brands such as Homes r Us and some franchises of foreign brands such as Daiso, Carter's and US Polo Assn. It also owns two shopping malls, Lamcy Plaza and Arabian Centre, and the distribution and logistics operation that supplies its stores.",
+  "how_they_work": "Several thousand people work mostly on shop floors across six countries selling and restocking, while at head office buyers and merchandisers decide what each brand orders and at what price, mall teams chase tenants and leases, warehouse teams move goods out to stores, and an HR function recruits at very high volume all year just to keep 190-plus outlets staffed.",
+  "confidence": "high",
+  "bucket": "Consumer and retail",
+  "issue": 21
+ },
+ {
+  "name": "MakerGhat",
+  "sector": "Education nonprofit, India",
+  "country": "India (Mumbai, works across Maharashtra, Karnataka, Andhra Pradesh, Tamil Nadu)",
+  "what_they_do": "MakerGhat is an Indian non-profit that builds cheap workshop rooms, called makerspaces, inside government schools and community centres, and trains the teachers there to run hands on building projects with students roughly aged 12 to 18. Nobody pays a fee for this: the money comes from grants and donations, so in practice its two customers are the funders who pay for the work and the state education departments that let it into their schools.",
+  "how_they_work": "Staff spend their days training teachers in batches, travelling out to hundreds of school sites to check the makerspaces are actually being used, collecting weekly assessment data by hand from each site, and then turning that pile of paper and spreadsheets into progress reports for the funders who paid for it.",
+  "confidence": "high",
+  "bucket": "Nonprofit and social impact",
+  "issue": 22
+ },
+ {
+  "name": "Mantra4Change",
+  "sector": "Education nonprofit, India",
+  "country": "India (Bengaluru, operating in about eight states)",
+  "what_they_do": "Mantra4Change is an Indian non-profit that works with state and district governments to improve government schools, but it does not teach children. It trains the adults in the system instead: head teachers, classroom teachers, and government education officers, paid for by philanthropic funders and company social responsibility budgets rather than by the schools.",
+  "how_they_work": "Roughly 150 to 175 people, most of them field staff scattered across eight states, spend their days driving to schools and district education offices, running teacher discussion groups and workshops, writing up visit notes and school progress data, while a head office research and design team turns all of that into programme designs and reports back to funders.",
+  "confidence": "high",
+  "bucket": "Education",
+  "issue": 23
+ },
+ {
+  "name": "Mashmupa International Media",
+  "sector": "Photo and video production",
+  "country": "United Arab Emirates (Dubai Studio City)",
+  "what_they_do": "Mashmupa International Media is a Dubai photography and video production company that trades publicly under the Vikram Kacher Photography name. Brands, hotels, car companies, sports events and private clients hire it to shoot stills and video, including corporate portraits, product and car shoots, events, drone and aerial work, and fitness, and it hands back the finished edited files. Named clients on the public record include Armani, Nike, Mercedes Benz, Puma and Novotel.",
+  "how_they_work": "The work comes in bursts around each booking: planning and scouting a shoot, then a day or two on location or in their own Dubai Studio City studio with lights and cameras, then much longer sitting at screens throwing away thousands of frames, retouching the ones that survive, cutting video, and going back and forth with the client until a selection is approved.",
+  "confidence": "high",
+  "bucket": "Media and creative",
+  "issue": 24
+ },
+ {
+  "name": "McKinsey",
+  "sector": "Management consulting",
+  "country": "Global, headquartered in New York, with offices in most major cities",
+  "what_they_do": "McKinsey is a management consulting firm that big companies and governments hire when they need help deciding what to do, for example cutting costs, entering a new market, reorganising, or fixing how something is run. It sells the time and analysis of its consultants by the project, usually for a few months at a stretch, and the client pays a fee for the advice and the recommendations.",
+  "how_they_work": "Consultants work in small teams of about three to six on one client at a time, spending their days interviewing that client's executives and staff, pulling their data apart in spreadsheets, comparing them against competitors, and turning it all into slide decks presented to the client's leadership, while the senior partners above them spend their days on client relationships and winning the next project.",
+  "confidence": "high",
+  "bucket": "Professional services",
+  "issue": 25
+ },
+ {
+  "name": "MCR Consulting",
+  "sector": "Retail advisory, small firm",
+  "country": "United Arab Emirates (Dubai), not fully established",
+  "what_they_do": "MCR Consulting is a small independent consultancy associated with Eric Macaire, who is based in Dubai and has around twenty years of background in luxury and fashion retail, specifically merchandising, buying and retail transformation. Its own website at mcrconsulting.net currently shows only a Launching Soon page, and no public record confirms its services, client list, team size or legal registration, so what it sells and to whom cannot be stated with confidence. What is visible is senior advisory work in and around fashion, luxury and retail businesses.",
+  "how_they_work": "Almost certainly a one person or very small operation rather than a staffed office, where the day is meetings, calls, market watching and introductions across a long standing retail network, but treat this sentence as an assumption drawn from the founder's profile and not as an established fact.",
+  "confidence": "low",
+  "bucket": "Professional services",
+  "issue": 26
+ },
+ {
+  "name": "Motivation for Excellence",
+  "sector": "Grantmaking foundation",
+  "country": "India (Mumbai), with an affiliated US foundation in Greenwich, Connecticut",
+  "what_they_do": "Motivation for Excellence, whose legal name is The RG Manudhane Foundation for Excellence, is an Indian charitable foundation that gives money to other non-profits instead of running programmes itself. It funds roughly twenty to thirty partner organisations across healthcare, education and training, livelihoods, and what it calls nurturing excellence, with a stated focus on rural and tribal communities, and it was set up as a family legacy rather than as a fundraising charity.",
+  "how_they_work": "A small board of trustees, made up of the founding family plus people from finance and public health, several of them living in the United States and doing this alongside full time careers, spends its time reading funding proposals from non-profits, meeting the organisations it backs, and reading the progress reports those partners send back in order to decide whether to keep funding them.",
+  "confidence": "high",
+  "bucket": "Education",
+  "issue": 27
+ },
+ {
+  "name": "MyChips",
+  "sector": "Mobile advertising technology",
+  "country": "Italy (Imola), acquired in May 2026 by Mistplay, based in Canada",
+  "what_they_do": "MyChips, the product behind the maf.ad brand and originally built by an Italian company called MyAppFree, sells an offerwall. That is the screen inside a mobile game or app where a player can try other apps or watch adverts in exchange for in game rewards, and it has two sets of customers at once: game and app studios that install it to earn money from players who would never pay cash, and advertisers who pay to put their app in front of those players.",
+  "how_they_work": "It is an advertising business, so people there spend their days on integrations and account management: helping a game studio plug the offerwall in through a software kit or an embedded frame, negotiating and pricing advertiser campaigns, and watching dashboards of revenue per thousand impressions, fill rates and country level performance to decide which offers to show to which players.",
+  "confidence": "high",
+  "bucket": "Technology and software",
+  "issue": 28
+ },
+ {
+  "name": "OpticSurg Inc",
+  "sector": "Healthcare AR software",
+  "country": "United States (New York)",
+  "what_they_do": "OpticSurg makes software for smart glasses that lets a nurse or doctor standing next to a patient show exactly what they are seeing, live, to a specialist who is somewhere else entirely. Hospitals, surgery centres, urgent care clinics, nursing homes and home-care companies buy it so one expert can be useful in several places in a day without getting on a plane.",
+  "how_they_work": "It is a very small company (roughly 2 to 10 people) founded in 2017 by a surgeon who is also a biomedical engineer, so the days split between engineers writing the video and augmented-reality software, clinical staff testing it on real wards and grinding through the medical-device regulatory paperwork that any hospital product needs, and a couple of people running demos for hospital buyers and answering their procurement and security questionnaires.",
+  "confidence": "high",
+  "bucket": "Manufacturing and deep tech",
+  "issue": 29
+ },
+ {
+  "name": "Oxford",
+  "sector": "University business school",
+  "country": "United Kingdom (Oxford)",
+  "what_they_do": "This is almost certainly not a real organisation on this board. The domain oxford.edu is held by the University of Oxford, and the address it actually appears in (said.oxford.edu) is the mail domain of Sa\u00efd Business School, Oxford's business school, which teaches MBA and executive courses and issues lifelong alumni email addresses to its graduates.",
+  "how_they_work": "Not established as a counterparty. The record exists because a person's personal alumni email address was turned into a company record automatically, so there is no organisation here to invent a use case for. The card should be checked against the person it came from before anybody spends time on it; if you want a real Oxford use case you would be inventing one for a university (admissions, teaching, research administration), not for anyone we are talking to.",
+  "confidence": "low",
+  "bucket": "Education",
+  "issue": 30
+ },
+ {
+  "name": "Partners in Prime",
+  "sector": "Community events, Dubai",
+  "country": "Dubai, UAE",
+  "what_they_do": "A small Dubai community run by two women who organise paid workshops and talks for parents, mostly mothers, and their teenage children, on subjects like using AI in everyday life and work. They sell tickets to each session and find their audience entirely through their Instagram page and WhatsApp groups, not through a website or advertising.",
+  "how_they_work": "The two founders spend their days inside WhatsApp groups and Instagram messages recruiting people one by one, booking venues, agreeing the running order with whoever is teaching the session, making the flyers and posts by hand for every single event, and chasing ticket payments, no-shows and refunds afterwards; everything lives in Gmail, Instagram and WhatsApp and nothing is automated.",
+  "confidence": "high",
+  "bucket": "Education",
+  "issue": 31
+ },
+ {
+  "name": "Pataka Group",
+  "sector": "Indian family conglomerate",
+  "country": "Kolkata, India",
+  "what_they_do": "A family-owned Indian group started in 1952 that manufactures everyday goods across five businesses: hand-rolled biris (a cheap Indian cigarette, where they are the country's largest maker at roughly 110 million sticks a day across 500+ brands), packaged tea, biscuits, silk yarn and healthcare, plus a property arm. Their buyers are Indian wholesalers and small shops reached through a distribution network of more than 150,000 outlets, and for the silk arm (East End Silks, in Malda and Kolkata) textile mills in India and abroad that buy spun silk yarn and silk top sliver.",
+  "how_they_work": "This is a factory-and-distribution business run on spreadsheets, paper and phone calls: shop-floor supervisors tracking daily output across hundreds of biri brands and silk yarn lots, purchasing managers buying tobacco leaf, tea and raw silk at prices that move constantly and decide whether a month is profitable, quality staff logging test results by hand, and area sales officers ringing and visiting distributors every day to keep stock moving and money coming back.",
+  "confidence": "high",
+  "bucket": "Consumer and retail",
+  "issue": 32
+ },
+ {
+  "name": "PayrLabs",
+  "sector": "Software services, India",
+  "country": "Mumbai, India",
+  "what_they_do": "PayrLabs Softwares Private Limited is a Mumbai software company that builds and runs systems for other organisations in three separate areas: payment software for banks, fintech firms and payment processors; a healthcare platform (HealthNEXAA) for handling diagnostics and coordinating a patient's care across different providers; and an online learning product (NEXAA EDGE) that teaches job skills and career guidance to young people. Their customers are banks and payment companies, healthcare providers, and the colleges, employers and youth programmes that want people trained.",
+  "how_they_work": "Most of the week is engineers and project managers building, testing and babysitting software that runs inside a client bank or hospital, which means a lot of requirement documents, integration work against someone else's old systems, and support tickets when something breaks; alongside that a smaller training side writes course material and runs batches of young learners through sessions, which involves recruiting each batch, tracking who turned up and who finished, and reporting outcomes back to whoever paid.",
+  "confidence": "high",
+  "bucket": "Technology and software",
+  "issue": 33
+ },
+ {
+  "name": "Quantum Partners",
+  "sector": "Corporate finance advisory",
+  "country": "Dubai, UAE (DIFC)",
+  "what_they_do": "Quantum Partners (DIFC) Limited is a small advisory firm in Dubai's financial district that helps business owners sell a company or part of one, buy other companies, and raise money from investors or lenders. Its clients are company owners and companies rather than the public, and it is licensed and inspected by the DIFC's financial regulator, the DFSA (reference F010044, licensed September 2024).",
+  "how_they_work": "A handful of senior dealmakers spend their days reading company accounts and building valuation spreadsheets, writing the long information document that describes a business for sale, working the phone and their own address book to find the right buyer or investor for each mandate, sitting in negotiation meetings, and keeping a compliance and know-your-client file on every single client because the regulator can ask to see it.",
+  "confidence": "medium",
+  "bucket": "Finance and capital",
+  "issue": 34
+ },
+ {
+  "name": "Ramesh Family Office",
+  "sector": "Family office, philanthropy",
+  "country": "Chennai, India",
+  "what_they_do": "The private office of Ramesh Mangaleswaran, a retired senior partner of the consulting firm McKinsey & Company who founded its Chennai and Bangalore offices, and his wife Meenakshi Ramesh. It looks after the family's own money and, mainly, their giving into Indian education, skills training and disability causes; it has no outside clients and sells nothing.",
+  "how_they_work": "A tiny team, effectively the family plus a small amount of support: reading funding proposals and progress reports from the nonprofits they back, sitting on charity boards such as Pratham Education Foundation and Bala Mandir Kamaraj Trust and preparing for those meetings, meeting nonprofit founders to pressure-test their plans, and writing up analyses and memos about where money should go, which is essentially the same consulting work done for charities instead of corporations. Note: the domain given, therameshfamilyoffice.com, does not resolve; the working one is therameshfamily.com, a private page.",
+  "confidence": "medium",
+  "bucket": "Finance and capital",
+  "issue": 35
+ },
+ {
+  "name": "Rostrum Education",
+  "sector": "University admissions consultancy",
+  "country": "London, UK (offices in Dubai, New Delhi and Hong Kong)",
+  "what_they_do": "Rostrum Education sells help getting into university: one-to-one admissions counselling for Ivy League, Oxbridge, boarding schools and medical or law school, plus subject tutoring for IB, A-Level, AP and IGCSE and prep for tests like the SAT, GMAT and UCAT. The customers are fee-paying families, mostly in the UAE, India, the UK and Hong Kong, who buy packages of hours with a counsellor and a tutor for a teenager applying abroad.",
+  "how_they_work": "Counsellors sit on video calls with a student and their parents working through the same personal essay draft after draft, tutors teach scheduled lessons across four time zones, and a coordination team keeps track of which student is applying where, which deadline is next and which tutor is free at 7pm Dubai time.",
+  "confidence": "high",
+  "bucket": "Education",
+  "issue": 36
+ },
+ {
+  "name": "Saint-Gobain Nordic and Baltic",
+  "sector": "Building materials, manufacturing and distribution",
+  "country": "Nordic and Baltic region (Norway, Denmark, Sweden, Finland, Poland)",
+  "what_they_do": "Saint-Gobain Nordic and Baltic is the regional arm of Saint-Gobain, a very large French company that manufactures building materials such as plasterboard, insulation, flat glass and plumbing products. In this region it also owns the builders' merchant chains that sell those materials, around 400 branches trading as Dahl, Brodrene Dahl, Optimera and Tadmar, so the buyers are construction firms, plumbers, installers and contractors picking up materials for a specific job.",
+  "how_they_work": "Roughly 14,000 people: factory shifts making insulation and board, branch staff behind trade counters serving a contractor who walks in with a materials list, warehouse and delivery crews moving stock out of six central warehouses to 400 stores, and technical advisors answering a builder's question about which wall system to use where.",
+  "confidence": "high",
+  "bucket": "Manufacturing and deep tech",
+  "issue": 37
+ },
+ {
+  "name": "ShikshaLokam",
+  "sector": "Education nonprofit",
+  "country": "Bengaluru, India",
+  "what_they_do": "ShikshaLokam is a nonprofit, funded by the Shibulal family, that tries to improve India's government schools by supporting the people who run them rather than by running schools itself. It builds free open-source software and training programmes for head teachers and district and block education officers, and it convenes a movement called Shikshagraha aimed at reaching a million public schools; nobody pays for it, the money comes from philanthropy.",
+  "how_they_work": "Programme staff spend their days on workshops and mentoring calls with head teachers and district officials, a product and engineering team builds and maintains the open-source platforms those officials use to observe schools and log improvements, and a lot of hours go into writing reports, newsletters, case stories and funder updates about what changed in which district.",
+  "confidence": "high",
+  "bucket": "Education",
+  "issue": 38
+ },
+ {
+  "name": "Shiksharth",
+  "sector": "Education nonprofit, tribal India",
+  "country": "Sukma, Bastar, Chhattisgarh, India",
+  "what_they_do": "Shiksharth is a small trust, started in 2015, that works on schooling for tribal children in Sukma in south Bastar, a remote district shaped by decades of armed conflict. It works alongside the district government inside existing state schools on reading and numeracy, safe spaces and locally relevant lessons, reaching a reported 480 schools and 20,000-plus children; there are no paying customers, it is funded by philanthropies such as Wipro Foundation.",
+  "how_they_work": "Around fifty-odd educators travel out to scattered village schools, run classroom sessions and teacher training in local tribal languages, and record attendance and reading levels largely on paper; a small product team designs the learning materials and kits, and a handful of operations people handle logistics, finances and the reports funders ask for.",
+  "confidence": "high",
+  "bucket": "Education",
+  "issue": 39
+ },
+ {
+  "name": "Solinas Integrity",
+  "sector": "Deep tech, water robotics",
+  "country": "Chennai, India",
+  "what_they_do": "Solinas Integrity builds robots that go inside underground pipes and sewers so that people do not have to. It sells a camera-crawler robot for inspecting water and sewer lines, a robot for cleaning septic tanks and manholes, and a software platform that turns the footage into a condition report, and the buyers are city water boards and municipal corporations across India plus industrial customers like Suez, Veolia and vehicle plants.",
+  "how_they_work": "Field crews drive to a city, open a manhole, lower a robot in and spend hours driving it through pipe; back in Chennai engineers watch that footage to mark every crack, blockage and joint failure and write it up as a report for the municipality, while robotics and software engineers build the next version and a business development team writes government tender bids.",
+  "confidence": "high",
+  "bucket": "Manufacturing and deep tech",
+  "issue": 40
+ },
+ {
+  "name": "Tan90",
+  "sector": "STEAM education, schools",
+  "country": "Bengaluru, India",
+  "what_they_do": "Tan90 (legally Plumeria Learning Solutions, trading at tan-ninety.com, and not to be confused with the separate cold-chain company Tan90 Thermal) sells hands-on science and maths learning to schools. It sets up physical lab spaces called Natkhat STEAM Labs, supplies experiment kits and a structured science-and-maths programme, trains the schools' own teachers to run them, and also sells DIY kits direct to families; the paying customers are private schools, with a reported 264 schools and 293 labs across 19 states.",
+  "how_they_work": "A small team of about forty: people writing lesson plans and designing experiments, trainers travelling out to schools to install a lab and run teacher workshops, and an operations team packing and shipping physical kits and keeping track of which school has which lab and what it needs restocked.",
+  "confidence": "high",
+  "bucket": "Manufacturing and deep tech",
+  "issue": 41
+ },
+ {
+  "name": "Tier Two Capital",
+  "sector": "Venture studio, investment advisory",
+  "country": "Patna, Bihar, India",
+  "what_they_do": "Tier Two Capital is a small venture studio and investment advisory firm whose stated aim is to make businesses in Bihar investable. Rather than writing cheques at scale it works hands-on with a small number of local companies to get their numbers, systems and story into a state where outside investors and micro-VC funds will back them, and it advises those investors on deals in India's smaller cities.",
+  "how_they_work": "A handful of partners plus analysts and interns embed inside a few portfolio companies at a time, cleaning up messy books and monthly management reports, building financial models, writing investment memos and diligence notes, and spending a lot of hours on calls with founders and with prospective investors including the Bihari diaspora.",
+  "confidence": "medium",
+  "bucket": "Finance and capital",
+  "issue": 42
+ },
+ {
+  "name": "Tip Tales",
+  "sector": "Animation and content studio",
+  "country": "Singapore and Mumbai, India",
+  "what_they_do": "Tip Tales is a small studio that makes animated films, explainer videos, brand films, websites and character designs for companies and organisations that need to explain or launch something. It also owns its own children's cartoon series, Piku N Tuki, which runs on YouTube across six languages with more than 120 episodes.",
+  "how_they_work": "A lean in-house core of animators, editors and designers works brief by brief, reading a client brief, drawing and animating scenes, cutting versions, sending them out for review, taking change notes, re-cutting and packaging the final files for delivery, and then re-versioning the same episode into six languages, pulling in freelance sound, production and tech specialists per project.",
+  "confidence": "high",
+  "bucket": "Media and creative",
+  "issue": 43
+ },
+ {
+  "name": "Traveazy Group",
+  "sector": "Online travel, pilgrimage",
+  "country": "Dubai, UAE",
+  "what_they_do": "Traveazy runs online travel booking platforms. Its main brand, Umrahme, sells Umrah pilgrimage trips to Makkah and Madinah with the visa, flights, hotels, transport and Haramain train tickets in one booking, and its other brand, Holidayme, sells holiday packages; the buyers are individual travellers and roughly ten thousand travel agents who resell the trips.",
+  "how_they_work": "Contracting staff negotiate and load hotel rooms and transport in Saudi Arabia into the system, a technology team builds and runs the booking site and app, visa and operations staff push each pilgrim's paperwork through Saudi government systems, support agents across the Dubai, Pune, Jeddah and Cairo offices handle changes, cancellations and problems while people are mid-trip, and account managers onboard and chase the agent network.",
+  "confidence": "high",
+  "bucket": "Consumer and retail",
+  "issue": 44
+ },
+ {
+  "name": "TrustIn",
+  "sector": "Legal tech, workplace compliance",
+  "country": "Bengaluru, India",
+  "what_they_do": "TrustIn sells software and services that help employers deal with workplace harassment and misconduct complaints under India's POSH law. Companies and nonprofits buy it to write their policy, train their staff, take complaints confidentially and run each case through to a decision.",
+  "how_they_work": "The days go on casework and compliance paperwork: writing and updating a policy for each client, running training sessions including in Kannada, staffing a confidential reporting channel and a Telegram bot so an employee can report something without being identified, walking an employer's internal committee step by step through the legal process of judging a complaint, and filing the reports employers are legally required to submit, while a small product team builds the case-management tool the rest of them use.",
+  "confidence": "high",
+  "bucket": "Technology and software",
+  "issue": 45
+ },
+ {
+  "name": "Tvarita Collective",
+  "sector": "Arts and culture",
+  "country": "Bengaluru, India",
+  "what_they_do": "Tvarita finds traditional Indian folk and classical artists and puts them into paid work. It sells live performances, storytelling shows, art workshops and handmade artist products to schools, colleges, companies, festivals and households, and pays the artists out of what it earns.",
+  "how_they_work": "Two co-founders and a small team spend their days tracking down and verifying artists across dozens of regional art forms, matching the right troupe to an enquiry from a school or a company, quoting and scheduling the event, arranging travel and logistics for performers coming in from villages, documenting each artist's story and tradition in writing and video, and then running the event on the day.",
+  "confidence": "high",
+  "bucket": "Nonprofit and social impact",
+  "issue": 46
+ },
+ {
+  "name": "Vidhya Vidhai",
+  "sector": "Education nonprofit",
+  "country": "Chennai, Tamil Nadu, India",
+  "what_they_do": "Vidhya Vidhai is a nonprofit that trains head teachers and teachers in government and low-income schools across Tamil Nadu and Puducherry to run their schools better. The schools do not pay: funders such as Wipro Foundation pay for the programmes, and one idea they built, a student house system called Magizh Mutram, was picked up by the Tamil Nadu education department and rolled out across government schools.",
+  "how_they_work": "Around twenty-five to forty staff, split into district field teams (Coimbatore, Nagapattinam, Tirunelveli, Cuddalore, Sivagangai) and central teams for programme design, research, people and culture, growth and communications, spend their days travelling out to schools, running leadership workshops with head teachers, writing up visit notes and filling trackers and reports afterwards, and gathering data across hundreds of schools to show funders what actually changed.",
+  "confidence": "high",
+  "bucket": "Nonprofit and social impact",
+  "issue": 47
+ },
+ {
+  "name": "Zerodha",
+  "sector": "Retail stockbroking, fintech",
+  "country": "Bengaluru, India",
+  "what_they_do": "Zerodha is India's largest stockbroker. Ordinary people open an account and buy and sell shares, mutual funds and derivatives through its apps, Kite for trading, Coin for mutual funds and Console for statements, and Zerodha charges a flat fee of up to twenty rupees per order, with nothing charged on ordinary share purchases.",
+  "how_they_work": "It serves more than ten million customers with only about a thousand staff and no sales team, no advertising and no sales targets, so most of the work is support and back office: answering an enormous daily volume of customer tickets and phone calls, checking identity documents to open new accounts, and doing the daily regulatory filings the exchanges and the regulator demand, alongside a famously small in-house engineering team (reported at around thirty-six people) that builds the trading platforms and a team that writes free investor-education material called Varsity.",
+  "confidence": "high",
+  "bucket": "Finance and capital",
+  "issue": 48
+ },
+ {
+  "name": "Zuva Life",
+  "sector": "Midlife transitions, coaching",
+  "country": "Bengaluru, India",
+  "what_they_do": "Zuva Life runs programmes for people in midlife and beyond who are working out what they do next, covering longer careers, new kinds of work, money, learning and staying connected. It sells workshops, small-group cohort journeys, retreats and one-to-one sessions, mostly through employers, wellness and longevity companies, career platforms and coaches rather than straight to individuals.",
+  "how_they_work": "A very small team around founder Vandana Srivastava, with a co-founder, an associate, a brand designer and a bench of outside coaches and advisors, spends its days designing session content and exercises, recruiting and then running each cohort, holding one-to-one conversations with participants, writing brand and social content, and pitching the programme to HR teams and wellness partners who will bring a group.",
+  "confidence": "high",
+  "bucket": "Consumer and retail",
+  "issue": 49
+ }
+]
