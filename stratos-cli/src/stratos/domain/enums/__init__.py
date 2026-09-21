@@ -31,4 +31,55 @@ class ExitCode(IntEnum):
     CANCELLED = 10
 
 
-__all__ = ["ExitCode", "LogLevel", "OutputFormat"]
+class AuditAction(StrEnum):
+    """Sensitive actions that must produce an audit event."""
+
+    PROJECT_CREATE = "project.create"
+    PROJECT_DELETE = "project.delete"
+    REPO_CREATE = "repo.create"
+    REPO_DELETE = "repo.delete"
+    AGENT_RUN = "agent.run"
+    DEPLOYMENT_CREATE = "deployment.create"
+    DEPLOYMENT_ROLLBACK = "deployment.rollback"
+    MCP_INSTALL = "mcp.install"
+    SKILL_INSTALL = "skill.install"
+
+
+class AuditResult(StrEnum):
+    SUCCESS = "success"
+    FAILURE = "failure"
+    DENIED = "denied"
+
+
+class Role(StrEnum):
+    VIEWER = "viewer"
+    DEVELOPER = "developer"
+    MAINTAINER = "maintainer"
+    ADMIN = "admin"
+
+
+class Permission(StrEnum):
+    """Permissions checked before sensitive operations. Names mirror audit actions."""
+
+    ORG_READ = "org.read"
+    AUDIT_READ = "audit.read"
+    PROJECT_CREATE = "project.create"
+    PROJECT_DELETE = "project.delete"
+    REPO_CREATE = "repo.create"
+    REPO_DELETE = "repo.delete"
+    AGENT_RUN = "agent.run"
+    DEPLOYMENT_CREATE = "deployment.create"
+    DEPLOYMENT_ROLLBACK = "deployment.rollback"
+    MCP_INSTALL = "mcp.install"
+    SKILL_INSTALL = "skill.install"
+
+
+__all__ = [
+    "AuditAction",
+    "AuditResult",
+    "ExitCode",
+    "LogLevel",
+    "OutputFormat",
+    "Permission",
+    "Role",
+]

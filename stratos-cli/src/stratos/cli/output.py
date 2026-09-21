@@ -15,6 +15,7 @@ from rich.table import Table
 
 from stratos.domain.enums import OutputFormat
 from stratos.utils.redaction import SecretRedactor
+from stratos.utils.validation import sanitize, sanitize_text
 
 # Semantic palette: success green, warning orange, error red, info blue, AI purple, security cyan.
 STYLES = {
@@ -48,7 +49,7 @@ class ConsoleRenderer:
         *,
         title: str | None = None,
     ) -> None:
-        clean = self._redactor.redact(rows if isinstance(rows, Mapping) else list(rows))
+        clean = sanitize(self._redactor.redact(rows if isinstance(rows, Mapping) else list(rows)))
         if self.format is OutputFormat.QUIET:
             return
         if self.format is OutputFormat.JSON:
@@ -96,7 +97,7 @@ class ConsoleRenderer:
     def _message(self, style: str, symbol: str, message: str, *, err: bool = False) -> None:
         if self.format is OutputFormat.QUIET and not err:
             return
-        text = self._redactor.redact_text(message)
+        text = sanitize_text(self._redactor.redact_text(message))
         (self._err if err else self._out).print(f"[{STYLES[style]}]{symbol}[/] ", end="")
         (self._err if err else self._out).print(text, markup=False, highlight=False)
 
@@ -119,6 +120,10 @@ class ConsoleRenderer:
     def debug(self, message: str) -> None:
         """Diagnostic detail (e.g. tracebacks) on stderr; only used under --debug."""
         self._err.print(self._redactor.redact_text(message), markup=False, highlight=False)
+
+    def secret(self, value: str) -> None:
+        """Print a secret verbatim. Bypasses redaction; only for explicit opt-in commands."""
+        self._out.print(value, markup=False, highlight=False, soft_wrap=True)
 
     def panel(self, body: str, *, title: str | None = None, style: str = "info") -> None:
         if self.format is not OutputFormat.QUIET:

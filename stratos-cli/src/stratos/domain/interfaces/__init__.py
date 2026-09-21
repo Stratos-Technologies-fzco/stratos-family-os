@@ -25,4 +25,19 @@ class Renderer(Protocol):
     def confirm(self, message: str, *, default: bool = False) -> bool: ...
 
 
-__all__ = ["Renderer"]
+from stratos.domain.interfaces.audit import AuditStore  # noqa: E402
+from stratos.domain.interfaces.identity import (  # noqa: E402
+    AccessTokenProvider,
+    CallbackReceiver,
+    IdentityProvider,
+    SecretStore,
+)
+
+__all__ = [
+    "AccessTokenProvider",
+    "AuditStore",
+    "CallbackReceiver",
+    "IdentityProvider",
+    "Renderer",
+    "SecretStore",
+]

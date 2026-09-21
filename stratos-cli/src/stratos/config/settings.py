@@ -28,6 +28,15 @@ class DefaultsSettings(BaseModel):
     environment: str = "development"
 
 
+class AuthSettings(BaseModel):
+    """Public-client OIDC settings. No secrets: the login flow uses PKCE."""
+
+    model_config = ConfigDict(extra="forbid")
+    issuer: str | None = None
+    client_id: str | None = None
+    scopes: str = "openid profile email offline_access"
+
+
 class Settings(BaseSettings):
     """Resolved configuration. Environment variables use the STRATOS_ prefix
     and `__` for nesting, e.g. STRATOS_API__ENDPOINT."""
@@ -40,6 +49,7 @@ class Settings(BaseSettings):
     api: ApiSettings = Field(default_factory=ApiSettings)
     github: GithubSettings = Field(default_factory=GithubSettings)
     ai: AiSettings = Field(default_factory=AiSettings)
+    auth: AuthSettings = Field(default_factory=AuthSettings)
     defaults: DefaultsSettings = Field(default_factory=DefaultsSettings)
 
     @classmethod

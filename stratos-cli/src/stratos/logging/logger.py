@@ -26,6 +26,11 @@ def set_correlation(request_id: str | None = None, correlation_id: str | None = 
     _correlation_id.set(correlation_id or new_id())
 
 
+def get_correlation_ids() -> tuple[str, str]:
+    """(request_id, correlation_id) for the current invocation."""
+    return _request_id.get(), _correlation_id.get()
+
+
 class _RedactingFilter(logging.Filter):
     def __init__(self, redactor: SecretRedactor) -> None:
         super().__init__()

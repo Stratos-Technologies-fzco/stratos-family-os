@@ -41,6 +41,50 @@
         "Where organisation-wide default settings should be stored on a user's computer (a sensible location was chosen for now).",
         "The automated build tool 'uv' is not installed on the development machine, so the dependency lock file is still to be generated."
       ]
+    },
+    {
+      "id": 3,
+      "date": "21 September 2026",
+      "area": "Source control",
+      "title": "Project code published to GitHub for review",
+      "status": "Complete",
+      "summary": "The project was uploaded to the company's GitHub space so it can be reviewed and shared.",
+      "delivered": [
+        "A separate review copy (a branch called 'stratos-cli') was created inside the existing 'stratos-family-os' repository of the Stratos-Technologies-fzco organisation, in its own 'stratos-cli' folder.",
+        "The main version of that repository was not changed.",
+        "Internal planning material (the Module Structure document) was deliberately left out of the upload."
+      ],
+      "value": "The work is now backed up and visible to reviewers. Using a separate branch means nothing existing can be disturbed, and the team decides when to merge.",
+      "decisions": [
+        "The repository is public, so the uploaded code can be seen by anyone. Confirm this is acceptable, or move the project to a private repository.",
+        "A dedicated 'Stratos-CLI' repository could not be created because the account does not yet have permission to create repositories in the organisation."
+      ],
+      "next": "Decide on the long-term home of the code and grant repository-creation permission if a dedicated repository is wanted."
+    },
+    {
+      "id": 4,
+      "date": "21 September 2026",
+      "area": "Layer B: Connectivity & Trust",
+      "title": "Sign-in, access control, platform connection and audit trail built (modules M07 to M10)",
+      "status": "Complete and tested",
+      "summary": "The four modules that let the tool prove who a user is, decide what they may do, talk to the Stratos platform safely, and keep a record of sensitive actions.",
+      "delivered": [
+        "Secure sign-in (M08): users sign in through their organisation's identity system in a web browser, using the industry-standard method that never handles their password. New commands: 'stratos login', 'logout', 'whoami' and 'auth status / token'. The design supports Microsoft Entra ID, Okta, Google Workspace and similar providers.",
+        "Safe credential storage (M08): sign-in credentials are kept only in the computer's built-in secure vault. If no vault is available the tool stops rather than saving anything in readable form. Signing out removes everything.",
+        "Access control (M09): every person is given a role (viewer, developer, maintainer or administrator) by their organisation's identity system. Sensitive actions check the role first, and anyone without a role gets read-only access. Refusals are clear and are recorded.",
+        "Platform connection (M07): one shared, well-behaved channel to the Stratos platform. It uses encryption only, retries temporary problems with increasing pauses, respects the platform's 'slow down' requests, tags every request so problems can be traced, and never repeats a risky action such as a deletion unless it is safe to do so. It refuses to follow links to other websites so credentials cannot be sent astray.",
+        "Audit trail (M10): nine sensitive actions (creating or deleting projects and repositories, running agents, deploying and rolling back, installing tools) can now be recorded with who, when, what, on which item and the outcome, including failures and refusals. New commands 'stratos audit list' and 'audit get' let authorised people review the trail. Secrets are never written to it.",
+        "Written security documentation: a security overview and a formal design decision record for the security approach."
+      ],
+      "value": "This delivers the platform's top priority, security, and its enterprise governance expectations. Staff sign in with existing company accounts, access follows least privilege, all traffic is encrypted, credentials are never stored in the open, and there is a reviewable record of sensitive activity. Later features (repositories, deployments, agents) can plug into these controls instead of building their own.",
+      "quality": "95 automated checks now pass in total (61 new). They cover the sign-in security steps, credential storage, expired-session renewal, every role against every permission, retry and slow-down behaviour, refusal to repeat risky actions, error handling, the audit record for each sensitive action, and confirmation that no secret appears in output or records. Code style and type-safety checks are clean.",
+      "decisions": [
+        "The role-to-permission table (who may do what) is a proposed default and needs business approval before real use.",
+        "No live identity provider or platform backend exists yet, so sign-in and platform calls were tested against simulated services only. Sign-in needs the organisation's identity provider address and client ID to be supplied.",
+        "Audit records are kept in a local file on each user's computer until the platform can store them centrally.",
+        "The platform connection assumes standard conventions for paging through long lists, pending the published platform API description."
+      ],
+      "next": "Layer C: Enterprise Integrations (GitHub repositories, organisations and teams, Claude Code, skills, MCP, AI providers, agents and the knowledge base)."
     }
   ]
 }
