@@ -27,19 +27,27 @@ if TYPE_CHECKING:
     from stratos.application.auth_service import AuthService
     from stratos.application.authorization import AuthorizationService
     from stratos.application.claude_service import ClaudeIntegrationService
+    from stratos.application.deployment_service import DeploymentService, EnvironmentService
     from stratos.application.diagnostics import Facts
+    from stratos.application.init_service import InitService
     from stratos.application.knowledge_service import KnowledgeService
     from stratos.application.mcp_service import McpService
     from stratos.application.org_service import OrgService, TeamService
     from stratos.application.policy_service import PolicyService
+    from stratos.application.project_service import ProjectService
     from stratos.application.repository_service import RepositoryService
     from stratos.application.safety import OperationGuard
     from stratos.application.skill_service import SkillService
+    from stratos.application.workspace_service import WorkspaceService
     from stratos.domain.interfaces import AIProvider, KnowledgeProvider
     from stratos.infrastructure.api.client import PlatformApiClient
     from stratos.infrastructure.claude.manager import ClaudeCodeManager
     from stratos.infrastructure.filesystem.cache import TtlCache
     from stratos.infrastructure.filesystem.config_files import ConfigFileProtector
+    from stratos.infrastructure.filesystem.registry_store import (
+        LocalProjectStore,
+        LocalWorkspaceStore,
+    )
     from stratos.infrastructure.github.service import GitHubService
 
 
@@ -226,7 +234,16 @@ class CliContext:
             )
         return Path(configured).expanduser()
 
-    def skill_service(self, *, dry_run: bool = False, yes: bool = False) -> "SkillService":
+    def _claude_for(self, project_dir: Path | None) -> "ClaudeCodeManager":
+        from stratos.infrastructure.claude.manager import ClaudeCodeManager
+
+        if project_dir is None:
+            return self.claude
+        return ClaudeCodeManager(project_dir, self.protector)
+
+    def skill_service(
+        self, *, dry_run: bool = False, yes: bool = False, project_dir: Path | None = None
+    ) -> "SkillService":
         from stratos import __version__
         from stratos.application.skill_service import SkillService
         from stratos.infrastructure.filesystem.skill_registry import LocalSkillRegistry
@@ -234,7 +251,7 @@ class CliContext:
         root = self._registry_root(self.settings.skills.registry, "skills.registry")
         return SkillService(
             LocalSkillRegistry(root),
-            self.claude,
+            self._claude_for(project_dir),
             self.protector,
             self.require,
             self.audit,
@@ -244,14 +261,16 @@ class CliContext:
             registry_id=str(root.resolve()),
         )
 
-    def mcp_service(self, *, dry_run: bool = False, yes: bool = False) -> "McpService":
+    def mcp_service(
+        self, *, dry_run: bool = False, yes: bool = False, project_dir: Path | None = None
+    ) -> "McpService":
         from stratos.application.mcp_service import McpService
         from stratos.infrastructure.mcp.registry import LocalMcpRegistry
 
         root = self._registry_root(self.settings.mcp.registry, "mcp.registry")
         return McpService(
             LocalMcpRegistry(root),
-            self.claude,
+            self._claude_for(project_dir),
             self.require,
             self.audit,
             self.guard(dry_run=dry_run, yes=yes),
@@ -414,9 +433,144 @@ class CliContext:
             default_model=s.ai.model,
         )
 
+    # ---- Layer D: projects, init, workspaces, environments, deployments ---
+    @cached_property
+    def project_store(self) -> "LocalProjectStore":
+        from stratos.infrastructure.filesystem.registry_store import LocalProjectStore
+
+        return LocalProjectStore()
+
+    @cached_property
+    def workspace_store(self) -> "LocalWorkspaceStore":
+        from stratos.infrastructure.filesystem.registry_store import LocalWorkspaceStore
+
+        return LocalWorkspaceStore()
+
+    def org_instructions(self) -> str:
+        from stratos.infrastructure.filesystem.templates import DEFAULT_INSTRUCTIONS
+        from stratos.utils.files import read_text_limited
+
+        configured = self.settings.project.instructions_file
+        return (
+            read_text_limited(Path(configured).expanduser(), 50_000)
+            if configured
+            else DEFAULT_INSTRUCTIONS
+        )
+
+    def project_service(self, *, dry_run: bool = False, yes: bool = False) -> "ProjectService":
+        from stratos import __version__
+        from stratos.application.project_service import ProjectService
+        from stratos.infrastructure.filesystem.skill_registry import LocalSkillRegistry
+        from stratos.infrastructure.mcp.registry import LocalMcpRegistry
+
+        s = self.settings
+        allowed = s.mcp.allowed
+        skills_root, mcp_root = s.skills.registry, s.mcp.registry
+        return ProjectService(
+            self.project_store,
+            self.github,
+            self.require,
+            self.audit,
+            self.guard(dry_run=dry_run, yes=yes),
+            self.policy,
+            default_org=self.default_org,
+            default_environment=s.defaults.environment,
+            ai_provider=s.ai.provider,
+            ai_model=s.ai.model,
+            instructions=self.org_instructions(),
+            knowledge_sources=self.knowledge_source_labels,
+            skills=lambda: (
+                LocalSkillRegistry(Path(skills_root).expanduser()) if skills_root else None
+            ),
+            mcp=lambda: LocalMcpRegistry(Path(mcp_root).expanduser()) if mcp_root else None,
+            mcp_allowed=lambda name: allowed is None or name in allowed,
+            stratos_version=__version__,
+        )
+
+    def init_service(
+        self, project_dir: Path | None = None, *, dry_run: bool = False, yes: bool = False
+    ) -> "InitService":
+        from stratos.application.init_service import InitService
+
+        s = self.settings
+        target = project_dir or self.project_dir
+        return InitService(
+            target,
+            self.require,
+            self.audit,
+            self.guard(dry_run=dry_run, yes=yes),
+            org=self.default_org,
+            ai_provider=s.ai.provider,
+            ai_model=s.ai.model,
+            instructions=self.org_instructions(),
+            knowledge_sources=self.knowledge_source_labels,
+            skills=lambda: self.skill_service(yes=yes, project_dir=target),
+            mcp=lambda: self.mcp_service(yes=yes, project_dir=target),
+            redactor=self.redactor,
+        )
+
+    def workspace_service(self, *, dry_run: bool = False, yes: bool = False) -> "WorkspaceService":
+        from stratos.application.workspace_service import WorkspaceService
+        from stratos.infrastructure.github.git import clone_repository
+
+        configured = self.settings.workspace.root
+        root = Path(configured).expanduser() if configured else Path.home() / "stratos-workspaces"
+        return WorkspaceService(
+            self.workspace_store,
+            self.project_store,
+            self.require,
+            self.audit,
+            self.guard(dry_run=dry_run, yes=yes),
+            root=root,
+            default_org=self.default_org,
+            clone=lambda org, name, dest: clone_repository(org, name, dest),
+            init_factory=lambda path: self.init_service(path, dry_run=dry_run, yes=yes),
+        )
+
+    def environment_service(
+        self, *, dry_run: bool = False, yes: bool = False
+    ) -> "EnvironmentService":
+        from stratos.application.deployment_service import EnvironmentService
+
+        return EnvironmentService(
+            self.project_store, self.github, self.require, self.audit,
+            self.guard(dry_run=dry_run, yes=yes),
+            default_org=self.default_org,
+            default_environment=self.settings.defaults.environment,
+        )  # fmt: skip
+
+    def deployment_service(
+        self, *, dry_run: bool = False, yes: bool = False
+    ) -> "DeploymentService":
+        from stratos.application.deployment_service import DeploymentService
+
+        return DeploymentService(
+            self.project_store, self.github, self.require, self.audit,
+            self.guard(dry_run=dry_run, yes=yes),
+            default_org=self.default_org,
+            default_environment=self.settings.defaults.environment,
+        )  # fmt: skip
+
+    def resolve_project(
+        self, project: str | None, org: str | None = None
+    ) -> tuple[str, str | None]:
+        """Project name (and organisation): the option, else this folder's manifest."""
+        from stratos.application.init_service import read_manifest
+        from stratos.domain.exceptions import ValidationError
+
+        if project:
+            return project, org
+        manifest = read_manifest(self.project_dir)
+        if manifest is None:
+            raise ValidationError(
+                "No project specified.",
+                hint="Use --project NAME, or run inside a folder set up with `stratos init`.",
+            )
+        return manifest.name, org or manifest.organisation or None
+
     # ---- diagnostics (M23) ---------------------------------------------------------------
-    def diagnostics_facts(self) -> "Facts":
-        """Gather local facts for `stratos doctor`. Never makes a network call."""
+    def diagnostics_facts(self, *, online: bool = False) -> "Facts":
+        """Gather facts for `stratos doctor`. Network probes only when `online` is set."""
         import shutil
         import sys
 
@@ -471,6 +625,46 @@ class CliContext:
         k = settings.knowledge
         sources = len(k.paths) + len(k.pdf_paths) + len(k.github) + len(k.sharepoint_sites)
         sources += 1 if k.confluence_url else 0
+        from stratos.application.init_service import read_manifest
+        from stratos.domain.exceptions import ConfigurationError as ConfigError
+
+        try:
+            manifest_state = "valid" if read_manifest(self.project_dir) else "missing"
+        except ConfigError as exc:
+            manifest_state = f"invalid: {exc.message}"
+        credential_vars = tuple(
+            n
+            for n in (
+                "GITHUB_TOKEN",
+                "GH_TOKEN",
+                "ANTHROPIC_API_KEY",
+                "OPENAI_API_KEY",
+                "AZURE_OPENAI_API_KEY",
+                "CONFLUENCE_API_TOKEN",
+                "SHAREPOINT_TOKEN",
+            )
+            if os.environ.get(n)
+        )  # names only; values are never read into the report
+        permissions: tuple[str, ...] | None = None
+        if signed_in:
+            try:
+                permissions = tuple(
+                    sorted(
+                        p.value
+                        for p in self.authorization.permissions_for(self.auth_service.whoami())
+                    )
+                )
+            except Exception:  # noqa: BLE001
+                permissions = None
+        probes: dict[str, tuple[bool, str]] | None = None
+        if online:
+            from stratos.infrastructure.api.probes import http_probe, tcp_probe
+
+            probes = {
+                "Network (github.com)": tcp_probe("github.com", 443),
+                "GitHub API": http_probe(settings.github.api_url.rstrip("/") + "/rate_limit"),
+                "Platform API": http_probe(str(settings.api.endpoint), any_response=True),
+            }
         return Facts(
             python=(sys.version_info.major, sys.version_info.minor),
             config_error=config_error,
@@ -486,4 +680,10 @@ class CliContext:
             skills_registry=bool(settings.skills.registry),
             mcp_registry=bool(settings.mcp.registry),
             knowledge_sources=sources,
+            uv_found=shutil.which("uv") is not None,
+            docker_found=shutil.which("docker") is not None,
+            project_manifest=manifest_state,
+            credential_env_vars=credential_vars,
+            permissions=permissions,
+            online=probes,
         )

@@ -22,6 +22,9 @@ def cli_sandbox(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Callable[...
     monkeypatch.setattr(loader, "org_config_path", lambda: tmp_path / "org.yaml")
     monkeypatch.setattr(loader, "project_config_path", lambda cwd=None: tmp_path / "project.yaml")
     monkeypatch.setattr(audit_log, "default_audit_path", lambda: tmp_path / "audit.jsonl")
+    from stratos.infrastructure.filesystem import registry_store
+
+    monkeypatch.setattr(registry_store, "default_registry_dir", lambda: tmp_path / "data")
     monkeypatch.setattr(cache, "user_cache_dir", lambda *a, **k: str(tmp_path / "cache"))
     monkeypatch.chdir(tmp_path)
     store = InMemorySecretStore()

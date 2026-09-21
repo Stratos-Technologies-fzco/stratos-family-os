@@ -24,6 +24,12 @@ stratos repo create my-service               # safe to re-run
 stratos repo configure my-service --policy --security --actions
 stratos knowledge search "how do we roll back a deployment"
 stratos agent run code-review --input path/to/change.diff
+
+stratos project create my-service --owner @acme/team --template python
+stratos init                                  # bring an existing folder into the setup
+stratos workspace create dev1 --project my-service --python
+stratos deploy dev --project my-service       # requests a deployment; your CI performs it
+stratos deploy status --project my-service
 ```
 
 Every command supports `-o json|yaml|plain|table|quiet`. Mutating commands support `--dry-run` and confirm before anything destructive (`--yes` for automation). See [`docs/CLI_REFERENCE.md`](docs/CLI_REFERENCE.md).
@@ -41,4 +47,4 @@ Every command supports `-o json|yaml|plain|table|quiet`. Mutating commands suppo
 
 ## Status
 
-Foundation, connectivity, integrations, governance and CI are implemented. The Stratos Platform API does not exist yet: the SDK is built against standard OIDC/HTTP conventions and local adapters, and does not invent backend behaviour. The project/workspace/deployment workflow modules (Layer D) are next.
+Foundation, connectivity, integrations, governance, CI and the developer workflow (projects, `init`, workspaces, environments, deployments, diagnostics) are implemented. The Stratos Platform API does not exist yet: the SDK is built against standard OIDC/HTTP conventions, and projects, environments and deployments are backed by GitHub and local registries rather than invented endpoints.

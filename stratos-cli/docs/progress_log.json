@@ -143,6 +143,33 @@
         "Still outside Layers A to C by design: the Stratos platform backend (so no platform endpoints exist), and the Layer D workflow modules (projects, workspaces, environments and deployments)."
       ],
       "next": "Layer D: Developer Workflow (project lifecycle, project initialisation, workspaces, environments and deployment)."
+    },
+    {
+      "id": 7,
+      "date": "21 September 2026",
+      "area": "Layer D: Developer Workflow",
+      "title": "Projects, setup, workspaces, environments and deployments built (modules M19 to M23)",
+      "status": "Complete and tested",
+      "summary": "The day-to-day developer workflow was built: creating a whole project in one command, bringing an existing folder into the standard setup, provisioning personal workspaces, managing environments, and deploying and rolling back releases.",
+      "delivered": [
+        "Project lifecycle (M19): 'stratos project create' sets up a project end to end in 14 steps: registers it, creates the GitHub repository, applies labels, branch protection, code owners, a starter automated-test pipeline, the company merge and security policy, a development environment, the AI settings, and Claude Code instructions, skills, tool servers and knowledge links. It is safe to repeat, can be previewed, and if it stops part-way the same command carries on where it left off without duplicating anything. Nothing is deleted automatically on failure. Projects can be listed, viewed, updated (description, code owners) and removed; removal asks for confirmation and can also archive the repository.",
+        "Project setup (M20): 'stratos init' brings an existing folder into the standard setup: it detects what is already there, adds only what is missing, shows exactly what changed in existing files, keeps a backup, and undoes everything if a step fails. Running it twice changes nothing the second time. It also stops Claude Code from reading .env files while keeping the developer's own rules.",
+        "Workspaces (M21): 'stratos workspace' creates a developer's working copy of a project: it copies the code, applies the standard setup, prepares Python or Node.js if asked, creates the .env file from the example (never overwriting an existing one), and installs a safety check that blocks commits containing passwords, keys or .env files. Installing software packages only happens when explicitly requested, because it runs other people's code. Workspaces can be listed, viewed, reconnected (including adopting a copy that already exists) and deleted, and deletion refuses to throw away unsaved work.",
+        "Environments and deployments (M22): environments (development, staging, production) can be listed, created and deleted. 'stratos deploy' requests a release to development, staging or production, reports status, and rolls back to the previous release that actually succeeded. Production releases, rollbacks and deletions ask for confirmation, and a failed request is never retried automatically. The tool records the request; the project's own automated pipeline carries out the rollout and reports the real result, so the tool never claims a release succeeded on its own.",
+        "Health checks (M23): 'stratos doctor' now also checks uv, Docker, the project setup, which credential settings exist (names only), and the person's permissions. An optional online mode tests the internet connection, GitHub and the platform address without sending any credentials. 'version' and 'status' now show more (computer type, project, workspaces, environments).",
+        "How it works without a platform backend: because the Stratos platform does not exist yet, GitHub is used for what it already provides (repositories, environments, deployments), and lists of projects and workspaces are kept on the developer's computer until the platform can hold them."
+      ],
+      "value": "A developer can go from nothing to a governed, protected, tested and deployable project in one command, and from a fresh laptop to a ready workspace in another, with the same standards applied every time. Every risky step is previewable, confirmable and recorded in the audit trail, and the tool never overwrites people's own files or reports a deployment as successful without evidence.",
+      "quality": "306 automated checks pass in total (65 new), with code style and strict type checks clean. New checks cover resuming a project after a mid-way failure, running setup twice, preserving developers' existing files, undoing a failed setup, refusing to overwrite work or foreign folders, duplicate-deployment detection, rolling back past a failed release, confirmation prompts and cancellation, and that a failed deployment request is attempted only once. The commit safety check was tested for real inside a genuine git repository (it blocked a .env file and a fake API key and allowed normal commits). The new GitHub calls were also checked read-only against the real GitHub service, and the health check was run for real on this computer. One robustness defect found in testing (a damaged registry file caused a confusing error) was fixed.",
+      "decisions": [
+        "Projects and workspaces are recorded on each developer's own computer until the platform can store them centrally, so 'project list' shows only projects created from that computer.",
+        "Deployments depend on the project's own pipeline listening for GitHub deployment events; without one, a deployment stays 'queued'. Confirm this matches how teams intend to release.",
+        "Staging and production environments are protected to deploy only from protected branches where the GitHub plan allows it; otherwise they are created unprotected.",
+        "The starter pipelines (Python or Node.js) are deliberately minimal; the company may want its own templates.",
+        "Extra audited actions and permissions were added beyond the specification (project update and setup, workspace create and delete, environment create and delete) and placed in the proposed role table: developers create and update; maintainers delete environments, roll back and manage tool servers.",
+        "Still open from earlier: the company LICENSE file, and real-account tests for Confluence, SharePoint, OpenAI and Azure OpenAI."
+      ],
+      "next": "Layer E completion (full operation safety, caching and performance work, quality gates), or connecting the platform backend once it exists."
     }
   ]
 }

@@ -41,6 +41,13 @@ Security is the first-listed platform priority. This document describes the cont
 - **Claude subagents** exported from agents get read-only tools unless the agent's permissions grant more; developer-authored subagent files are never overwritten.
 - **Remote knowledge** (GitHub, Confluence, SharePoint) is read live and never cached; credentials come from the environment and are never written to configuration. SharePoint downloads use pre-authenticated HTTPS URLs without sending credentials.
 
+## Developer workflow (Layer D)
+- **Project creation** commits only verified content: skills are checksum- and compatibility-checked, MCP servers are validated (no secrets, references only) and policy-checked, existing files are preserved via managed blocks and merging.
+- **`stratos init`** backs up every file it changes, shows a diff, rolls everything back if a step fails, and adds `.env` deny rules to `.claude/settings.json` (keeping any rules already there).
+- **Workspaces** never install dependencies unless asked, disable Node install scripts, never overwrite `.env` or an existing git hook, and install a pre-commit hook that blocks `.env` files and obvious credentials. Deleting files refuses uncommitted work (unless `--force`) and anything that is not a git working copy.
+- **Deployments** confirm production deploys, rollbacks and deletions, are never retried automatically, use protected-branch environments for staging and production where the plan allows, and never report success themselves; they show the statuses the pipeline posts.
+- **`doctor`** reports credential variable *names* only. `--online` probes send no credentials.
+
 ## Organisation policy and monitoring
 - `policy.allow_public_repos`, `policy.allowed_ai_providers`, `policy.allowed_ai_models`, `mcp.allowed` and `agents.allowed_permissions` are enforced in services (normally set in the organisation configuration layer). Refusals exit with code 4 and are audited as `denied`.
 - `stratos audit summary` gives usage analytics and alerts (many denials, high failure rate, a user repeatedly denied); thresholds are `monitoring.*`.

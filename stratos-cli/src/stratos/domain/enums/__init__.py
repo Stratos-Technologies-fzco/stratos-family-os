@@ -49,6 +49,12 @@ class AuditAction(StrEnum):
     MCP_CONFIGURE = "mcp.configure"  # extension beyond the spec list
     AGENT_CREATE = "agent.create"  # extension beyond the spec list
     CLAUDE_CONFIGURE = "claude.configure"  # extension beyond the spec list
+    PROJECT_UPDATE = "project.update"  # extension beyond the spec list
+    PROJECT_INIT = "project.init"  # extension beyond the spec list
+    WORKSPACE_CREATE = "workspace.create"  # extension beyond the spec list
+    WORKSPACE_DELETE = "workspace.delete"  # extension beyond the spec list
+    ENVIRONMENT_CREATE = "environment.create"  # extension beyond the spec list
+    ENVIRONMENT_DELETE = "environment.delete"  # extension beyond the spec list
 
 
 class AuditResult(StrEnum):
@@ -84,6 +90,17 @@ class Permission(StrEnum):
     MCP_CONFIGURE = "mcp.configure"
     AGENT_CREATE = "agent.create"
     CLAUDE_CONFIGURE = "claude.configure"
+    PROJECT_UPDATE = "project.update"
+    WORKSPACE_CREATE = "workspace.create"
+    WORKSPACE_DELETE = "workspace.delete"
+    ENVIRONMENT_CREATE = "environment.create"
+    ENVIRONMENT_DELETE = "environment.delete"
+
+
+class ProjectStatus(StrEnum):
+    PROVISIONING = "provisioning"
+    PARTIAL = "partial"  # a step failed; re-run `project create` to resume
+    ACTIVE = "active"
 
 
 class AgentPermission(StrEnum):
@@ -98,6 +115,7 @@ class AgentPermission(StrEnum):
 
 __all__ = [
     "AgentPermission",
+    "ProjectStatus",
     "AuditAction",
     "AuditResult",
     "ExitCode",

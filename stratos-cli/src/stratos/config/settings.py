@@ -88,6 +88,18 @@ class MonitoringSettings(BaseModel):
     min_events_for_rate: int = 5
 
 
+class ProjectSettings(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    template: str = "none"  # default CI template: python | node | none
+    default_owners: list[str] = Field(default_factory=list)  # CODEOWNERS entries
+    instructions_file: str | None = None  # organisation instructions for CLAUDE.md
+
+
+class WorkspaceSettings(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    root: str | None = None  # default: ~/stratos-workspaces
+
+
 class Settings(BaseSettings):
     """Resolved configuration. Environment variables use the STRATOS_ prefix
     and `__` for nesting, e.g. STRATOS_API__ENDPOINT."""
@@ -108,6 +120,8 @@ class Settings(BaseSettings):
     agents: AgentsSettings = Field(default_factory=AgentsSettings)
     policy: PolicySettings = Field(default_factory=PolicySettings)
     monitoring: MonitoringSettings = Field(default_factory=MonitoringSettings)
+    project: ProjectSettings = Field(default_factory=ProjectSettings)
+    workspace: WorkspaceSettings = Field(default_factory=WorkspaceSettings)
 
     @classmethod
     def settings_customise_sources(

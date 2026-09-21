@@ -20,7 +20,7 @@ from stratos.utils.redaction import REDACTED, SecretRedactor
 runner = CliRunner()
 
 
-# ---- M04: exit codes -------------------------------------------------------
+# ---- M04: exit codes --------------------------------------------------------------------
 @pytest.mark.parametrize(
     ("error", "code"),
     [
@@ -61,7 +61,7 @@ def test_traceback_only_with_debug_and_redacted() -> None:
     assert "Traceback" in err.export_text() and "abc123secret" not in err.export_text()
 
 
-# ---- M05: redaction & logging ---------------------------------------------
+# ---- M05: redaction & logging -----------------------------------------------------------
 @pytest.mark.parametrize(
     "secret",
     [
@@ -107,7 +107,7 @@ def test_log_levels() -> None:
     assert configure_logging(LogLevel.DEBUG).level == logging.DEBUG
 
 
-# ---- M02: output -----------------------------------------------------------
+# ---- M02: output ------------------------------------------------------------------------
 ROWS = [{"name": "alpha", "token": "s3cret"}, {"name": "beta", "token": "t0ken"}]
 
 
@@ -135,7 +135,7 @@ def test_quiet_suppresses_messages() -> None:
     assert out.export_text() == ""
 
 
-# ---- M03: configuration ----------------------------------------------------
+# ---- M03: configuration -----------------------------------------------------------------
 def test_defaults(tmp_path: Path) -> None:
     s = load_settings(
         env={}, org_path=tmp_path / "o", user_path=tmp_path / "u", project_path=tmp_path / "p"
@@ -182,7 +182,7 @@ def test_secrets_rejected_in_yaml(tmp_path: Path) -> None:
         read_yaml(bad)
 
 
-# ---- M01: shell + config commands -----------------------------------------
+# ---- M01: shell + config commands -------------------------------------------------------
 @pytest.fixture
 def isolated(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     from stratos.config import loader

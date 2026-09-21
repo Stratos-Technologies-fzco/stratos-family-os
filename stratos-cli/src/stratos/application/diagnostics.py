@@ -29,6 +29,13 @@ class Facts:
     skills_registry: bool
     mcp_registry: bool
     knowledge_sources: int
+    # Layer D additions (None means "not gathered")
+    uv_found: bool | None = None
+    docker_found: bool | None = None
+    project_manifest: str | None = None  # "valid" | "missing" | "invalid: <why>"
+    credential_env_vars: tuple[str, ...] | None = None  # names only, never values
+    permissions: tuple[str, ...] | None = None
+    online: dict[str, tuple[bool, str]] | None = None  # label -> (reachable, detail)
 
 
 def run_checks(f: Facts) -> list[Check]:
@@ -90,6 +97,36 @@ def run_checks(f: Facts) -> list[Check]:
         f"{f.knowledge_sources} configured",
         "none configured (optional)",
     )
+    if f.uv_found is not None:
+        add("uv", f.uv_found, "found", "not found (optional; recommended for Python projects)")
+    if f.docker_found is not None:
+        add("Docker", f.docker_found, "found", "not found (optional)")
+    if f.project_manifest is not None:
+        if f.project_manifest.startswith("invalid"):
+            checks.append(Check("Project configuration", "fail", f.project_manifest))
+        else:
+            add(
+                "Project configuration",
+                f.project_manifest == "valid",
+                ".stratos/project.yaml is valid",
+                "not a Stratos project here (run `stratos init`)",
+            )
+    if f.credential_env_vars is not None:
+        add(
+            "Environment variables",
+            bool(f.credential_env_vars),
+            ", ".join(f.credential_env_vars) + " set",
+            "no credential variables set (e.g. GITHUB_TOKEN, ANTHROPIC_API_KEY)",
+        )
+    if f.permissions is not None:
+        add(
+            "Permissions",
+            bool(f.permissions),
+            f"{len(f.permissions)}: " + ", ".join(f.permissions),
+            "none",
+        )
+    for label, (reachable, detail) in (f.online or {}).items():
+        add(label, reachable, detail, detail)
     return checks
 
 

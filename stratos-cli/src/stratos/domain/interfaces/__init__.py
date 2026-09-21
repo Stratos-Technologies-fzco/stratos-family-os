@@ -41,6 +41,7 @@ from stratos.domain.interfaces.identity import (  # noqa: E402
     IdentityProvider,
     SecretStore,
 )
+from stratos.domain.interfaces.stores import ProjectStore, WorkspaceStore  # noqa: E402
 
 __all__ = [
     "AIProvider",
@@ -53,7 +54,9 @@ __all__ = [
     "IdentityProvider",
     "KnowledgeProvider",
     "McpRegistry",
+    "ProjectStore",
     "Renderer",
     "SecretStore",
     "SkillRegistry",
+    "WorkspaceStore",
 ]

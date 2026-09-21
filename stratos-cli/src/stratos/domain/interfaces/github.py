@@ -13,6 +13,7 @@ from stratos.domain.models.github import (
     Workflow,
     WorkflowRun,
 )
+from stratos.domain.models.workflow import DeploymentInfo, DeploymentStatus, EnvironmentInfo
 
 
 class GitHubPort(Protocol):
@@ -79,3 +80,57 @@ class GitHubPort(Protocol):
         """Secret scanning, push protection, vulnerability alerts, security updates.
         Returns one line per feature (applied or unavailable)."""
         ...
+
+    # ---- files, description, environments and deployments --------------------------------
+    def update_repo(self, org: str, name: str, *, description: str) -> Repository: ...
+
+    def get_file(self, org: str, repo: str, path: str, *, ref: str | None = None) -> str | None:
+        """Decoded text of a file, or None when it does not exist."""
+        ...
+
+    def put_file(
+        self, org: str, repo: str, path: str, content: str | bytes, *, branch: str, message: str
+    ) -> bool:
+        """Create or update a file. Returns False when it was already identical."""
+        ...
+
+    def resolve_ref(self, org: str, repo: str, ref: str) -> str:
+        """Commit SHA for a branch, tag or SHA."""
+        ...
+
+    def create_environment(
+        self, org: str, repo: str, name: str, *, protected: bool = False
+    ) -> EnvironmentInfo: ...
+
+    def list_environments(self, org: str, repo: str) -> list[EnvironmentInfo]: ...
+
+    def get_environment(self, org: str, repo: str, name: str) -> EnvironmentInfo | None: ...
+
+    def delete_environment(self, org: str, repo: str, name: str) -> None: ...
+
+    def create_deployment(
+        self,
+        org: str,
+        repo: str,
+        *,
+        ref: str,
+        environment: str,
+        description: str = "",
+        payload: dict[str, object] | None = None,
+    ) -> DeploymentInfo: ...
+
+    def list_deployments(
+        self, org: str, repo: str, *, environment: str | None = None, limit: int = 10
+    ) -> list[DeploymentInfo]:
+        """Newest first."""
+        ...
+
+    def deployment_statuses(
+        self, org: str, repo: str, deployment_id: int
+    ) -> list[DeploymentStatus]:
+        """Newest first."""
+        ...
+
+    def add_deployment_status(
+        self, org: str, repo: str, deployment_id: int, state: str, *, description: str = ""
+    ) -> None: ...

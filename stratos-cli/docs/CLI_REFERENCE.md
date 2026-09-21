@@ -271,13 +271,180 @@ stratos config reset [OPTIONS] [key]
 | `KEY` | argument | Key to reset; omit to reset everything. |
 | `--scope` | option | Which config file to modify. (default: `user`) |
 
+## `stratos deploy`
+
+Deploy, inspect and roll back releases.
+
+### `stratos deploy dev`
+
+Deploy to the development environment.
+
+```
+stratos deploy dev [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--project` | option | Project (default: this folder's project). |
+| `--ref` | option | Branch, tag or commit (default: the default branch). |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
+
+### `stratos deploy staging`
+
+Deploy to staging.
+
+```
+stratos deploy staging [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--project` | option | Project (default: this folder's project). |
+| `--ref` | option | Branch, tag or commit (default: the default branch). |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
+
+### `stratos deploy production`
+
+Deploy to production (asks for confirmation).
+
+```
+stratos deploy production [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--project` | option | Project (default: this folder's project). |
+| `--ref` | option | Branch, tag or commit (default: the default branch). |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
+
+### `stratos deploy status`
+
+Latest deployment and its current state per environment.
+
+```
+stratos deploy status [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--project` | option | Project (default: this folder's project). |
+| `--environment`, `-e` | option | Only this environment. |
+| `--org` | option | GitHub organisation (default: configured). |
+
+### `stratos deploy rollback`
+
+Redeploy the previous successful version (asks for confirmation).
+
+```
+stratos deploy rollback [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--environment`, `-e` | option | Environment to roll back. |
+| `--project` | option | Project (default: this folder's project). |
+| `--to` | option | Deployment id to return to. |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
+
 ## `stratos doctor`
 
-Check this machine and configuration. Makes no network calls.
+Check this machine, project and configuration. Offline unless --online is given.
 
 ```
 stratos doctor [OPTIONS]
 ```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--online` | option | Also test the network, GitHub and the Platform API (no credentials sent). |
+
+## `stratos environment`
+
+Manage a project's environments.
+
+### `stratos environment list`
+
+List environments.
+
+```
+stratos environment list [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--project` | option | Project (default: this folder's project). |
+| `--org` | option | GitHub organisation (default: configured). |
+
+### `stratos environment create`
+
+Create an environment (safe to re-run). `dev` means `development`.
+
+```
+stratos environment create [OPTIONS] [name]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument | Environment (default: the configured default). |
+| `--project` | option | Project (default: this folder's project). |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+
+### `stratos environment get`
+
+Show one environment.
+
+```
+stratos environment get [OPTIONS] [name]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument | Environment (default: the configured default). |
+| `--project` | option | Project (default: this folder's project). |
+| `--org` | option | GitHub organisation (default: configured). |
+
+### `stratos environment delete`
+
+Delete an environment (asks for confirmation).
+
+```
+stratos environment delete [OPTIONS] {name}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument **required** |  |
+| `--project` | option | Project (default: this folder's project). |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
+
+## `stratos init`
+
+Bring this folder into the Stratos setup. Safe to run repeatedly.
+
+```
+stratos init [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--name` | option | Project name (default: the folder name). |
+| `--template` | option | python, node or none (default: detected). |
+| `--skill` | option | Skill to install. |
+| `--mcp` | option | MCP server to install. |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--diff` | option | Show what changed in existing files. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
 
 ## `stratos knowledge`
 
@@ -457,6 +624,106 @@ stratos org policy [OPTIONS]
 | Name | Kind | Description |
 |---|---|---|
 | `--org` | option | GitHub organisation (default: configured). |
+
+## `stratos project`
+
+Create and manage projects.
+
+### `stratos project create`
+
+Create a project end to end: repository, protection, CI, environment, Claude setup.
+
+```
+stratos project create [OPTIONS] {name}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument **required** |  |
+| `--description` | option |  (default: ``) |
+| `--public` | option | Create a public repository. |
+| `--template` | option | CI template: python, node, none. |
+| `--owner` | option | CODEOWNERS entry (@user or @org/team). |
+| `--skill` | option | Skill to add (needs skills.registry). |
+| `--mcp` | option | MCP server to add (needs mcp.registry). |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
+
+### `stratos project list`
+
+List registered projects.
+
+```
+stratos project list [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--org` | option | GitHub organisation (default: configured). |
+
+### `stratos project get`
+
+Show one project.
+
+```
+stratos project get [OPTIONS] {name}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument **required** |  |
+| `--org` | option | GitHub organisation (default: configured). |
+
+### `stratos project update`
+
+Update a project's description and/or CODEOWNERS.
+
+```
+stratos project update [OPTIONS] {name}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument **required** |  |
+| `--description` | option |  |
+| `--owner` | option | Replace CODEOWNERS entries. |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+
+### `stratos project delete`
+
+Remove a project from the registry (the repository is kept unless --archive-repo).
+
+```
+stratos project delete [OPTIONS] {name}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument **required** |  |
+| `--archive-repo` | option | Also archive the GitHub repository. |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
+
+### `stratos project init`
+
+Bring this folder into the Stratos setup (same as `stratos init`).
+
+```
+stratos project init [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--name` | option | Project name (default: the folder name). |
+| `--template` | option | python, node or none (default: detected). |
+| `--skill` | option | Skill to install. |
+| `--mcp` | option | MCP server to install. |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--diff` | option | Show what changed in existing files. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
 
 ## `stratos repo`
 
@@ -693,7 +960,7 @@ stratos skill remove [OPTIONS] {name}
 
 ## `stratos status`
 
-Summarise session, organisation and project state (no network calls).
+Summarise session, organisation, project, workspaces and environments (no network).
 
 ```
 stratos status [OPTIONS]
@@ -756,7 +1023,7 @@ stratos team permissions [OPTIONS] {slug}
 
 ## `stratos version`
 
-Show version and runtime information.
+Show version, Python, platform, architecture and API version.
 
 ```
 stratos version [OPTIONS]
@@ -769,6 +1036,83 @@ Show the signed-in identity and roles.
 ```
 stratos whoami [OPTIONS]
 ```
+
+## `stratos workspace`
+
+Provision and connect developer workspaces.
+
+### `stratos workspace create`
+
+Create or reconcile a workspace (safe to re-run).
+
+```
+stratos workspace create [OPTIONS] {name}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument **required** |  |
+| `--project` | option | Registered project to work on. |
+| `--path` | option | Folder (default: workspace root/NAME). |
+| `--python` | option | Create a Python virtual environment. |
+| `--node` | option | Check Node.js is available. |
+| `--hooks` | option | Install the secret-blocking git hook. (default: `True`) |
+| `--install-deps` | option | Also install dependencies (runs third-party code). |
+| `--skill` | option |  |
+| `--mcp` | option |  |
+| `--org` | option | GitHub organisation (default: configured). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
+
+### `stratos workspace list`
+
+List workspaces.
+
+```
+stratos workspace list [OPTIONS]
+```
+
+### `stratos workspace get`
+
+Show one workspace.
+
+```
+stratos workspace get [OPTIONS] {name}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument **required** |  |
+
+### `stratos workspace connect`
+
+Show how to enter a workspace (adopting or refreshing it if asked).
+
+```
+stratos workspace connect [OPTIONS] {name}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument **required** |  |
+| `--path` | option | Adopt an existing clone at this folder. |
+| `--refresh` | option | Re-apply the workspace setup. |
+
+### `stratos workspace delete`
+
+Remove a workspace from the registry (its folder is kept unless --purge-files).
+
+```
+stratos workspace delete [OPTIONS] {name}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `NAME` | argument **required** |  |
+| `--purge-files` | option | Also delete the folder. |
+| `--force` | option | Delete even with uncommitted changes. |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
 
 ## Exit codes
 

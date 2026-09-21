@@ -38,6 +38,26 @@ Start with `stratos doctor` (no network). Add `--debug` to any command for detai
 
 **Machine-readable output looks wrong.** Use `-o json`; long values are never wrapped.
 
+## Projects, workspaces and deployments
+
+**"Project ... is not registered."** Projects are recorded by `stratos project create` on this machine (the registry is local until the Platform API exists). Create it, or pass `--project NAME`.
+
+**A project shows `partial`.** A step failed; `stratos project get NAME` shows `last_error`. Fix the cause and run the same `project create` again: it resumes and never duplicates the repository.
+
+**"No project specified."** Use `--project NAME`, or run inside a folder set up with `stratos init` (it has `.stratos/project.yaml`).
+
+**`stratos init` says the manifest is invalid.** It never rewrites a manifest it cannot read. Fix `.stratos/project.yaml` by hand or delete it and run `stratos init` again.
+
+**Workspace folder "is not a clone of ...".** The folder is a git repository with a different `origin`. Choose another `--path`.
+
+**Deployment stays `queued`.** Stratos only requests the deployment; your CI must listen for GitHub `deployment` events and post statuses. Nothing changes in the environment until it does.
+
+**Environment created "unprotected".** Protection rules (deployment branch policies) need a GitHub plan that supports them; the environment is created without them.
+
+**"There is no earlier successful deployment to roll back to."** Use `stratos deploy rollback -e ENV --to <deployment id>`.
+
+**A registry file is "damaged".** Stratos will not overwrite it. Repair or remove `projects.json` / `workspaces.json` in the user data directory (keep a copy).
+
 ## Where things are
 
 Config: user file in the OS config directory, project file `./.stratos/config.yaml`. Audit log and cache: OS state/cache directories. Backups: `.stratos/backups/` next to the project.

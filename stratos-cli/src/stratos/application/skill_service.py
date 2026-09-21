@@ -41,6 +41,22 @@ class InstallOutcome:
     action: Literal["installed", "updated", "unchanged"]
 
 
+def check_compatibility(manifest: SkillManifest, stratos_version: str) -> None:
+    spec = manifest.compatibility.get("stratos")
+    if not spec:
+        return
+    try:
+        ok = SpecifierSet(spec).contains(Version(stratos_version), prereleases=True)
+    except (InvalidSpecifier, InvalidVersion) as exc:
+        raise ValidationError(
+            f"Skill '{manifest.name}' has an invalid compatibility rule."
+        ) from exc
+    if not ok:
+        raise ValidationError(
+            f"Skill '{manifest.name}' requires stratos {spec} (this is {stratos_version})."
+        )
+
+
 class SkillService:
     def __init__(
         self,
@@ -90,19 +106,7 @@ class SkillService:
 
     # ---- install / update ----------------------------------------------------------------
     def _check_compatibility(self, manifest: SkillManifest) -> None:
-        spec = manifest.compatibility.get("stratos")
-        if not spec:
-            return
-        try:
-            ok = SpecifierSet(spec).contains(Version(self._version), prereleases=True)
-        except (InvalidSpecifier, InvalidVersion) as exc:
-            raise ValidationError(
-                f"Skill '{manifest.name}' has an invalid compatibility rule."
-            ) from exc
-        if not ok:
-            raise ValidationError(
-                f"Skill '{manifest.name}' requires stratos {spec} (this is {self._version})."
-            )
+        check_compatibility(manifest, self._version)
 
     def install(self, name: str) -> InstallOutcome | None:
         """Install one skill. Returns None in dry-run mode."""

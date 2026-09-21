@@ -17,10 +17,8 @@ from typing import Any
 
 from stratos.config.loader import deep_merge
 from stratos.domain.exceptions import ConfigurationError, ValidationError
+from stratos.utils.managed_block import BEGIN, END, set_managed_block  # noqa: F401
 from stratos.utils.redaction import SecretRedactor
-
-BEGIN = "<!-- stratos:begin {id} -->"
-END = "<!-- stratos:end {id} -->"
 
 
 @dataclass(frozen=True)
@@ -33,8 +31,9 @@ class WriteResult:
 
 
 class ConfigFileProtector:
-    def __init__(self, redactor: SecretRedactor | None = None) -> None:
+    def __init__(self, redactor: SecretRedactor | None = None, *, dry_run: bool = False) -> None:
         self._redactor = redactor or SecretRedactor()
+        self.dry_run = dry_run  # compute results and diffs, but write nothing
 
     # ---- building blocks -----------------------------------------------------------------
     @staticmethod
@@ -76,9 +75,15 @@ class ConfigFileProtector:
         if old_exists and path.read_text(encoding="utf-8") == new_text:
             return WriteResult(path, False, False, None, "")
         diff = self.diff(path, new_text)
+        if self.dry_run:
+            return WriteResult(path, True, not old_exists, None, diff)
         backup = self.backup(path)
         self._atomic_write(path, new_text)
         return WriteResult(path, True, not old_exists, backup, diff)
+
+    def write_text(self, path: Path, text: str) -> WriteResult:
+        """Write a whole text file (backed up first; honours dry-run)."""
+        return self._commit(path, text)
 
     def rollback(self, result: WriteResult) -> None:
         """Undo one write: restore the backup, or remove a file that did not exist before."""
@@ -94,6 +99,8 @@ class ConfigFileProtector:
         exists = path.is_file()
         if exists and path.read_bytes() == data:
             return WriteResult(path, False, False, None, "")
+        if self.dry_run:
+            return WriteResult(path, True, not exists, None, "")
         backup = self.backup(path)
         path.parent.mkdir(parents=True, exist_ok=True)
         fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=".stratos-", suffix=".tmp")
@@ -152,13 +159,5 @@ class ConfigFileProtector:
     # ---- Markdown managed block ----------------------------------------------------------
     def write_managed_block(self, path: Path, block_id: str, content: str) -> WriteResult:
         """Set the Stratos-managed section of a Markdown file; everything else is untouched."""
-        begin, end = BEGIN.format(id=block_id), END.format(id=block_id)
-        block = f"{begin}\n{content.strip()}\n{end}"
         existing = path.read_text(encoding="utf-8") if path.is_file() else ""
-        if begin in existing and end in existing:
-            head, rest = existing.split(begin, 1)
-            _, tail = rest.split(end, 1)
-            new_text = head + block + tail
-        else:
-            new_text = (existing.rstrip() + "\n\n" if existing.strip() else "") + block + "\n"
-        return self._commit(path, new_text)
+        return self._commit(path, set_managed_block(existing, block_id, content))

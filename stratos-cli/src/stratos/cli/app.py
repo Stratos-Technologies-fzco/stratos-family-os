@@ -22,18 +22,23 @@ LAZY_GROUPS: dict[str, str] = {
     "audit": "stratos.cli.commands.audit:app",
     "auth": "stratos.cli.commands.auth:app",
     "config": "stratos.cli.commands.config:app",
+    "deploy": "stratos.cli.commands.deploy:app",
     "doctor": "stratos.cli.commands.diagnostics:doctor_app",
+    "environment": "stratos.cli.commands.environment:app",
+    "init": "stratos.cli.commands.project:init_app",
     "knowledge": "stratos.cli.commands.knowledge:app",
     "login": "stratos.cli.commands.auth:login_app",
     "logout": "stratos.cli.commands.auth:logout_app",
     "mcp": "stratos.cli.commands.mcp:app",
     "org": "stratos.cli.commands.org:app",
+    "project": "stratos.cli.commands.project:app",
     "repo": "stratos.cli.commands.repo:app",
     "skill": "stratos.cli.commands.skill:app",
     "status": "stratos.cli.commands.diagnostics:status_app",
     "team": "stratos.cli.commands.team:app",
     "version": "stratos.cli.commands.diagnostics:version_app",
     "whoami": "stratos.cli.commands.auth:whoami_app",
+    "workspace": "stratos.cli.commands.workspace:app",
 }
 
 

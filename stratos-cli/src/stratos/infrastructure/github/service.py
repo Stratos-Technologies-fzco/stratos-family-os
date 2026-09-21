@@ -1,6 +1,7 @@
 """GitHub REST adapter built on the shared API client (TLS, retries, rate limits, request IDs)."""
 
 import base64
+import re
 from typing import Any
 from urllib.parse import quote
 
@@ -18,6 +19,7 @@ from stratos.domain.models.github import (
     Workflow,
     WorkflowRun,
 )
+from stratos.domain.models.workflow import DeploymentInfo, DeploymentStatus, EnvironmentInfo
 from stratos.infrastructure.api.client import PlatformApiClient
 from stratos.utils.validation import validate_name
 
@@ -335,10 +337,208 @@ class GitHubService:
                 results.append(f"{label}: unavailable for this repository or plan")
         return results
 
+    # ---- repository description and file contents ----------------------------------------
+    def update_repo(self, org: str, name: str, *, description: str) -> Repository:
+        self._check(org, name)
+        return _repo(
+            self._c.request("PATCH", f"/repos/{org}/{name}", json={"description": description})
+        )
+
+    def _content(
+        self, org: str, repo: str, path: str, ref: str | None
+    ) -> tuple[bytes | None, str | None]:
+        self._check(org, repo)
+        params = {"ref": ref} if ref else None
+        try:
+            data = self._c.get(
+                f"/repos/{org}/{repo}/contents/{quote(_repo_path(path))}", params=params
+            )
+        except ResourceNotFoundError:
+            return None, None
+        if not isinstance(data, dict) or data.get("type") == "dir":
+            raise ValidationError(f"'{path}' is not a file.")
+        return base64.b64decode(data.get("content", "")), data.get("sha")
+
+    def get_file(self, org: str, repo: str, path: str, *, ref: str | None = None) -> str | None:
+        raw, _ = self._content(org, repo, path, ref)
+        return None if raw is None else raw.decode("utf-8", errors="replace")
+
+    def put_file(
+        self, org: str, repo: str, path: str, content: str | bytes, *, branch: str, message: str
+    ) -> bool:
+        data = content.encode("utf-8") if isinstance(content, str) else content
+        current, sha = self._content(org, repo, path, branch)
+        if current == data:
+            return False
+        body: dict[str, Any] = {
+            "message": message,
+            "content": base64.b64encode(data).decode("ascii"),
+            "branch": branch,
+        }
+        if sha:
+            body["sha"] = sha
+        self._c.put(f"/repos/{org}/{repo}/contents/{quote(_repo_path(path))}", json=body)
+        return True
+
+    def resolve_ref(self, org: str, repo: str, ref: str) -> str:
+        self._check(org, repo)
+        data = self._c.get(f"/repos/{org}/{repo}/commits/{quote(_ref(ref), safe='')}")
+        return str(data["sha"])
+
+    # ---- environments --------------------------------------------------------------------
+    @staticmethod
+    def _env(d: dict[str, Any]) -> EnvironmentInfo:
+        return EnvironmentInfo(
+            name=d["name"],
+            url=d.get("html_url", ""),
+            protected=bool(d.get("protection_rules")) or bool(d.get("deployment_branch_policy")),
+            created_at=d.get("created_at") or "",
+        )
+
+    def create_environment(
+        self, org: str, repo: str, name: str, *, protected: bool = False
+    ) -> EnvironmentInfo:
+        self._check(org, repo)
+        path = f"/repos/{org}/{repo}/environments/{_env_name(name)}"
+        if protected:  # only deploy from protected branches
+            try:
+                policy = {
+                    "deployment_branch_policy": {
+                        "protected_branches": True,
+                        "custom_branch_policies": False,
+                    }
+                }
+                return self._env(self._c.put(path, json=policy))
+            except ValidationError:
+                pass  # the plan may not support protection rules: create it unprotected
+        return self._env(self._c.put(path, json={}))
+
+    def list_environments(self, org: str, repo: str) -> list[EnvironmentInfo]:
+        self._check(org, repo)
+        data = self._c.get(f"/repos/{org}/{repo}/environments", params={"per_page": 100})
+        return [self._env(d) for d in data.get("environments", [])]
+
+    def get_environment(self, org: str, repo: str, name: str) -> EnvironmentInfo | None:
+        self._check(org, repo)
+        try:
+            return self._env(self._c.get(f"/repos/{org}/{repo}/environments/{_env_name(name)}"))
+        except ResourceNotFoundError:
+            return None
+
+    def delete_environment(self, org: str, repo: str, name: str) -> None:
+        self._check(org, repo)
+        self._c.delete(f"/repos/{org}/{repo}/environments/{_env_name(name)}")
+
+    # ---- deployments ---------------------------------------------------------------------
+    @staticmethod
+    def _deployment(d: dict[str, Any]) -> DeploymentInfo:
+        payload = d.get("payload")
+        return DeploymentInfo(
+            id=d["id"],
+            ref=d.get("ref", ""),
+            sha=d.get("sha", ""),
+            environment=d.get("environment", ""),
+            creator=(d.get("creator") or {}).get("login", ""),
+            created_at=d.get("created_at") or "",
+            description=d.get("description") or "",
+            payload=payload if isinstance(payload, dict) else {},
+        )
+
+    def create_deployment(
+        self,
+        org: str,
+        repo: str,
+        *,
+        ref: str,
+        environment: str,
+        description: str = "",
+        payload: dict[str, object] | None = None,
+    ) -> DeploymentInfo:
+        self._check(org, repo)
+        body = {
+            "ref": _ref(ref),
+            "environment": _env_name(environment),
+            "description": description[:140],
+            "auto_merge": False,  # never merge branches as a side effect of deploying
+            "required_contexts": [],
+            "payload": payload or {},
+            "production_environment": environment == "production",
+        }
+        data = self._c.post(f"/repos/{org}/{repo}/deployments", json=body)
+        if not isinstance(data, dict) or "id" not in data:
+            raise ValidationError(
+                str((data or {}).get("message", "GitHub did not create the deployment."))
+            )
+        return self._deployment(data)
+
+    def list_deployments(
+        self, org: str, repo: str, *, environment: str | None = None, limit: int = 10
+    ) -> list[DeploymentInfo]:
+        self._check(org, repo)
+        params: dict[str, Any] = {"per_page": min(limit, 100)}
+        if environment:
+            params["environment"] = _env_name(environment)
+        items = self._c.paginate(f"/repos/{org}/{repo}/deployments", params, limit=limit)
+        return [self._deployment(d) for d in items]
+
+    def deployment_statuses(
+        self, org: str, repo: str, deployment_id: int
+    ) -> list[DeploymentStatus]:
+        self._check(org, repo)
+        items = self._c.paginate(
+            f"/repos/{org}/{repo}/deployments/{int(deployment_id)}/statuses",
+            {"per_page": 30},
+            limit=30,
+        )
+        return [
+            DeploymentStatus(
+                state=d["state"],
+                description=d.get("description") or "",
+                created_at=d.get("created_at") or "",
+            )
+            for d in items
+        ]
+
+    def add_deployment_status(
+        self, org: str, repo: str, deployment_id: int, state: str, *, description: str = ""
+    ) -> None:
+        self._check(org, repo)
+        if state not in _DEPLOY_STATES:
+            raise ValidationError(f"Invalid deployment state '{state}'.")
+        self._c.post(
+            f"/repos/{org}/{repo}/deployments/{int(deployment_id)}/statuses",
+            json={"state": state, "description": description[:140]},
+        )
+
     @staticmethod
     def _check(org: str, repo: str) -> None:
         validate_name(org, "organisation")
         validate_name(repo, "repository name")
+
+
+_DEPLOY_STATES = {"error", "failure", "inactive", "in_progress", "queued", "pending", "success"}
+_ENV_NAME = re.compile(r"^[A-Za-z0-9._-]{1,50}$")
+
+
+def _env_name(name: str) -> str:
+    if not _ENV_NAME.match(name):
+        raise ValidationError(
+            f"Invalid environment name '{name[:60]}'.", hint="Use letters, digits, '.', '_', '-'."
+        )
+    return name
+
+
+def _ref(ref: str) -> str:
+    """Branch, tag or SHA: no traversal, spaces or option-like values."""
+    if not ref or ".." in ref or ref.startswith(("/", "-")) or " " in ref or len(ref) > 255:
+        raise ValidationError(f"Invalid ref '{ref[:60]}'.")
+    return ref
+
+
+def _repo_path(path: str) -> str:
+    if not path or path.startswith("/") or ".." in path.split("/") or "\\" in path:
+        raise ValidationError(f"Invalid repository path '{path[:60]}'.")
+    return path
 
 
 def _state(state: str) -> str:
