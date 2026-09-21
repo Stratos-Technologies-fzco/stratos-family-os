@@ -1,0 +1,46 @@
+{
+  "title": "Stratos CLI: Project Progress Log",
+  "subtitle": "Stratos Technologies FZCO  ·  Enterprise Developer Platform CLI",
+  "intro": "This document records, in plain business terms, what has been built on the Stratos CLI project and why it matters. It is a running log: a new entry is added every time something is changed or added, so earlier entries are never removed. Technical detail lives in the engineering documentation; this log is written for business, product and management readers.",
+  "entries": [
+    {
+      "id": 1,
+      "date": "21 September 2026",
+      "area": "Project setup",
+      "title": "Project workspace created",
+      "status": "Complete",
+      "summary": "The organised home for the Stratos CLI project was created, following the agreed structure.",
+      "delivered": [
+        "A dedicated project folder with clearly separated areas for the product itself, its automated checks, its documentation, and its release and build tooling.",
+        "The product area is divided into layers that mirror how the platform is meant to work: what the user sees, the business rules, the connections to outside services (such as GitHub and AI providers), settings, and activity records.",
+        "Placeholders for the full set of company documents: architecture, security, API, command reference, developer guide, contributing guide and troubleshooting.",
+        "Placeholders for the automated quality, security and release pipelines."
+      ],
+      "value": "Every later piece of work now has an agreed place to live. This keeps the project orderly as more people and features are added, and makes it easier to review, audit and hand over.",
+      "next": "Fill the workspace with the first working capabilities (see Entry 2)."
+    },
+    {
+      "id": 2,
+      "date": "21 September 2026",
+      "area": "Layer A: Foundation",
+      "title": "Foundation layer built (modules M01 to M06)",
+      "status": "Complete and tested",
+      "summary": "The six foundation modules from the Module Structure document were built. Everything else in the platform will stand on these.",
+      "delivered": [
+        "Command entry point (M01): the 'stratos' command now exists, with built-in help, a version display, a detailed-logging option, a troubleshooting option, and a choice of output style. It starts quickly because heavier parts load only when needed.",
+        "Consistent output (M02): every message and result the tool shows goes through one place. Results can be shown as a table, JSON, YAML, plain text, or silently, and use a restrained colour scheme (green for success, orange for warnings, red for errors, blue for information).",
+        "Settings (M03): the tool reads settings from several places in a clear order of priority (the user's command, then environment settings, then project, user and organisation defaults). Users can view, change and reset settings with 'stratos config'. The default GitHub organisation is Stratos-Technologies-fzco.",
+        "Predictable failures (M04): every kind of problem produces a clear, friendly message and a fixed exit number (0 to 10), so both people and automated systems know what happened. Technical error details are hidden unless troubleshooting is switched on.",
+        "Activity records and secret protection (M05): the tool keeps structured records of what it does, each tagged so a single action can be traced. A shared protection step automatically hides passwords, access tokens, keys and similar secrets everywhere they might appear. No usage data is collected or sent anywhere.",
+        "Core business vocabulary (M06): the shared definitions the rest of the platform will use, including the standard list of error types, output styles and exit numbers."
+      ],
+      "value": "This delivers the security, consistency and reliability expectations set out for the platform: secrets are protected by default, failures are predictable, settings cannot silently hold sensitive data, and nothing is collected about users. It also lowers the cost of every future feature, because each one can reuse these building blocks instead of solving the same problems again.",
+      "quality": "34 automated checks were written and all pass. They cover the priority order of settings, the hiding of every category of secret, every exit number, each output style, and confirmation that asking for help does not start any external connections. Code style and type-safety checks are also clean.",
+      "next": "Layer B: connecting to the Platform API and signing users in, with access control and audit records.",
+      "decisions": [
+        "Where organisation-wide default settings should be stored on a user's computer (a sensible location was chosen for now).",
+        "The automated build tool 'uv' is not installed on the development machine, so the dependency lock file is still to be generated."
+      ]
+    }
+  ]
+}
