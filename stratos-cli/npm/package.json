@@ -1,0 +1,36 @@
+{
+  "name": "@stratos-technologies-fzco/stratos-cli",
+  "version": "0.1.0",
+  "description": "Stratos Enterprise Developer Platform CLI (npm installer for the Python CLI)",
+  "license": "UNLICENSED",
+  "private": false,
+  "bin": {
+    "stratos": "bin/stratos.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "wheels/*.whl",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "win32",
+    "darwin",
+    "linux"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stratos-Technologies-fzco/stratos-family-os.git",
+    "directory": "stratos-cli"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  }
+}

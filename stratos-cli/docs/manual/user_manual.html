@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stratos CLI User Manual</title>
+<style>
+  @page { size: A4; margin: 20mm 16mm 20mm 16mm;
+    @bottom-center { content: "Stratos CLI User Manual  |  page " counter(page); font: 9pt Arial, sans-serif; color: #666; } }
+  body { font: 10.5pt/1.5 "Segoe UI", Arial, sans-serif; color: #1a1a1a; }
+  h1 { font-size: 20pt; color: #0b3d63; border-bottom: 2px solid #0b3d63; padding-bottom: 4px; margin-top: 0; page-break-before: always; }
+  h1.first { page-break-before: avoid; }
+  h2 { font-size: 14pt; color: #0b3d63; margin-top: 22px; }
+  h3 { font-size: 11.5pt; color: #222; margin-top: 16px; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 9.3pt; }
+  code { background: #f0f3f6; padding: 1px 4px; border-radius: 3px; }
+  pre { background: #f0f3f6; border-left: 3px solid #0b3d63; padding: 8px 10px; white-space: pre-wrap; word-wrap: break-word; page-break-inside: avoid; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 14px; font-size: 9.6pt; }
+  th, td { border: 1px solid #c5ccd3; padding: 5px 7px; vertical-align: top; text-align: left; }
+  th { background: #e3eaf1; }
+  tr { page-break-inside: avoid; }
+  .note, .warn, .tip { padding: 8px 12px; margin: 10px 0; border-radius: 3px; page-break-inside: avoid; }
+  .note { background: #e8f1fb; border-left: 4px solid #2b7bd6; }
+  .warn { background: #fdecea; border-left: 4px solid #d64545; }
+  .tip  { background: #e9f7ec; border-left: 4px solid #2f9e44; }
+  .cover { text-align: center; padding-top: 90mm; }
+  .cover h1 { border: none; font-size: 32pt; page-break-before: avoid; }
+  .cover p { font-size: 13pt; color: #444; }
+  .toc a { color: #0b3d63; text-decoration: none; }
+  .toc li { margin: 3px 0; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1 class="first">Stratos CLI</h1>
+  <p><b>User Manual</b></p>
+  <p>Installation, setup, everyday use and troubleshooting</p>
+  <p>Version 0.1.0 &nbsp;|&nbsp; September 2026</p>
+  <p style="margin-top:60mm;font-size:10pt">For developers, maintainers and administrators of the Stratos platform.<br>
+  Commands, options, settings and error messages in this manual were taken from the product itself.</p>
+</div>
+
+<h1>Contents</h1>
+<ol class="toc">
+  <li><a href="#s1">About this manual and the CLI</a></li>
+  <li><a href="#s2">Before you start (requirements)</a></li>
+  <li><a href="#s3">Installation</a></li>
+  <li><a href="#s4">First-time setup</a></li>
+  <li><a href="#s5">Signing in and out</a></li>
+  <li><a href="#s6">How commands work (options, output, safety switches, exit codes)</a></li>
+  <li><a href="#s7">Roles and permissions</a></li>
+  <li><a href="#s8">Command guide</a></li>
+  <li><a href="#s9">Step-by-step workflows</a></li>
+  <li><a href="#s10">Configuration reference</a></li>
+  <li><a href="#s11">Where Stratos keeps its files</a></li>
+  <li><a href="#s12">Safety features: dry run, backups, rollback, audit</a></li>
+  <li><a href="#s13">Troubleshooting</a></li>
+  <li><a href="#s14">Frequently asked questions</a></li>
+  <li><a href="#s15">Getting more help and reporting a problem</a></li>
+  <li><a href="#s16">Appendix: glossary and quick reference</a></li>
+</ol>
+<div class="tip"><b>In a hurry?</b> Something is failing right now: go to section 13.1 (five-minute diagnosis), then look up the exact message in 13.4 or the exit code in 13.3.</div>
+
+<!-- ============================================================ 1 -->
+<h1 id="s1">1. About this manual and the CLI</h1>
+<p>The <b>Stratos CLI</b> (command name <code>stratos</code>) is a command-line tool that lets a developer or team lead do, from one terminal, the routine work of the Stratos developer platform:</p>
+<ul>
+  <li>sign in through the company identity provider;</li>
+  <li>create and manage <b>projects</b> and GitHub <b>repositories</b> to company standards;</li>
+  <li>set up any folder for AI-assisted development (Claude Code instructions, skills, tool servers, knowledge);</li>
+  <li>provision personal <b>workspaces</b>;</li>
+  <li>manage <b>environments</b> and request <b>deployments</b> and rollbacks;</li>
+  <li>ask AI models questions, run AI <b>agents</b>, and search organisational <b>knowledge</b>;</li>
+  <li>review the <b>audit trail</b>, and check the health of your setup (<code>doctor</code>).</li>
+</ul>
+<h2>1.1 Important facts to know up front</h2>
+<div class="note"><b>There is no Stratos Platform API yet.</b> Where GitHub already has the concept, Stratos uses GitHub (repositories, branch protection, environments, deployments). Projects and workspaces are recorded in files on your own computer. Some things you might expect to be central (for example a company-wide list of projects) are therefore per machine for now.</div>
+<div class="note"><b>Stratos never bypasses permissions.</b> It uses your identity for Stratos permissions and your GitHub token for GitHub permissions. If GitHub says no, Stratos cannot say yes.</div>
+<div class="note"><b>Deployments are requested, not performed.</b> <code>stratos deploy</code> asks GitHub for a deployment and marks it <i>queued</i>. Your project's own automation (CI) does the actual rollout and reports the real result.</div>
+<div class="note"><b>Secrets are never stored in plain text.</b> Sign-in tokens live in your operating system's secure store (Windows Credential Manager, macOS Keychain, Linux Secret Service). API keys are read from environment variables. Configuration files hold only names of variables, never values.</div>
+<h2>1.2 Conventions used in this manual</h2>
+<table>
+  <tr><th>Notation</th><th>Meaning</th></tr>
+  <tr><td><code>stratos login</code></td><td>Type exactly this.</td></tr>
+  <tr><td><code>NAME</code> (capitals, no brackets)</td><td>Replace with your own value. <b>Do not type angle brackets.</b> In Windows <code>cmd</code>, <code>&lt;</code> and <code>&gt;</code> mean "redirect" and will break the command.</td></tr>
+  <tr><td><code>[NAME]</code></td><td>Optional part (do not type the square brackets).</td></tr>
+  <tr><td>Windows / macOS / Linux tabs</td><td>Where a command differs by system, all three forms are shown.</td></tr>
+</table>
+
+<!-- ============================================================ 2 -->
+<h1 id="s2">2. Before you start (requirements)</h1>
+<table>
+  <tr><th>Requirement</th><th>Needed for</th><th>How to check</th></tr>
+  <tr><td><b>Python 3.12 or newer</b></td><td>Running the CLI (required)</td><td><code>python --version</code></td></tr>
+  <tr><td><b>git</b></td><td><code>repo clone</code>, workspaces, hooks</td><td><code>git --version</code></td></tr>
+  <tr><td><b>A working OS secure credential store</b></td><td>Signing in (required)</td><td><code>stratos doctor</code> line "Secure credential store"</td></tr>
+  <tr><td><b>Identity provider issuer URL and client ID</b></td><td>Signing in (required)</td><td>Ask your IT/security team; see 4.2</td></tr>
+  <tr><td><b>GitHub access</b> (token or <code>gh auth login</code>)</td><td>Repositories, projects, environments, deployments</td><td><code>stratos doctor</code> line "GitHub credentials"</td></tr>
+  <tr><td>AI provider API key</td><td><code>ai</code>, <code>agent</code> commands</td><td><code>stratos ai status</code></td></tr>
+  <tr><td>Node.js 18+ and npm</td><td>Installing with npm (3.7); also <code>workspace create --node</code></td><td><code>node --version</code>, <code>npm --version</code></td></tr>
+  <tr><td>uv, Docker, Claude Code</td><td>Optional; <code>doctor</code> reports them</td><td><code>stratos doctor</code></td></tr>
+</table>
+<p>A network connection to your identity provider, <code>api.github.com</code> and (for AI commands) your AI provider is needed for those features. Many commands work fully offline: <code>version</code>, <code>config</code>, <code>doctor</code>, <code>status</code>, <code>backup</code>, <code>cache</code>, and <code>init --dry-run</code>.</p>
+
+<!-- ============================================================ 3 -->
+<h1 id="s3">3. Installation</h1>
+<div class="tip"><b>Which way should I install?</b><br>
+&bull; <b>Most users:</b> install with <b>npm</b> (section 3.7). One command; no environment to activate.<br>
+&bull; <b>Contributors and people changing the code:</b> install from the source folder (3.1 and 3.2).<br>
+&bull; <b>No repository or npm access:</b> install the wheel file (3.4).</div>
+<h2>3.1 From the source folder (development / first use)</h2>
+<p>Open a terminal in the <code>stratos-cli</code> folder and run:</p>
+<pre>python scripts/bootstrap.py</pre>
+<p>This creates a private Python environment in <code>.venv</code>, installs Stratos and its tools, and prints the version. The "pip new release" notice is harmless.</p>
+<h2>3.2 Activate the environment (source installs only; every new terminal)</h2>
+<p><i>Installed with npm (3.7)? Skip this step: nothing needs activating.</i></p>
+<p>The bootstrap installs <code>stratos</code> inside <code>.venv</code>. Until you activate it, your terminal does not know the command and shows <i>"'stratos' is not recognized"</i> (Windows) or <i>"command not found"</i> (macOS/Linux).</p>
+<table>
+  <tr><th>Terminal</th><th>Command</th></tr>
+  <tr><td>Windows Command Prompt</td><td><code>.venv\Scripts\activate</code></td></tr>
+  <tr><td>Windows PowerShell</td><td><code>.venv\Scripts\Activate.ps1</code><br>If blocked ("running scripts is disabled"): <code>Set-ExecutionPolicy -Scope Process RemoteSigned</code>, then retry.</td></tr>
+  <tr><td>Git Bash</td><td><code>source .venv/Scripts/activate</code></td></tr>
+  <tr><td>macOS / Linux</td><td><code>source .venv/bin/activate</code></td></tr>
+</table>
+<p>When active, your prompt starts with <code>(.venv)</code>. Check with:</p>
+<pre>stratos --version
+stratos 0.1.0</pre>
+<div class="tip"><b>Without activating:</b> run <code>.venv\Scripts\stratos --version</code> (Windows) or <code>.venv/bin/stratos --version</code> (macOS/Linux), or <code>.venv\Scripts\python -m stratos --version</code>.</div>
+<h2>3.3 Optional extras</h2>
+<table>
+  <tr><th>You want</th><th>Install</th></tr>
+  <tr><td>OpenAI / Azure OpenAI models</td><td><code>pip install "stratos-cli[openai]"</code></td></tr>
+  <tr><td>PDF knowledge sources</td><td><code>pip install "stratos-cli[pdf]"</code></td></tr>
+</table>
+<p>The bootstrap installs both extras. If you installed a plain wheel, add them with the commands above.</p>
+<h2>3.4 Installing the packaged wheel</h2>
+<pre>python -m build --wheel
+pip install dist\stratos_cli-0.1.0-py3-none-any.whl</pre>
+<h2>3.5 Updating and removing</h2>
+<pre>git pull                          (get newer source)
+python scripts/bootstrap.py       (re-run; safe to repeat)
+pip uninstall stratos-cli         (remove; your configuration files are kept)</pre>
+<p>Installed with npm? See the update and uninstall table in 3.7.</p>
+<h2>3.6 Installation problems</h2>
+<table>
+  <tr><th>Symptom</th><th>Cause and fix</th></tr>
+  <tr><td>"Python 3.12 or newer is required."</td><td>Install Python 3.12+ from python.org and run bootstrap with it (<code>py -3.12 scripts/bootstrap.py</code> on Windows).</td></tr>
+  <tr><td><code>'stratos' is not recognized</code> / <code>command not found</code></td><td>Source install: environment not activated (3.2). npm install: open a new terminal or fix PATH (3.7).</td></tr>
+  <tr><td>Bootstrap fails with a pip network error</td><td>Check internet and proxy (see 13.6). Re-run; it resumes.</td></tr>
+  <tr><td>Antivirus blocks <code>stratos.exe</code></td><td>Use <code>python -m stratos ...</code> instead, and ask IT to allow the <code>.venv</code> folder.</td></tr>
+  <tr><td>Two Pythons installed, wrong one used</td><td>Run <code>stratos version</code> and check the Python shown; recreate <code>.venv</code> with the right one (delete the folder, run bootstrap).</td></tr>
+</table>
+
+<h2 id="s37">3.7 Install with npm (recommended for most users)</h2>
+<p>The npm package installs the Stratos CLI for you. It contains the CLI, and while installing it creates a <b>private</b> Python environment inside the package, so your own Python is not changed. After installation the <code>stratos</code> command works in every terminal: <b>there is no environment to activate</b>.</p>
+<h3>Requirements</h3>
+<ul>
+  <li><b>Node.js 18 or newer</b> (includes npm). Check: <code>node --version</code>.</li>
+  <li><b>Python 3.12 or newer</b> on your PATH. Check: <code>python --version</code> (on Windows <code>py -3.12 --version</code> also works). On Windows, tick <i>"Add python.exe to PATH"</i> when installing Python.</li>
+  <li>Internet access during installation (the Python libraries are downloaded once). Behind a proxy, set <code>HTTPS_PROXY</code> first (10.3).</li>
+  <li>About 150 MB of disk space.</li>
+</ul>
+<h3>Install</h3>
+<p><b>One-time setup: tell npm where the package lives.</b> The package is published on the company's GitHub Packages registry, which asks you to sign in even though the package itself is not secret.</p>
+<ol>
+  <li>In GitHub open <i>Settings &rarr; Developer settings &rarr; Personal access tokens &rarr; Tokens (classic) &rarr; Generate new token</i>. Tick only <b>read:packages</b>. If your organisation uses single sign-on, click <i>Configure SSO &rarr; Authorize</i> next to the token. Copy the token.</li>
+  <li>Run these two commands (replace <code>YOUR_GITHUB_TOKEN</code> with the token):</li>
+</ol>
+<pre>npm config set @stratos-technologies-fzco:registry https://npm.pkg.github.com
+npm config set //npm.pkg.github.com/:_authToken YOUR_GITHUB_TOKEN</pre>
+<p>The token is saved in your personal npm settings file (<code>.npmrc</code> in your home folder). Do not share it or commit it. Do this once per computer; only packages under the <code>@stratos-technologies-fzco</code> name use this registry.</p>
+<p><b>Install:</b></p>
+<pre>npm install -g @stratos-technologies-fzco/stratos-cli
+stratos --version
+stratos 0.1.0</pre>
+<p>From a package file you were given (<code>stratos-technologies-fzco-stratos-cli-0.1.0.tgz</code>):</p>
+<pre>npm install -g C:\path\to\stratos-technologies-fzco-stratos-cli-0.1.0.tgz</pre>
+<p><b>Installation takes a few minutes</b> (the log shows "creating a private Python environment" and "installing"). Wait for it to finish. The final line is <i>"Stratos CLI is ready. Try: stratos --version"</i>.</p>
+<h3>Then</h3>
+<p>Continue with section 4 (first-time setup). Everything after installation is identical to any other installation method.</p>
+<h3>Update, reinstall, uninstall</h3>
+<table>
+  <tr><th>You want to</th><th>Run</th></tr>
+  <tr><td>Update to a newer version</td><td><code>npm install -g @stratos-technologies-fzco/stratos-cli@latest</code> (or install the newer <code>.tgz</code>)</td></tr>
+  <tr><td>Repair a broken installation</td><td><code>npm rebuild -g @stratos-technologies-fzco/stratos-cli</code>, or uninstall and install again</td></tr>
+  <tr><td>Remove</td><td><code>npm uninstall -g @stratos-technologies-fzco/stratos-cli</code>. Your settings, projects and sign-in are kept (11.1); <code>stratos logout</code> first if you want the sign-in removed.</td></tr>
+  <tr><td>Check what is installed</td><td><code>npm list -g --depth=0</code> and <code>stratos version</code></td></tr>
+</table>
+<h3>Installing without administrator rights</h3>
+<p>If <code>npm install -g</code> says "permission denied" or "EACCES", do not use <code>sudo</code>. Give npm a folder in your own account instead:</p>
+<table>
+  <tr><th>System</th><th>Commands</th></tr>
+  <tr><td>macOS / Linux</td><td><code>npm config set prefix ~/.npm-global</code><br>then add <code>~/.npm-global/bin</code> to PATH (in <code>~/.zshrc</code> or <code>~/.bashrc</code>: <code>export PATH="$HOME/.npm-global/bin:$PATH"</code>) and open a new terminal.</td></tr>
+  <tr><td>Windows</td><td>The default global folder is <code>%APPDATA%\npm</code> and needs no administrator rights. Make sure it is on your PATH (check <code>npm prefix -g</code>).</td></tr>
+</table>
+<h3>Problems with the npm installation</h3>
+<table>
+  <tr><th>Symptom</th><th>Cause and fix</th></tr>
+  <tr><td>"Stratos CLI needs Python 3.12 or newer, which was not found"</td><td>Install Python 3.12+ (python.org), make sure it is on PATH, open a <b>new</b> terminal, then <code>npm rebuild -g @stratos-technologies-fzco/stratos-cli</code>. Or just run <code>stratos</code>: it retries the setup on first use.</td></tr>
+  <tr><td>"Could not create a Python virtual environment"</td><td>On Debian/Ubuntu install the venv module: <code>sudo apt install python3-venv</code> (or <code>python3.12-venv</code>), then <code>npm rebuild -g ...</code>.</td></tr>
+  <tr><td>"Installing the Python dependencies failed"</td><td>Internet, proxy or a company package mirror is blocking Python's package downloads. Check <code>HTTPS_PROXY</code> (13.6); ask IT whether <code>pypi.org</code> is allowed, then <code>npm rebuild -g ...</code>.</td></tr>
+  <tr><td><code>stratos</code> is not recognized / command not found after installing</td><td>Open a new terminal. If still missing, npm's global folder is not on PATH: run <code>npm prefix -g</code> and add that folder (Windows) or its <code>bin</code> subfolder (macOS/Linux) to PATH.</td></tr>
+  <tr><td>The install finished but shows "not ready yet"</td><td>Setup could not complete; the message above it says why. Fix that, then run <code>stratos --version</code>: the first run retries the setup automatically.</td></tr>
+  <tr><td>Very slow first run after an update</td><td>The private environment is rebuilt once. Wait for it to finish.</td></tr>
+  <tr><td>Exit code 9 when running <code>stratos</code></td><td>The launcher could not find Python 3.12+ or could not finish setup (exit code 9 = missing dependency). Read the message printed just before it.</td></tr>
+  <tr><td>npm says "E404 Not Found" for the package</td><td>The registry line was not set (npm is looking on the public registry, where the package does not exist): run the two <code>npm config set</code> commands in 3.7. If they are set, your token may lack <b>read:packages</b>, be missing SSO authorisation, or your GitHub account has no access to the organisation. Or use the <code>.tgz</code> file.</td></tr>
+  <tr><td>npm says "E401 Unauthorized" or "E403 Forbidden"</td><td>The token is wrong, expired or not authorised for single sign-on. Create a new token (3.7) and repeat the <code>_authToken</code> command.</td></tr>
+  <tr><td>Antivirus removes files during install</td><td>Ask IT to allow the npm global folder, then <code>npm rebuild -g ...</code>.</td></tr>
+</table>
+<div class="note">The npm package is only an installer. The CLI itself is the Python program; behaviour, commands and files are exactly the same however it was installed. If you also have the source folder installed, make sure you know which <code>stratos</code> runs: <code>where stratos</code> (Windows) or <code>which stratos</code> shows it.</div>
+
+<!-- ============================================================ 4 -->
+<h1 id="s4">4. First-time setup</h1>
+<p>Do these steps once per computer.</p>
+<h2>4.1 Check your machine</h2>
+<pre>stratos doctor</pre>
+<p>Read section 13.5 to understand each line. At this point "Sign-in configured" and "GitHub credentials" will probably warn; the next steps fix them.</p>
+<h2>4.2 Tell Stratos about your identity provider</h2>
+<p>You need two values from your company's identity provider (Microsoft Entra ID, Okta, Auth0, Keycloak, and similar). Ask your IT/security team:</p>
+<ol>
+  <li><b>Issuer URL</b>, for example <code>https://login.microsoftonline.com/TENANT-ID/v2.0</code> or <code>https://yourcompany.okta.com</code>. It must start with <code>https://</code> (plain <code>http</code> only for <code>localhost</code>).</li>
+  <li><b>Client ID</b> of an application registered for the CLI.</li>
+</ol>
+<pre>stratos config set auth.issuer https://yourcompany.okta.com
+stratos config set auth.client_id 0oa1b2c3d4e5f6g7h8i9</pre>
+<p>The client ID is not a secret. Never put a client secret anywhere: the CLI uses a public-client sign-in (Authorization Code with PKCE) that needs none.</p>
+<h3>For administrators: how the application must be registered</h3>
+<table>
+  <tr><th>Setting</th><th>Value</th></tr>
+  <tr><td>Application type</td><td>Public / native client</td></tr>
+  <tr><td>Grant</td><td>Authorization Code with PKCE (no client secret)</td></tr>
+  <tr><td>Redirect URI</td><td><code>http://127.0.0.1/callback</code>. The CLI opens a temporary listener on a random free port on the local machine only, so the provider must accept a loopback address with any port (some need <code>http://127.0.0.1:*/callback</code>).</td></tr>
+  <tr><td>Scopes</td><td><code>openid profile email offline_access</code> (change with <code>auth.scopes</code>)</td></tr>
+  <tr><td>Discovery</td><td><code>ISSUER/.well-known/openid-configuration</code> must be reachable and list an authorisation and token endpoint</td></tr>
+  <tr><td>Roles</td><td>The user's token or profile must carry a <code>roles</code> or <code>groups</code> claim containing viewer, developer, maintainer or admin. Users with no recognised role are treated as <b>viewer</b>.</td></tr>
+</table>
+<h2>4.3 Give Stratos your GitHub access</h2>
+<p>Choose one:</p>
+<pre>gh auth login                     (GitHub CLI; recommended)</pre>
+<p>or set a personal access token in the environment (see 10.3 for how to set variables on each system):</p>
+<pre>GITHUB_TOKEN=ghp_yourtokenhere</pre>
+<p>The token needs rights to the organisation's repositories (typically <i>repo</i> and, for environments and deployments, admin rights on the repository).</p>
+<h2>4.4 Set your organisation (if not the default)</h2>
+<pre>stratos config set github.organization YOUR-GITHUB-ORG</pre>
+<p>The default is <code>Stratos-Technologies-fzco</code>. Any command with <code>--org</code> overrides it for one run.</p>
+<h2>4.5 Optional: AI provider</h2>
+<pre>stratos config set ai.provider claude          (claude | openai | azure-openai)
+stratos config set ai.model claude-sonnet-5
+ANTHROPIC_API_KEY=...                           (or OPENAI_API_KEY / AZURE_OPENAI_API_KEY)
+stratos ai status</pre>
+<p>For Azure OpenAI also set <code>ai.azure_endpoint</code>.</p>
+<h2>4.6 Sign in and confirm</h2>
+<pre>stratos login
+stratos whoami
+stratos doctor</pre>
+
+<!-- ============================================================ 5 -->
+<h1 id="s5">5. Signing in and out</h1>
+<h2>5.1 Sign in</h2>
+<pre>stratos login</pre>
+<ol>
+  <li>Stratos opens your web browser at your identity provider.</li>
+  <li>Sign in as you normally do (including any multi-factor step).</li>
+  <li>The browser shows a success page and returns to the terminal, which prints your name and organisation.</li>
+</ol>
+<p>Your tokens are stored in the OS secure store, not in a file. The session refreshes itself when possible.</p>
+<h3>No browser available (remote server, SSH, container)</h3>
+<pre>stratos login --no-browser</pre>
+<p>Stratos prints the sign-in address. Open it on a computer that has a browser. Note that the redirect returns to <code>127.0.0.1</code> on the machine where Stratos runs, so this works when you can reach that port (for example through port forwarding), not from an unrelated computer.</p>
+<h2>5.2 Who am I, and am I still signed in?</h2>
+<pre>stratos whoami          identity and roles
+stratos auth status     session state (local check; tokens are never shown)</pre>
+<h2>5.3 Use the token in a script</h2>
+<pre>stratos auth token            shows a masked token
+stratos auth token --reveal   prints the full token (treat it like a password)</pre>
+<h2>5.4 Sign out</h2>
+<pre>stratos logout</pre>
+<p>Removes stored credentials from this computer.</p>
+<h2>5.5 Sign-in problems</h2>
+<table>
+  <tr><th>Message</th><th>What it means and what to do</th></tr>
+  <tr><td>Sign-in is not configured.</td><td>Set <code>auth.issuer</code> and <code>auth.client_id</code> (4.2).</td></tr>
+  <tr><td>Cannot reach the identity provider: ...</td><td>Network, VPN or proxy issue, or wrong issuer URL. Open the issuer URL plus <code>/.well-known/openid-configuration</code> in a browser; it should show JSON.</td></tr>
+  <tr><td>Issuer discovery document is missing 'KEY'.</td><td>The issuer URL is not an OpenID Connect issuer, or has an extra path. Ask IT for the exact issuer string.</td></tr>
+  <tr><td>Sign-in was refused: ...</td><td>The provider refused (for example redirect URI not registered, app not assigned to you). Give the quoted reason to your administrator.</td></tr>
+  <tr><td>Sign-in response failed the state check; login aborted.</td><td>The browser answered a different sign-in attempt. Close old login tabs and run <code>stratos login</code> again once.</td></tr>
+  <tr><td>Sign-in response contained no authorisation code.</td><td>Provider misconfiguration; report to administrator.</td></tr>
+  <tr><td>Login timed out waiting for the browser.</td><td>You did not finish in time, or the browser could not reach <code>127.0.0.1</code> (firewall/VPN). Retry and complete quickly; allow local loopback connections.</td></tr>
+  <tr><td>Identity provider rejected the request: ...</td><td>Usually a wrong client ID or a disabled application. Verify <code>auth.client_id</code>.</td></tr>
+  <tr><td>Identity provider did not return an access token.</td><td>Provider misconfiguration (scopes/app type). Report to administrator.</td></tr>
+  <tr><td>No secure credential store is available.</td><td>See 13.7 (keyring).</td></tr>
+  <tr><td>You are not logged in. / Your session has expired.</td><td>Run <code>stratos login</code>.</td></tr>
+</table>
+
+<!-- ============================================================ 6 -->
+<h1 id="s6">6. How commands work</h1>
+<h2>6.1 Shape of a command</h2>
+<pre>stratos [GLOBAL OPTIONS] COMMAND [SUBCOMMAND] [ARGUMENTS] [OPTIONS]</pre>
+<p>Global options come <b>before</b> the command name. Example: <code>stratos -o json repo list</code> (not <code>stratos repo list -o json</code>).</p>
+<p>Get help anywhere: <code>stratos --help</code>, <code>stratos repo --help</code>, <code>stratos repo create --help</code>.</p>
+<h2>6.2 Global options</h2>
+<table>
+  <tr><th>Option</th><th>Meaning</th></tr>
+  <tr><td><code>--version</code></td><td>Print the version and exit.</td></tr>
+  <tr><td><code>--verbose</code></td><td>Show informational log messages.</td></tr>
+  <tr><td><code>--debug</code></td><td>Show debug logging and full error details (tracebacks). Use this when reporting a problem.</td></tr>
+  <tr><td><code>--output</code>, <code>-o</code></td><td>Output format: <code>table</code> (default, for people), <code>json</code> (for scripts), <code>yaml</code>, <code>plain</code> (simple text) or <code>quiet</code> (minimal output).</td></tr>
+</table>
+<h2>6.3 Safety switches available on most changing commands</h2>
+<table>
+  <tr><th>Option</th><th>Meaning</th></tr>
+  <tr><td><code>--dry-run</code></td><td>Show exactly what would happen; change nothing. <b>Use it first</b> on anything unfamiliar.</td></tr>
+  <tr><td><code>--yes</code>, <code>-y</code></td><td>Do not ask for confirmation (for scripts). Destructive actions otherwise ask first, and answering no cancels with exit code 10.</td></tr>
+</table>
+<h2>6.4 Commands that repeat safely</h2>
+<p>These can be run again after a failure or interruption: <code>project create</code>, <code>init</code>, <code>repo create</code>, <code>environment create</code>, <code>workspace create</code>. They skip what already exists and finish what is missing.</p>
+<h2>6.5 Output for scripts</h2>
+<pre>stratos -o json repo list
+stratos -o json whoami</pre>
+<p>Long values are never wrapped or cut in JSON. In table mode narrow terminals may shorten cells; widen the window or use <code>-o json</code>.</p>
+<h2>6.6 Exit codes</h2>
+<p>Every run ends with a number. <code>0</code> means success; anything else means something to fix. Scripts should test it (<code>echo %ERRORLEVEL%</code> on Windows cmd, <code>$LASTEXITCODE</code> in PowerShell, <code>$?</code> or <code>$status</code> in shells).</p>
+<table>
+  <tr><th>Code</th><th>Meaning</th><th>First thing to try</th></tr>
+  <tr><td>0</td><td>Success</td><td>-</td></tr>
+  <tr><td>1</td><td>General error (unexpected)</td><td>Re-run with <code>--debug</code>; see 15</td></tr>
+  <tr><td>2</td><td>Invalid usage (bad command line)</td><td>Check spelling; <code>stratos COMMAND --help</code></td></tr>
+  <tr><td>3</td><td>Authentication failure</td><td><code>stratos login</code>; set the GitHub/AI credential</td></tr>
+  <tr><td>4</td><td>Authorisation failure (role or policy)</td><td><code>stratos whoami</code>; ask for a role; <code>stratos org policy</code></td></tr>
+  <tr><td>5</td><td>Not found</td><td>Check the name with the matching <code>list</code> command</td></tr>
+  <tr><td>6</td><td>Validation failure (bad input)</td><td>Fix the value the message names</td></tr>
+  <tr><td>7</td><td>Network or API error</td><td>Check connection, VPN, proxy; retry</td></tr>
+  <tr><td>8</td><td>Configuration error</td><td><code>stratos config list</code>; fix the setting named</td></tr>
+  <tr><td>9</td><td>Missing dependency</td><td>Install the tool named; <code>stratos doctor</code></td></tr>
+  <tr><td>10</td><td>Cancelled</td><td>You answered no or pressed Ctrl+C; nothing was changed</td></tr>
+</table>
+<h2>6.7 Errors are readable on purpose</h2>
+<p>Normal failures show a plain sentence and often a <b>hint</b> line saying what to do. Technical stack traces appear only with <code>--debug</code> (or environment variable <code>STRATOS_DEBUG=1</code>). Secrets are masked in all messages and logs.</p>
+
+<!-- ============================================================ 7 -->
+<h1 id="s7">7. Roles and permissions</h1>
+<p>Your role comes from your identity provider's <code>roles</code> or <code>groups</code> claim. If no recognised role is found you are a <b>viewer</b>. If you hold several roles you get the combined permissions. Check with <code>stratos whoami</code>.</p>
+<table>
+  <tr><th>Permission</th><th>Viewer</th><th>Developer</th><th>Maintainer</th><th>Admin</th><th>Used by</th></tr>
+  <tr><td>org.read</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td><td>Reading org, teams, repos, environments; <code>init</code>, backups, cache</td></tr>
+  <tr><td>project.create</td><td></td><td>yes</td><td>yes</td><td>yes</td><td><code>project create</code></td></tr>
+  <tr><td>project.update</td><td></td><td>yes</td><td>yes</td><td>yes</td><td><code>project update</code>, <code>init</code> writes, <code>backup restore</code></td></tr>
+  <tr><td>repo.create</td><td></td><td>yes</td><td>yes</td><td>yes</td><td><code>repo create</code></td></tr>
+  <tr><td>agent.run</td><td></td><td>yes</td><td>yes</td><td>yes</td><td><code>agent run</code></td></tr>
+  <tr><td>skill.install</td><td></td><td>yes</td><td>yes</td><td>yes</td><td><code>skill install</code>, <code>skill update</code></td></tr>
+  <tr><td>deployment.create</td><td></td><td>yes</td><td>yes</td><td>yes</td><td><code>deploy dev / staging / production</code></td></tr>
+  <tr><td>workspace.create / delete</td><td></td><td>yes</td><td>yes</td><td>yes</td><td><code>workspace create / delete</code></td></tr>
+  <tr><td>environment.create</td><td></td><td>yes</td><td>yes</td><td>yes</td><td><code>environment create</code></td></tr>
+  <tr><td>mcp.install / mcp.configure</td><td></td><td></td><td>yes</td><td>yes</td><td><code>mcp install / configure</code></td></tr>
+  <tr><td>project.delete</td><td></td><td></td><td>yes</td><td>yes</td><td><code>project delete</code></td></tr>
+  <tr><td>deployment.rollback</td><td></td><td></td><td>yes</td><td>yes</td><td><code>deploy rollback</code></td></tr>
+  <tr><td>audit.read</td><td></td><td></td><td>yes</td><td>yes</td><td><code>audit list / get / summary</code></td></tr>
+  <tr><td>repo.configure / repo.archive</td><td></td><td></td><td>yes</td><td>yes</td><td><code>repo configure / archive</code></td></tr>
+  <tr><td>skill.remove</td><td></td><td></td><td>yes</td><td>yes</td><td><code>skill remove</code></td></tr>
+  <tr><td>agent.create</td><td></td><td></td><td>yes</td><td>yes</td><td><code>agent create</code></td></tr>
+  <tr><td>claude.configure</td><td></td><td></td><td>yes</td><td>yes</td><td>Claude Code configuration changes</td></tr>
+  <tr><td>environment.delete</td><td></td><td></td><td>yes</td><td>yes</td><td><code>environment delete</code></td></tr>
+  <tr><td>repo.delete</td><td></td><td></td><td></td><td>yes</td><td>Reserved (no delete command exists)</td></tr>
+</table>
+<div class="note">The table shows the built-in default. Your organisation's policy can further restrict actions (for example public repositories, AI providers, MCP servers). <code>stratos org policy</code> displays it. A "permission" error means role; a "not permitted by organisation policy" error means policy.</div>
+<h2>7.1 "You do not have permission for 'x'"</h2>
+<ol>
+  <li>Run <code>stratos whoami</code> to see your roles.</li>
+  <li>Find permission <code>x</code> in the table above to see which role is needed.</li>
+  <li>Ask an administrator to add the role in the identity provider, then <code>stratos logout</code> and <code>stratos login</code> so the new role is picked up.</li>
+</ol>
+
+<!-- ============================================================ 8 -->
+<h1 id="s8">8. Command guide</h1>
+<p>Every command supports <code>--help</code>. Shared options: <code>--org ORG</code> (GitHub organisation, default from configuration), <code>--project NAME</code> (default: the project of the current folder, taken from <code>.stratos/project.yaml</code>).</p>
+
+<h2>8.1 Diagnostics and information</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos version</code></td><td>Shows version, Python, platform, architecture and API version.</td></tr>
+  <tr><td><code>stratos doctor [--online]</code></td><td>Checks machine, configuration, sign-in and project. <code>--online</code> also tests network, GitHub and the Platform API (no credentials are sent). Exit code 9 if problems are found.</td></tr>
+  <tr><td><code>stratos status</code></td><td>One-screen summary of session, organisation, project, workspaces and environments (no network).</td></tr>
+  <tr><td><code>stratos whoami</code></td><td>Your identity and roles.</td></tr>
+</table>
+
+<h2>8.2 Configuration</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos config list</code></td><td>All effective settings, after merging all sources.</td></tr>
+  <tr><td><code>stratos config get KEY</code></td><td>One setting, for example <code>api.endpoint</code>.</td></tr>
+  <tr><td><code>stratos config set KEY VALUE [--scope user|project]</code></td><td>Saves a setting. Default scope is your user file; <code>project</code> writes <code>.stratos/config.yaml</code> in the current folder.</td></tr>
+  <tr><td><code>stratos config reset [KEY] [--scope ...]</code></td><td>Removes one key, or (without KEY) the whole file for that scope.</td></tr>
+</table>
+<p>List settings take comma-separated values, for example <code>stratos config set knowledge.paths C:\docs,D:\more</code>. See section 10 for every key.</p>
+
+<h2>8.3 Authentication</h2>
+<p>See section 5. Commands: <code>login</code> / <code>auth login [--no-browser]</code>, <code>logout</code> / <code>auth logout</code>, <code>auth status</code>, <code>auth token [--reveal]</code>, <code>whoami</code>.</p>
+
+<h2>8.4 Organisation and teams (read-only)</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos org get [--refresh]</code></td><td>Organisation details. Results are cached briefly; <code>--refresh</code> bypasses the cache.</td></tr>
+  <tr><td><code>stratos org members</code></td><td>Members.</td></tr>
+  <tr><td><code>stratos org teams</code></td><td>Teams.</td></tr>
+  <tr><td><code>stratos org policy</code></td><td>The rules that apply: GitHub organisation settings and Stratos policy configuration.</td></tr>
+  <tr><td><code>stratos team list | get SLUG | members SLUG | permissions SLUG</code></td><td>Team details; <code>permissions</code> shows which repositories the team can reach and at what level. SLUG is the short team name from <code>team list</code>.</td></tr>
+</table>
+
+<h2>8.5 Repositories</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos repo create NAME [--public] [--description TEXT] [--dry-run] [--yes]</code></td><td>Creates a repository (private unless <code>--public</code>, and public may be blocked by policy). Safe to repeat: an existing one is left unchanged.</td></tr>
+  <tr><td><code>stratos repo list [--limit N]</code></td><td>Repositories of the organisation (default 100).</td></tr>
+  <tr><td><code>stratos repo get NAME</code></td><td>One repository.</td></tr>
+  <tr><td><code>stratos repo clone NAME [--dest FOLDER]</code></td><td>Clones using your own git credentials. The destination must not exist or must be empty.</td></tr>
+  <tr><td><code>stratos repo configure NAME [--protect] [--codeowners FILE] [--labels FILE] [--policy] [--security] [--actions] [--dry-run]</code></td><td>Applies branch protection, CODEOWNERS, labels (YAML/JSON list), merge policy, security scanning and Actions restrictions. Run with <code>--dry-run</code> first.</td></tr>
+  <tr><td><code>stratos repo branches NAME</code></td><td>Branches and whether protected.</td></tr>
+  <tr><td><code>stratos repo prs NAME [--state open|closed|all] [--limit N]</code></td><td>Pull requests (default: open, 50).</td></tr>
+  <tr><td><code>stratos repo issues NAME [--state ...] [--limit N]</code></td><td>Issues (pull requests excluded).</td></tr>
+  <tr><td><code>stratos repo labels NAME</code>, <code>workflows NAME</code>, <code>runs NAME [--limit N]</code></td><td>Labels, Actions workflows, recent workflow runs.</td></tr>
+  <tr><td><code>stratos repo archive NAME [--dry-run] [--yes]</code></td><td>Makes the repository read-only. Asks to confirm.</td></tr>
+</table>
+
+<h2>8.6 Projects</h2>
+<p>A <b>project</b> is a repository plus the standard Stratos setup around it, recorded on this computer.</p>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos project create NAME [--description T] [--public] [--template python|node|none] [--owner @user|@org/team] [--skill S] [--mcp M] [--dry-run] [--yes]</code></td>
+    <td>Builds everything in 14 steps: registers the project, creates the repository, applies labels, branch protection, code owners, a starter CI pipeline, the company merge and security policy, a development environment, AI settings, and Claude Code instructions, skills, tool servers and knowledge links. <code>--skill</code> needs <code>skills.registry</code>; <code>--mcp</code> needs <code>mcp.registry</code> (see 10). <b>If it stops part-way, run the same command again; it resumes.</b></td></tr>
+  <tr><td><code>stratos project list</code> / <code>get NAME</code></td><td>Registered projects; one project including its status (<code>provisioning</code>, <code>partial</code>, <code>active</code>) and last error.</td></tr>
+  <tr><td><code>stratos project update NAME [--description T] [--owner ...] [--dry-run]</code></td><td>Changes description and/or the CODEOWNERS entries (replaces them).</td></tr>
+  <tr><td><code>stratos project delete NAME [--archive-repo] [--dry-run] [--yes]</code></td><td>Removes the project record. The GitHub repository is kept unless <code>--archive-repo</code> is given (then it is archived, not erased).</td></tr>
+  <tr><td><code>stratos project init</code></td><td>Same as <code>stratos init</code>.</td></tr>
+</table>
+
+<h2>8.7 Setting up an existing folder: <code>stratos init</code></h2>
+<pre>stratos init [--name NAME] [--template python|node|none] [--skill S] [--mcp M] [--dry-run] [--diff] [--yes]</pre>
+<p>Run inside the folder. It detects what is already there (Python or Node), adds only what is missing, keeps existing content, backs up any file it changes, and undoes everything if a step fails. Running it twice changes nothing the second time. It creates or updates:</p>
+<table>
+  <tr><th>File or folder</th><th>Purpose</th></tr>
+  <tr><td><code>.stratos/project.yaml</code></td><td>Project manifest (name, template, installed items).</td></tr>
+  <tr><td><code>CLAUDE.md</code></td><td>Organisation instructions inside a <i>managed block</i>. Your own text outside the block is never touched.</td></tr>
+  <tr><td><code>.claude/settings.json</code></td><td>Adds rules that stop Claude Code reading <code>.env</code> secret files. Your existing rules are kept.</td></tr>
+  <tr><td><code>.claude/skills/</code>, <code>.mcp.json</code></td><td>Only if you pass <code>--skill</code> / <code>--mcp</code>.</td></tr>
+  <tr><td><code>.gitignore</code></td><td>Adds lines that keep secrets and local files out of git.</td></tr>
+  <tr><td><code>.github/workflows/ci.yml</code></td><td>Starter pipeline for the chosen template (not overwritten if present).</td></tr>
+  <tr><td><code>.stratos/backups/</code></td><td>Copies of files before they were changed (see 12.2).</td></tr>
+</table>
+<div class="tip">Always preview the first time: <code>stratos init --dry-run --diff</code>.</div>
+
+<h2>8.8 Workspaces</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos workspace create NAME [--project P] [--path FOLDER] [--python] [--node] [--hooks/--no-hooks] [--install-deps] [--skill S] [--mcp M] [--dry-run] [--yes]</code></td>
+   <td>Clones the project into a folder (default <code>~/stratos-workspaces/NAME</code>, or <code>workspace.root</code>), optionally creates a Python virtual environment, checks Node, installs a git hook that blocks committing <code>.env</code> files and obvious credentials (on by default), and sets up Claude configuration. <b>Dependencies are not installed unless you pass <code>--install-deps</code>,</b> because that runs third-party code (Node installs use <code>--ignore-scripts</code>). Existing <code>.env</code> and existing git hooks are never overwritten.</td></tr>
+  <tr><td><code>stratos workspace list</code> / <code>get NAME</code></td><td>Workspaces registered on this computer.</td></tr>
+  <tr><td><code>stratos workspace connect NAME [--path FOLDER] [--refresh]</code></td><td>Shows how to enter a workspace. <code>--path</code> adopts a clone you already have; <code>--refresh</code> re-applies the setup.</td></tr>
+  <tr><td><code>stratos workspace delete NAME [--purge-files] [--force] [--dry-run] [--yes]</code></td><td>Removes the record only. <code>--purge-files</code> also deletes the folder, but refuses if there is uncommitted work (unless <code>--force</code>) or if the folder is not a git working copy.</td></tr>
+</table>
+
+<h2>8.9 Environments and deployments</h2>
+<p>Environments are <b>GitHub Environments</b> of the project's repository. Names: <code>development</code> (alias <code>dev</code>), <code>staging</code>, <code>production</code>.</p>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos environment list | get [NAME] | create [NAME] | delete NAME</code></td><td>Manage environments. <code>create</code> is repeatable; <code>delete</code> asks to confirm. Options: <code>--project</code>, <code>--org</code>, <code>--dry-run</code> (create/delete), <code>--yes</code> (delete).</td></tr>
+  <tr><td><code>stratos deploy dev | staging | production [--ref BRANCH|TAG|COMMIT] [--project P] [--dry-run] [--yes]</code></td><td>Requests a deployment. Default ref is the default branch. Production asks to confirm. An identical deployment already in flight is returned instead of duplicated.</td></tr>
+  <tr><td><code>stratos deploy status [-e ENV] [--project P]</code></td><td>Latest deployment and its state for each environment.</td></tr>
+  <tr><td><code>stratos deploy rollback -e ENV [--to DEPLOYMENT-ID] [--dry-run] [--yes]</code></td><td>Redeploys the previous <b>successful</b> version as a new deployment (never a failed one). Without <code>--to</code> it picks the previous success; with <code>--to</code> you choose the deployment id.</td></tr>
+</table>
+<div class="warn"><b>"Queued" is not "done".</b> After <code>deploy</code> the state is <i>queued</i> until your CI listens for GitHub <code>deployment</code> events and reports success or failure. If it stays queued, see 13.9.</div>
+
+<h2>8.10 Skills, MCP servers, knowledge and Claude Code</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos skill list | install NAME | update [NAME] | remove NAME</code></td><td>Skills come from the registry folder in <code>skills.registry</code>. Install verifies checksum, compatibility and permissions first. Removal keeps a backup. Options <code>--dry-run</code>, <code>--yes</code>.</td></tr>
+  <tr><td><code>stratos mcp list | install NAME | configure NAME [--env KEY=VARIABLE] [--arg ...] | status</code></td><td>MCP (tool) servers from <code>mcp.registry</code>, checked against <code>mcp.allowed</code> policy. Configuration stores <b>variable names only</b>: <code>--env API_KEY=MY_API_KEY_VAR</code> means "read API_KEY from environment variable MY_API_KEY_VAR". <code>status</code> shows missing variables. Existing <code>.mcp.json</code> is backed up before change.</td></tr>
+  <tr><td><code>stratos knowledge search QUERY [--limit N] | get DOC_ID | sync | status | connect [--dry-run]</code></td><td>Searches Markdown, PDF, GitHub, Confluence and SharePoint sources configured under <code>knowledge.*</code>. <code>connect</code> writes a managed block in <code>CLAUDE.md</code> so Claude Code uses the knowledge; <code>status</code> shows whether sources changed since the last <code>sync</code>.</td></tr>
+</table>
+
+<h2>8.11 AI and agents</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos ai ask "PROMPT" [--model M] [--system TEXT] [--no-stream]</code></td><td>Asks the configured model. The answer streams as it is written unless you use <code>-o json</code> or <code>--no-stream</code>. Quote the prompt.</td></tr>
+  <tr><td><code>stratos ai models</code> / <code>ai status</code></td><td>Models offered by the provider (network); configured provider and model (local).</td></tr>
+  <tr><td><code>stratos agent list | get NAME | create NAME | run NAME | logs NAME | sync [NAME]</code></td><td><code>run</code> takes <code>--input FILE</code> or <code>--text "..."</code> (or standard input). <code>create</code> options: <code>--instructions-file</code>, <code>--description</code>, <code>--model</code>, <code>--tool</code>, <code>--permission</code>, <code>--knowledge</code>. <code>logs --limit N</code> shows recent runs (secrets masked). <code>sync</code> exports agents to <code>.claude/agents/</code> and never overwrites your own.</td></tr>
+</table>
+<p>Agents are read-only by default: allowed permissions come from <code>agents.allowed_permissions</code> (default <code>knowledge_read</code>, <code>repo_read</code>) and each run is limited to <code>agents.max_steps</code> steps (default 6).</p>
+
+<h2>8.12 Audit</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos audit list [--action A] [--user U] [--limit N]</code></td><td>Recent recorded actions, newest first (default 50).</td></tr>
+  <tr><td><code>stratos audit get EVENT-ID</code></td><td>One event in full.</td></tr>
+  <tr><td><code>stratos audit summary [--days N]</code></td><td>Usage counts and alerts (many denied actions, high failure rate) using the <code>monitoring.*</code> thresholds.</td></tr>
+</table>
+<p>Tip: table cells are shortened on narrow screens. Use <code>-o json audit list</code> to see full values.</p>
+
+<h2>8.13 Backups and cache</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>stratos backup list [--file TEXT]</code></td><td>Backups Stratos took before changing files in this project, newest first.</td></tr>
+  <tr><td><code>stratos backup restore ID [--dry-run] [--yes]</code></td><td>Puts a backup back. The current version is backed up first, so a restore can be undone. Recorded in the audit trail.</td></tr>
+  <tr><td><code>stratos cache status | prune | clear [--namespace NAME]</code></td><td>Shows, tidies or deletes locally cached (non-secret) metadata. Deleting the cache loses nothing; it refills on demand.</td></tr>
+</table>
+
+<!-- ============================================================ 9 -->
+<h1 id="s9">9. Step-by-step workflows</h1>
+
+<h2>9.1 Start a brand-new project</h2>
+<pre>stratos whoami                                   (need developer role or higher)
+stratos project create my-app --template python --owner @my-org/platform-team --dry-run
+stratos project create my-app --template python --owner @my-org/platform-team
+stratos project get my-app                       (status should be "active")
+stratos workspace create my-app-dev --project my-app --python
+stratos workspace connect my-app-dev             (tells you how to enter the folder)</pre>
+<p>If <code>project create</code> is interrupted: <code>stratos project get my-app</code> shows <code>partial</code> and the error; fix the cause; run the same <code>project create</code> again.</p>
+
+<h2>9.2 Bring an existing folder into the standard setup</h2>
+<pre>cd path\to\folder
+stratos init --dry-run --diff
+stratos init
+stratos doctor</pre>
+<p>Changed your mind? <code>stratos backup list</code>, then <code>stratos backup restore ID</code>.</p>
+
+<h2>9.3 Ship a change</h2>
+<pre>stratos environment list --project my-app
+stratos deploy dev --project my-app --ref my-feature-branch
+stratos deploy status --project my-app -e development
+stratos deploy staging --project my-app
+stratos deploy production --project my-app --dry-run
+stratos deploy production --project my-app       (asks to confirm)</pre>
+
+<h2>9.4 Roll back a bad release (maintainer or admin)</h2>
+<pre>stratos deploy status --project my-app -e production
+stratos deploy rollback -e production --project my-app --dry-run
+stratos deploy rollback -e production --project my-app</pre>
+<p>To go to a specific known-good deployment: <code>--to DEPLOYMENT-ID</code>.</p>
+
+<h2>9.5 Add a skill and a tool server to a project</h2>
+<pre>stratos config set skills.registry C:\company\skills          (folder that contains index.json)
+stratos config set mcp.registry C:\company\mcp
+stratos skill list
+stratos skill install code-review
+stratos mcp list
+stratos mcp install github-tools
+stratos mcp configure github-tools --env GITHUB_TOKEN=GITHUB_TOKEN
+stratos mcp status</pre>
+<p>Names above are examples; use the names shown by <code>skill list</code> and <code>mcp list</code>.</p>
+
+<h2>9.6 Search company knowledge and connect it to Claude Code</h2>
+<pre>stratos config set knowledge.paths C:\company\docs
+stratos knowledge sync
+stratos knowledge search "release checklist"
+stratos knowledge connect --dry-run
+stratos knowledge connect</pre>
+
+<h2>9.7 Weekly audit review (maintainer or admin)</h2>
+<pre>stratos audit summary --days 7
+stratos audit list --limit 100
+stratos -o json audit list --action deployment.create</pre>
+
+<h2>9.8 Use Stratos in automation (CI or scripts)</h2>
+<pre>set STRATOS_AUTH__ISSUER=...            (settings via environment, see 10.2)
+set GITHUB_TOKEN=...                    (credential from the CI secret store)
+stratos -o json project list
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+stratos deploy dev --project my-app --yes</pre>
+<p>Always use <code>--yes</code> for changing commands in automation (nothing can answer a prompt) and check the exit code.</p>
+
+<!-- ============================================================ 10 -->
+<h1 id="s10">10. Configuration reference</h1>
+<h2>10.1 Where settings come from (highest priority first)</h2>
+<ol>
+  <li>Command-line options (for example <code>--org</code>)</li>
+  <li>Environment variables (<code>STRATOS_...</code>)</li>
+  <li>Project file: <code>.stratos/config.yaml</code> in the current folder</li>
+  <li>User file: <code>config.yaml</code> in your user configuration folder (11)</li>
+  <li>Organisation file: <code>config.yaml</code> in the system-wide configuration folder (set by administrators; use for policy)</li>
+  <li>Built-in defaults</li>
+</ol>
+<p>Use <code>stratos config list</code> to see the final result. If a value is not what you expect, a higher-priority source is overriding it (most often an environment variable).</p>
+<h2>10.2 Setting a value by environment variable</h2>
+<p>Name = <code>STRATOS_</code> + section + <code>__</code> (two underscores) + key, in capitals. Example: <code>auth.client_id</code> becomes <code>STRATOS_AUTH__CLIENT_ID</code>.</p>
+<h2>10.3 How to set an environment variable</h2>
+<table>
+  <tr><th>Terminal</th><th>This session only</th><th>Permanently (your user)</th></tr>
+  <tr><td>Windows cmd</td><td><code>set GITHUB_TOKEN=value</code></td><td><code>setx GITHUB_TOKEN value</code> (open a new terminal afterwards)</td></tr>
+  <tr><td>PowerShell</td><td><code>$env:GITHUB_TOKEN = "value"</code></td><td><code>[Environment]::SetEnvironmentVariable("GITHUB_TOKEN","value","User")</code></td></tr>
+  <tr><td>macOS / Linux</td><td><code>export GITHUB_TOKEN=value</code></td><td>Add the same line to <code>~/.zshrc</code> or <code>~/.bashrc</code></td></tr>
+</table>
+<div class="warn">Never commit tokens to git and never paste them into chat, tickets or screenshots. If a token is exposed, revoke it immediately at its source.</div>
+<h2>10.4 Every setting</h2>
+<table>
+  <tr><th>Key</th><th>Default</th><th>Meaning</th></tr>
+  <tr><td>organisation</td><td>Stratos-Technologies-fzco</td><td>Organisation name shown in messages.</td></tr>
+  <tr><td>api.endpoint</td><td>https://api.stratos.example</td><td>Platform API address (a placeholder until the platform exists).</td></tr>
+  <tr><td>github.organization</td><td>Stratos-Technologies-fzco</td><td>Default GitHub organisation for all repo, project, environment and deployment commands.</td></tr>
+  <tr><td>github.api_url</td><td>https://api.github.com</td><td>Change only for GitHub Enterprise Server.</td></tr>
+  <tr><td>auth.issuer</td><td>(none)</td><td>Identity provider issuer URL (https).</td></tr>
+  <tr><td>auth.client_id</td><td>(none)</td><td>Public client ID.</td></tr>
+  <tr><td>auth.scopes</td><td>openid profile email offline_access</td><td>Scopes requested at sign-in.</td></tr>
+  <tr><td>ai.provider</td><td>claude</td><td><code>claude</code>, <code>openai</code> or <code>azure-openai</code>.</td></tr>
+  <tr><td>ai.model</td><td>claude-sonnet-5</td><td>Default model.</td></tr>
+  <tr><td>ai.max_tokens</td><td>1024</td><td>Maximum answer length.</td></tr>
+  <tr><td>ai.azure_endpoint / ai.azure_api_version</td><td>(none) / 2024-10-21</td><td>Azure OpenAI only.</td></tr>
+  <tr><td>defaults.environment</td><td>development</td><td>Environment used when a command is not given one.</td></tr>
+  <tr><td>skills.registry</td><td>(none)</td><td>Folder containing the skills <code>index.json</code>.</td></tr>
+  <tr><td>mcp.registry</td><td>(none)</td><td>Folder containing the MCP servers <code>index.json</code>.</td></tr>
+  <tr><td>mcp.allowed</td><td>(none = unrestricted)</td><td>Allow-list of MCP server names (organisation policy).</td></tr>
+  <tr><td>knowledge.paths</td><td>[]</td><td>Folders of Markdown documents.</td></tr>
+  <tr><td>knowledge.pdf_paths</td><td>[]</td><td>Folders of PDF documents (needs the <code>pdf</code> extra).</td></tr>
+  <tr><td>knowledge.github</td><td>[]</td><td>GitHub sources as <code>org/repo</code> or <code>org/repo:path</code>.</td></tr>
+  <tr><td>knowledge.confluence_url / confluence_spaces</td><td>(none) / []</td><td>Confluence site (<code>https://SITE.atlassian.net</code>) and space keys. Needs <code>CONFLUENCE_EMAIL</code> and <code>CONFLUENCE_API_TOKEN</code>.</td></tr>
+  <tr><td>knowledge.sharepoint_sites</td><td>[]</td><td>SharePoint sites as <code>host:/sites/name</code>. Needs <code>SHAREPOINT_TOKEN</code> (or <code>MS_GRAPH_TOKEN</code>).</td></tr>
+  <tr><td>agents.allowed_permissions</td><td>knowledge_read, repo_read</td><td>What agents may do. Others: repo_write, run_commands, network (administrators only).</td></tr>
+  <tr><td>agents.max_steps</td><td>6</td><td>Step limit per agent run.</td></tr>
+  <tr><td>policy.allow_public_repos</td><td>true</td><td>Set false to forbid public repositories.</td></tr>
+  <tr><td>policy.allowed_ai_providers / allowed_ai_models</td><td>(none = any)</td><td>Restrict AI usage.</td></tr>
+  <tr><td>monitoring.window_days</td><td>7</td><td>Period for <code>audit summary</code>.</td></tr>
+  <tr><td>monitoring.denied_threshold</td><td>5</td><td>Denied actions that raise an alert.</td></tr>
+  <tr><td>monitoring.failure_rate_threshold / min_events_for_rate</td><td>0.25 / 5</td><td>Failure share that raises an alert, and the minimum events before it is judged.</td></tr>
+  <tr><td>project.template</td><td>none</td><td>Default CI template: python, node or none.</td></tr>
+  <tr><td>project.default_owners</td><td>[]</td><td>Default CODEOWNERS entries.</td></tr>
+  <tr><td>project.instructions_file</td><td>(none)</td><td>Your organisation's instruction text for <code>CLAUDE.md</code>; a built-in default is used if unset.</td></tr>
+  <tr><td>workspace.root</td><td>~/stratos-workspaces</td><td>Where workspaces are created.</td></tr>
+</table>
+<p>Unknown keys are rejected: <i>"'x' is not a valid configuration key."</i> Check spelling with <code>stratos config list</code>.</p>
+<h2>10.5 Credentials read from the environment (never stored)</h2>
+<table>
+  <tr><th>Variable</th><th>Used for</th></tr>
+  <tr><td>GITHUB_TOKEN</td><td>GitHub access (alternative to <code>gh auth login</code>)</td></tr>
+  <tr><td>ANTHROPIC_API_KEY</td><td>Claude models</td></tr>
+  <tr><td>OPENAI_API_KEY</td><td>OpenAI models</td></tr>
+  <tr><td>AZURE_OPENAI_API_KEY</td><td>Azure OpenAI</td></tr>
+  <tr><td>CONFLUENCE_EMAIL, CONFLUENCE_API_TOKEN</td><td>Confluence knowledge source</td></tr>
+  <tr><td>SHAREPOINT_TOKEN or MS_GRAPH_TOKEN</td><td>SharePoint knowledge source</td></tr>
+  <tr><td>STRATOS_DEBUG=1</td><td>Show full error details (same as <code>--debug</code>)</td></tr>
+</table>
+<p>A settings file may refer to a variable as <code>${NAME}</code>; the value is read at run time and is never written to disk by Stratos.</p>
+
+<!-- ============================================================ 11 -->
+<h1 id="s11">11. Where Stratos keeps its files</h1>
+<h2>11.1 In your user account</h2>
+<table>
+  <tr><th>What</th><th>Windows</th><th>macOS</th><th>Linux</th></tr>
+  <tr><td>User config (<code>config.yaml</code>)</td><td><code>%LOCALAPPDATA%\stratos</code></td><td><code>~/Library/Application Support/stratos</code></td><td><code>~/.config/stratos</code></td></tr>
+  <tr><td>Organisation config</td><td><code>C:\ProgramData\stratos</code></td><td><code>/Library/Application Support/stratos</code></td><td><code>/etc/xdg/stratos</code></td></tr>
+  <tr><td>Projects and workspaces registry (<code>projects.json</code>, <code>workspaces.json</code>)</td><td><code>%LOCALAPPDATA%\stratos</code></td><td><code>~/Library/Application Support/stratos</code></td><td><code>~/.local/share/stratos</code></td></tr>
+  <tr><td>Audit log (<code>audit.jsonl</code>)</td><td><code>%LOCALAPPDATA%\stratos</code></td><td><code>~/Library/Application Support/stratos</code></td><td><code>~/.local/state/stratos</code></td></tr>
+  <tr><td>Cache</td><td><code>%LOCALAPPDATA%\stratos\Cache</code></td><td><code>~/Library/Caches/stratos</code></td><td><code>~/.cache/stratos</code></td></tr>
+  <tr><td>Sign-in tokens</td><td colspan="3">Not in a file: OS secure store (Credential Manager / Keychain / Secret Service)</td></tr>
+  <tr><td>Workspaces (default)</td><td colspan="3"><code>~/stratos-workspaces</code> (your home folder)</td></tr>
+</table>
+<h2>11.2 Inside a project folder</h2>
+<table>
+  <tr><th>Path</th><th>What</th></tr>
+  <tr><td><code>.stratos/project.yaml</code></td><td>Project manifest</td></tr>
+  <tr><td><code>.stratos/config.yaml</code></td><td>Project-level settings</td></tr>
+  <tr><td><code>.stratos/backups/</code></td><td>Automatic backups (files as <code>NAME.TIMESTAMP.bak</code>; removed skills in <code>skills/NAME.TIMESTAMP</code>)</td></tr>
+  <tr><td><code>.stratos/agents/</code></td><td>Project agent definitions and run logs</td></tr>
+  <tr><td><code>.stratos/skills.lock.json</code></td><td>Records installed skill versions and checksums</td></tr>
+  <tr><td><code>CLAUDE.md</code>, <code>.claude/</code>, <code>.mcp.json</code></td><td>Claude Code instructions, skills, settings and tool servers</td></tr>
+</table>
+<h2>11.3 Starting from scratch</h2>
+<p>Settings only: <code>stratos config reset</code> (user file) and <code>stratos config reset --scope project</code>. Cache: <code>stratos cache clear</code>. Sign-in: <code>stratos logout</code>. Deleting the registry files forgets local projects and workspaces (repositories on GitHub are untouched); keep a copy first.</p>
+
+<!-- ============================================================ 12 -->
+<h1 id="s12">12. Safety features: dry run, backups, rollback, audit</h1>
+<h2>12.1 Dry run</h2>
+<p><code>--dry-run</code> runs the same logic as the real command but writes nothing and contacts GitHub only to read. The output lists each planned change (and a diff for files). <b>Dry run performs the permission checks</b>, so it also tells you whether you are allowed to do the real thing.</p>
+<h2>12.2 Automatic backups</h2>
+<p>Before Stratos changes or removes a file you may already own (<code>CLAUDE.md</code>, <code>.mcp.json</code>, <code>.claude/settings.json</code>, a skill folder, ...) it saves a copy in <code>.stratos/backups/</code>. Restore with:</p>
+<pre>stratos backup list
+stratos backup restore ID --dry-run
+stratos backup restore ID</pre>
+<p><code>ID</code> is the value in the <code>id</code> column of <code>backup list</code> (or the backup file name). If it matches more than one, use the full id. Restoring a removed skill refuses to overwrite a skill folder that exists; remove it first.</p>
+<h2>12.3 All-or-nothing changes</h2>
+<p><code>init</code> and <code>skill install</code> treat their steps as one unit. If any step fails, earlier writes are rolled back and the folder is left as it was. <code>project create</code> works differently on purpose: it never deletes what it built; it records progress so the same command resumes.</p>
+<h2>12.4 Managed blocks and merging</h2>
+<p>In files shared with you (<code>CLAUDE.md</code>) Stratos writes only between its own marker lines. In JSON files it merges keys and never removes yours. Do not edit inside the markers; edit anywhere else freely.</p>
+<h2>12.5 Audit trail</h2>
+<p>Sensitive actions (create, delete, deploy, rollback, install, restore, and denied attempts) are recorded with time, user, action, target and result. Secrets are masked. Maintainers and admins read it with <code>stratos audit ...</code>. The file is local until a platform service exists (11.1).</p>
+<p>If the audit log cannot be written (<i>"The audit log cannot be written: ..."</i>), the action is stopped rather than done unrecorded. Free disk space or fix folder permissions.</p>
+
+<!-- ============================================================ 13 -->
+<h1 id="s13">13. Troubleshooting</h1>
+<h2>13.1 Five-minute diagnosis</h2>
+<ol>
+  <li><b>Is the environment active?</b> Prompt should start with <code>(.venv)</code>; <code>stratos --version</code> should work (3.2).</li>
+  <li><b>Run <code>stratos doctor</code>.</b> Fix anything marked <b>fail</b>, then <b>warn</b> items relevant to what you are doing (13.5).</li>
+  <li><b>Read the message and the hint line.</b> Look the message up in 13.4, or the exit code in 13.3.</li>
+  <li><b>See what settings are in effect:</b> <code>stratos config list</code>. An environment variable may be overriding your file (10.1).</li>
+  <li><b>Re-run with <code>--debug</code></b> to see details, and with <code>--dry-run</code> to test without changing anything.</li>
+  <li><b>Still stuck?</b> Follow section 15 to collect the right information.</li>
+</ol>
+<h2>13.2 Quick fixes by symptom</h2>
+<table>
+  <tr><th>Symptom</th><th>Fix</th></tr>
+  <tr><td><code>'stratos' is not recognized</code> / <code>command not found</code></td><td>Activate the venv (3.2).</td></tr>
+  <tr><td>Command "not found" after typing it, but it appears in <code>--help</code></td><td>Check spelling and that global options come before the command (6.1).</td></tr>
+  <tr><td>Nothing happens on <code>stratos login</code></td><td>Browser did not open: use <code>--no-browser</code> and open the printed address.</td></tr>
+  <tr><td>Everything asks me to sign in</td><td>Session expired or stored in a different user account/keyring. <code>stratos login</code>.</td></tr>
+  <tr><td>Works for a colleague, not for me</td><td>Compare roles (<code>stratos whoami</code>) and GitHub access.</td></tr>
+  <tr><td>Odd characters or a crash printing symbols on old Windows consoles</td><td>Stratos falls back to plain characters automatically. To force UTF-8: <code>set PYTHONIOENCODING=utf-8</code>.</td></tr>
+  <tr><td>Tables cut off values with "..."</td><td>Widen the window or use <code>-o json</code>.</td></tr>
+  <tr><td>Setting seems ignored</td><td>Higher-priority source (10.1). Run <code>stratos config list</code>; look for a <code>STRATOS_...</code> variable or a project <code>.stratos/config.yaml</code>.</td></tr>
+  <tr><td>Data looks out of date</td><td><code>stratos org get --refresh</code> or <code>stratos cache clear</code>.</td></tr>
+  <tr><td>Wrong project used</td><td>Pass <code>--project NAME</code>, or run from the right folder.</td></tr>
+</table>
+<h2>13.3 Fixes by exit code</h2>
+<table>
+  <tr><th>Code</th><th>Likely causes</th><th>Do this</th></tr>
+  <tr><td>1</td><td>Unexpected failure</td><td>Re-run with <code>--debug</code>; report per section 15.</td></tr>
+  <tr><td>2</td><td>Mistyped command/option, missing argument, option in wrong place</td><td><code>stratos COMMAND --help</code>; move global options (<code>-o</code>, <code>--debug</code>) before the command.</td></tr>
+  <tr><td>3</td><td>Not signed in; expired session; missing <code>GITHUB_TOKEN</code>; missing/wrong AI key</td><td><code>stratos login</code>; set the token; <code>stratos doctor</code>.</td></tr>
+  <tr><td>4</td><td>Role lacks permission, or organisation policy blocks it</td><td>7.1; <code>stratos org policy</code>.</td></tr>
+  <tr><td>5</td><td>Wrong or misspelt name; not registered on this computer</td><td>Use the matching <code>list</code> command; check <code>--org</code>.</td></tr>
+  <tr><td>6</td><td>Input rejected (bad name, ref, owner, state, path)</td><td>Read the message: it names the field.</td></tr>
+  <tr><td>7</td><td>No network, VPN, proxy, DNS, GitHub or provider outage, rate limit</td><td>13.6.</td></tr>
+  <tr><td>8</td><td>Missing or invalid setting, unreadable config file</td><td><code>stratos config list</code>; fix the key named.</td></tr>
+  <tr><td>9</td><td>A required tool is missing (git, extras) or <code>doctor</code> found problems</td><td>Install it; <code>stratos doctor</code>.</td></tr>
+  <tr><td>10</td><td>You said no, or pressed Ctrl+C</td><td>Nothing changed. Re-run if intended (add <code>--yes</code> to skip the question).</td></tr>
+</table>
+<h2>13.4 Message lookup</h2>
+<p>Messages are grouped by area. Text in capitals or quotes stands for the value in your message.</p>
+<h3>Setup, configuration</h3>
+<table>
+  <tr><th>Message</th><th>Cause and fix</th></tr>
+  <tr><td>'KEY' is not a valid configuration key. / Unknown configuration key 'KEY'.</td><td>Typo. Keys are lower-case with dots: see 10.4.</td></tr>
+  <tr><td>Invalid configuration: ...</td><td>A value has the wrong type or an unknown key exists in a config file. The details name it; fix with <code>config set</code> or edit the file.</td></tr>
+  <tr><td>Cannot read configuration file PATH: ...</td><td>Permissions, or the file is damaged. Fix or move it aside; <code>config reset</code> recreates it.</td></tr>
+  <tr><td>Configuration file PATH must contain a mapping.</td><td>The YAML is not <code>key: value</code> form (for example it is a list). Correct the file.</td></tr>
+  <tr><td>Doctor found problems: ...</td><td>Run <code>stratos doctor</code> and fix each fail line (13.5).</td></tr>
+</table>
+<h3>Credentials</h3>
+<table>
+  <tr><th>Message</th><th>Cause and fix</th></tr>
+  <tr><td>Access token is missing. Set X or Y.</td><td>Set the environment variable(s) named (10.5) in the same terminal that runs Stratos.</td></tr>
+  <tr><td>The AI provider rejected the API key.</td><td>Key is wrong, revoked or for another provider. Check <code>stratos ai status</code> and the variable.</td></tr>
+  <tr><td>The AI provider denied access to this model or action.</td><td>Your key has no access to that model. Choose another with <code>--model</code> or <code>ai.model</code>, or check <code>policy.allowed_ai_*</code>.</td></tr>
+  <tr><td>The AI provider returned an error (HTTP N).</td><td>Provider-side problem or limit; retry later. 429 = rate limit, 5xx = outage.</td></tr>
+  <tr><td>Cannot reach the AI provider.</td><td>Network/VPN/proxy (13.6).</td></tr>
+  <tr><td>Confluence or SharePoint 401</td><td>Missing or expired variables (10.5). SharePoint needs a Microsoft Graph access token with read rights.</td></tr>
+</table>
+<h3>Repositories, projects, environments, deployments</h3>
+<table>
+  <tr><th>Message</th><th>Cause and fix</th></tr>
+  <tr><td>Repository ORG/NAME was not found.</td><td>Wrong name/org, or your GitHub account cannot see it (GitHub reports private repos as not found).</td></tr>
+  <tr><td>Project ORG/NAME was not found. / Project ... is not registered.</td><td>Projects are recorded on the computer that ran <code>project create</code>. Create it here or use another computer.</td></tr>
+  <tr><td>No project specified.</td><td>Use <code>--project NAME</code> or run inside a folder set up by <code>stratos init</code>.</td></tr>
+  <tr><td>Must have admin rights / HTTP 403 from GitHub</td><td>Your GitHub account lacks rights on that organisation or repository. Stratos does not bypass GitHub.</td></tr>
+  <tr><td>Refusing to follow a pagination link to a different host.</td><td>Security protection triggered by an unexpected GitHub response. Check <code>github.api_url</code>.</td></tr>
+  <tr><td>Invalid owner / branch name / ref / repository path / state</td><td>Value has illegal characters or wrong form. Owners look like <code>@user</code> or <code>@org/team</code>. State must be open, closed or all.</td></tr>
+  <tr><td>Nothing to update. Use --description and/or --owners.</td><td><code>project update</code> was given no changes.</td></tr>
+  <tr><td>The project registry projects.json is damaged.</td><td>Stratos will not overwrite it. Repair it (must be a JSON object), or move it aside (keep a copy). See 11.1 for its location.</td></tr>
+  <tr><td>Environment 'X' does not exist in PROJECT.</td><td>Create it: <code>stratos environment create X</code>.</td></tr>
+  <tr><td>There are no deployments to 'X' in PROJECT.</td><td>Nothing has been deployed there yet.</td></tr>
+  <tr><td>Deployment ID was not found in the recent history.</td><td>Only recent deployments are searched. Check <code>deploy status</code>.</td></tr>
+  <tr><td>There is no earlier successful deployment to roll back to.</td><td>Use <code>deploy rollback -e ENV --to DEPLOYMENT-ID</code>.</td></tr>
+  <tr><td>Invalid deployment state 'X'.</td><td>GitHub returned a state Stratos does not know; update Stratos or report it.</td></tr>
+  <tr><td>Environment created unprotected</td><td>Protection rules need a GitHub plan that supports them; the environment still works.</td></tr>
+</table>
+<h3>init, workspaces and files</h3>
+<table>
+  <tr><th>Message</th><th>Cause and fix</th></tr>
+  <tr><td>.stratos/project.yaml is invalid ("manifest is invalid")</td><td>Stratos never rewrites a manifest it cannot read. Fix it by hand, or delete it and run <code>stratos init</code>.</td></tr>
+  <tr><td>Workspace 'NAME' was not found.</td><td><code>stratos workspace list</code>; create or adopt it (<code>workspace connect NAME --path FOLDER</code>).</td></tr>
+  <tr><td>PATH is not a clone of any registered project. / is not a clone of ...</td><td>The folder is a git repository with a different origin. Choose another <code>--path</code>.</td></tr>
+  <tr><td>PATH exists, is not empty and is not a git clone. / Destination ... already exists and is not empty.</td><td>Pick an empty or new folder.</td></tr>
+  <tr><td>PATH is not a git repository.</td><td>Only git working copies can be adopted or purged.</td></tr>
+  <tr><td>git is not installed or not on PATH.</td><td>Install git and open a new terminal.</td></tr>
+  <tr><td>git clone failed: ...</td><td>The detail is git's message: usually credentials or a wrong name. Try <code>git clone</code> yourself for a clearer answer.</td></tr>
+  <tr><td>Workspace refuses to purge (uncommitted work)</td><td>Commit or stash, or use <code>--force</code> if you are sure.</td></tr>
+  <tr><td>Cannot delete PATH: ...</td><td>A program has files open, or permissions. Close editors and retry.</td></tr>
+  <tr><td>That path is outside the project. / Access to that path is not allowed.</td><td>Safety rule: agents and tools may only touch files inside the project.</td></tr>
+  <tr><td>File 'X' is larger than N KB. / Document is too large.</td><td>Limit protecting memory and cost. Split the file.</td></tr>
+  <tr><td>Only text documents (.md, .txt, .html) can be read.</td><td>Convert the file, or use <code>knowledge.pdf_paths</code> for PDFs.</td></tr>
+  <tr><td>No backup matches 'X'. / 'X' matches N backups.</td><td>Copy the id from <code>stratos backup list</code>; use the full id if several match.</td></tr>
+  <tr><td>Skill folder NAME already exists; it was not overwritten.</td><td>Backup restore of a skill will not replace an existing skill: <code>stratos skill remove NAME</code> first.</td></tr>
+</table>
+<h3>Skills, MCP servers, knowledge, agents</h3>
+<table>
+  <tr><th>Message</th><th>Cause and fix</th></tr>
+  <tr><td>Skill registry not found at PATH. / MCP registry not found at PATH.</td><td>Set <code>skills.registry</code> / <code>mcp.registry</code> to a folder containing <code>index.json</code>.</td></tr>
+  <tr><td>... is not valid JSON. / needs a 'skills' (or 'servers') list.</td><td>The registry index file is malformed. Fix it (administrator).</td></tr>
+  <tr><td>Skill 'X' is not in the registry. / is not installed.</td><td>Check the name with <code>stratos skill list</code>.</td></tr>
+  <tr><td>Checksum mismatch for skill 'X'; it was not added.</td><td>Skill contents differ from the index: it was <b>not installed</b>, deliberately. Ask the skill owner to republish; treat unexpected mismatches as a possible tampering incident.</td></tr>
+  <tr><td>Unsafe file path in skill: 'X'.</td><td>The skill contains a path that escapes its folder. It is refused. Report to the skill owner.</td></tr>
+  <tr><td>MCP server 'X' is not permitted by organisation policy.</td><td>Ask an administrator to add it to <code>mcp.allowed</code>.</td></tr>
+  <tr><td>MCP server 'X' is not in the registry. / is not installed.</td><td>Check <code>stratos mcp list</code>; install first.</td></tr>
+  <tr><td>MCP server program 'X' was not found.</td><td>The program the server needs (for example <code>npx</code>, <code>node</code>, <code>uvx</code>) is not installed or not on PATH.</td></tr>
+  <tr><td>The MCP server is not running. / closed the connection. / did not answer in time.</td><td>Start it outside Stratos to see its own error; check its environment variables with <code>stratos mcp status</code>.</td></tr>
+  <tr><td>MCP servers are not available in this configuration.</td><td>Configure <code>mcp.registry</code>.</td></tr>
+  <tr><td>Agent 'X' was not found. / already exists. / is a built-in agent and cannot be replaced.</td><td>Use <code>stratos agent list</code>; choose another name for your own agent.</td></tr>
+  <tr><td>Agent file X is invalid. / Invalid agent name.</td><td>Names use letters, digits, dashes. Fix or recreate the file in <code>.stratos/agents/</code>.</td></tr>
+  <tr><td>Agent 'X' needs permissions that are not allowed here.</td><td>Administrators can extend <code>agents.allowed_permissions</code>. Default is read-only.</td></tr>
+  <tr><td>agents.allowed_permissions contains an unknown value.</td><td>Valid: knowledge_read, repo_read, repo_write, run_commands, network.</td></tr>
+  <tr><td>Tool 'X' is not available.</td><td>Only listed tools exist (for example <code>knowledge.search</code>).</td></tr>
+  <tr><td>Knowledge document 'ID' was not found.</td><td>Use an id exactly as printed by <code>knowledge search</code>.</td></tr>
+  <tr><td>GitHub knowledge source 'X' must be org/repo[:path]. / Invalid Confluence space key / Invalid SharePoint site</td><td>Correct the entry in <code>knowledge.*</code> (formats in 10.4).</td></tr>
+  <tr><td>Cannot read PDF 'X'.</td><td>File is damaged or password-protected; ensure <code>pip install "stratos-cli[pdf]"</code>.</td></tr>
+  <tr><td>Refusing to cache a value that contains a secret.</td><td>A protection: secrets are never cached. No action needed unless it recurs; then report it.</td></tr>
+</table>
+<h3>Audit and API responses</h3>
+<table>
+  <tr><th>Message</th><th>Cause and fix</th></tr>
+  <tr><td>No audit event 'ID'.</td><td>Use an id from <code>audit list</code> (use <code>-o json</code> to see full ids).</td></tr>
+  <tr><td>The API returned a response that is not valid JSON. / Unexpected pagination response</td><td>A proxy or portal page is answering instead of the real service (common on captive/company networks). Check the address setting and network.</td></tr>
+  <tr><td>Operation cancelled. No changes were made.</td><td>You declined a confirmation. Nothing changed.</td></tr>
+</table>
+
+<h2>13.5 What <code>stratos doctor</code> checks</h2>
+<p>Each line is <b>pass</b>, <b>warn</b> (optional or not yet needed) or <b>fail</b> (must fix). Any fail gives exit code 9.</p>
+<table>
+  <tr><th>Check</th><th>If it is not pass</th></tr>
+  <tr><td>Python</td><td>fail: need 3.12+ (3.2).</td></tr>
+  <tr><td>Configuration</td><td>fail: a config file is unreadable or invalid; the message names it.</td></tr>
+  <tr><td>Secure credential store</td><td>warn: no usable keyring (13.7).</td></tr>
+  <tr><td>Sign-in configured</td><td>warn: set <code>auth.issuer</code>, <code>auth.client_id</code>.</td></tr>
+  <tr><td>Signed in</td><td>warn: <code>stratos login</code>.</td></tr>
+  <tr><td>git</td><td>warn: install git (needed for clone and workspaces).</td></tr>
+  <tr><td>GitHub credentials</td><td>warn: <code>GITHUB_TOKEN</code> or <code>gh auth login</code>.</td></tr>
+  <tr><td>Claude Code</td><td>warn: Claude Code not detected or not configured in this project (only matters if you use it).</td></tr>
+  <tr><td>AI provider</td><td>warn: API key variable not set.</td></tr>
+  <tr><td>Skills registry / MCP registry / Knowledge sources</td><td>warn: optional; configure if you use them.</td></tr>
+  <tr><td>uv, Docker</td><td>warn: optional tools not found.</td></tr>
+  <tr><td>Project configuration</td><td>fail if <code>.stratos/project.yaml</code> is invalid; warn if you are not in a Stratos project (run <code>stratos init</code>).</td></tr>
+  <tr><td>Credential variables</td><td>Lists variable <b>names</b> found (never values) and permissions you hold.</td></tr>
+  <tr><td>With <code>--online</code>: network, GitHub API, Platform API</td><td>warn if unreachable. The Platform API will warn until the service exists.</td></tr>
+</table>
+
+<h2>13.6 Network problems (exit code 7)</h2>
+<ol>
+  <li>Can you open <code>https://api.github.com</code> and your identity provider address in a browser on the same computer?</li>
+  <li>On a company network, connect the VPN if required.</li>
+  <li>Behind a proxy set <code>HTTPS_PROXY</code> (and <code>HTTP_PROXY</code>) in the environment (10.3). The standard proxy variables are honoured by the HTTP library. Ask IT for the address.</li>
+  <li>TLS/certificate errors on company networks usually come from an inspecting proxy; ask IT for the company root certificate and how to register it for Python.</li>
+  <li>Rate limits (HTTP 429) are retried automatically with the wait GitHub asks for. If it still fails, wait a few minutes.</li>
+  <li>Run <code>stratos doctor --online</code> to see which service is unreachable.</li>
+</ol>
+<h2>13.7 "No secure credential store is available"</h2>
+<p>Stratos refuses to keep sign-in tokens in a plain file. It needs an OS keyring.</p>
+<table>
+  <tr><th>System</th><th>Fix</th></tr>
+  <tr><td>Windows</td><td>Uses Credential Manager: normally present. Make sure you are running as a normal signed-in user (not a locked-down service account).</td></tr>
+  <tr><td>macOS</td><td>Uses Keychain. Unlock the login keychain; allow the prompt.</td></tr>
+  <tr><td>Linux desktop</td><td>Install and unlock a Secret Service provider (GNOME Keyring or KWallet), for example <code>sudo apt install gnome-keyring</code>, then log in again.</td></tr>
+  <tr><td>Linux server, container, WSL, CI</td><td>There is usually no keyring. Interactive sign-in cannot store tokens there. Use a machine with a keyring, or use automation credentials through environment variables.</td></tr>
+</table>
+<h2>13.8 GitHub access problems</h2>
+<ol>
+  <li><code>stratos doctor</code>: "GitHub credentials" must pass.</li>
+  <li>If you use a personal token, make sure it has not expired and that the organisation approved it (SAML single sign-on organisations require you to authorise the token).</li>
+  <li>403 or "Must have admin rights": your GitHub account needs a higher role on that repository or organisation.</li>
+  <li>404 for a repository you know exists: usually no access. GitHub hides repositories you cannot see.</li>
+  <li>Some features (environment protection rules, some security settings) need a paid GitHub plan.</li>
+</ol>
+<h2>13.9 A deployment stays "queued"</h2>
+<p>This is expected until your project's CI acts. Stratos only requests the deployment. Your pipeline must trigger on GitHub <b>deployment</b> events and report statuses (in progress, success, failure). Check <code>stratos repo workflows PROJECT</code> and <code>stratos repo runs PROJECT</code>. Stratos never marks a deployment successful itself.</p>
+<h2>13.10 A project shows "partial"</h2>
+<ol>
+  <li><code>stratos project get NAME</code>: read <code>last_error</code>.</li>
+  <li>Fix the cause (permissions, name clash, network, policy).</li>
+  <li>Run the same <code>stratos project create NAME ...</code> again. Completed steps are skipped; the repository is never duplicated.</li>
+</ol>
+<h2>13.11 I made a change I did not want</h2>
+<ul>
+  <li><b>File changed by Stratos:</b> <code>stratos backup list</code>, then <code>stratos backup restore ID</code>.</li>
+  <li><b>Skill removed by mistake:</b> restore its backup, or <code>stratos skill install NAME</code> again.</li>
+  <li><b>Wrong deployment:</b> <code>stratos deploy rollback</code> (9.4).</li>
+  <li><b>Repository archived:</b> unarchive it in GitHub (no Stratos command yet).</li>
+  <li><b>Project record deleted:</b> the repository still exists; run <code>stratos project create NAME</code> to re-register (existing repository is reused).</li>
+</ul>
+<h2>13.12 Speed and disk</h2>
+<ul>
+  <li><code>stratos --help</code> is fast because commands load only when used. The first use of a command in a session may take a moment.</li>
+  <li>Slow lookups: metadata is cached briefly; <code>stratos cache status</code> shows it. <code>--refresh</code> forces fresh data.</li>
+  <li>Cache growing: <code>stratos cache prune</code> or <code>clear</code>.</li>
+</ul>
+
+<!-- ============================================================ 14 -->
+<h1 id="s14">14. Frequently asked questions</h1>
+<p><b>Do I need to be online?</b> For sign-in, GitHub and AI features, yes. <code>doctor</code>, <code>status</code>, <code>config</code>, <code>version</code>, <code>backup</code>, <code>cache</code> and <code>init --dry-run</code> work offline.</p>
+<p><b>Is it safe to run <code>project create</code> twice?</b> Yes. It resumes and never duplicates the repository.</p>
+<p><b>Can I undo <code>stratos init</code>?</b> Yes: <code>stratos backup list</code> and <code>stratos backup restore</code>. Files that did not exist before (for example a new <code>.stratos</code> folder) can simply be deleted.</p>
+<p><b>Where are my passwords or tokens stored?</b> Sign-in tokens: OS secure store only. API keys: your environment only. Never in Stratos files, logs, cache or audit.</p>
+<p><b>Why does Stratos ask me to confirm?</b> It confirms destructive or production actions. Use <code>--dry-run</code> to preview and <code>--yes</code> to skip the question in scripts.</p>
+<p><b>Why does <code>deploy production</code> succeed but nothing changes?</b> The deployment is only <i>requested</i> (13.9).</p>
+<p><b>Can two people share one project registry?</b> Not yet: the registry is per computer until the Platform API exists. GitHub itself is shared.</p>
+<p><b>Why is a public repository refused?</b> Organisation policy (<code>policy.allow_public_repos</code> is false).</p>
+<p><b>Can I use it on GitHub Enterprise Server?</b> Set <code>github.api_url</code> to your server's API address.</p>
+<p><b>How do I use a different organisation for one command?</b> <code>--org OTHER-ORG</code>.</p>
+<p><b>I changed roles at the identity provider but nothing changed.</b> Sign out and in again (<code>stratos logout</code>, <code>stratos login</code>).</p>
+<p><b>How do I see exactly what happened earlier?</b> <code>stratos audit list</code> (maintainer or admin), or your file backups with <code>stratos backup list</code>.</p>
+<p><b>How do I update Stratos?</b> Installed with npm: <code>npm install -g @stratos-technologies-fzco/stratos-cli@latest</code> (3.7). Installed from source: get the newer source and re-run <code>python scripts/bootstrap.py</code> (3.5).</p>
+<p><b>Can I install it with <code>npm install</code>?</b> Yes: see 3.7. It needs Node.js 18+ and Python 3.12+ on the computer.</p>
+
+<!-- ============================================================ 15 -->
+<h1 id="s15">15. Getting more help and reporting a problem</h1>
+<h2>15.1 Built-in help</h2>
+<pre>stratos --help
+stratos COMMAND --help
+stratos COMMAND SUBCOMMAND --help</pre>
+<p>The full generated reference of every option is in <code>docs/CLI_REFERENCE.md</code> in the repository. Other documents: <code>docs/TROUBLESHOOTING.md</code>, <code>docs/SECURITY.md</code>, <code>docs/ARCHITECTURE.md</code>, <code>docs/DEVELOPMENT.md</code>.</p>
+<h2>15.2 Information to include when asking for help</h2>
+<ol>
+  <li>What you typed (remove any secrets) and what you expected.</li>
+  <li>The full message and the <b>exit code</b> (<code>echo %ERRORLEVEL%</code> in Windows cmd).</li>
+  <li>Output of <code>stratos version</code> and <code>stratos doctor</code>.</li>
+  <li>The same command re-run with <code>--debug</code>.</li>
+  <li>Your operating system, and whether you are on VPN or a proxy.</li>
+  <li>For file problems, the output of <code>stratos backup list</code>.</li>
+</ol>
+<div class="warn"><b>Before sending anything:</b> read it and remove tokens, passwords, client secrets and personal data. Stratos masks secrets it knows about, but you are the last line of defence. Report a suspected security problem (for example an unexpected "Checksum mismatch") to your security team, not in a public channel.</div>
+<h2>15.3 Who to ask</h2>
+<table>
+  <tr><th>Problem type</th><th>Ask</th></tr>
+  <tr><td>Cannot sign in, missing roles, redirect address</td><td>Identity provider administrator / IT</td></tr>
+  <tr><td>GitHub permissions, tokens, plans</td><td>GitHub organisation owner</td></tr>
+  <tr><td>Policy blocks (MCP, AI models, public repos, agent permissions)</td><td>Stratos administrators</td></tr>
+  <tr><td>Skill or MCP registry contents</td><td>Owners of those registries</td></tr>
+  <tr><td>Bugs or missing features in the CLI</td><td>The Stratos CLI maintainers, with the information in 15.2</td></tr>
+</table>
+
+<!-- ============================================================ 16 -->
+<h1 id="s16">16. Appendix: glossary and quick reference</h1>
+<h2>16.1 Glossary</h2>
+<table>
+  <tr><th>Term</th><th>Meaning</th></tr>
+  <tr><td>Agent</td><td>An AI helper with defined instructions, tools and limited permissions.</td></tr>
+  <tr><td>Audit trail</td><td>Record of sensitive actions: who, what, when, result.</td></tr>
+  <tr><td>CODEOWNERS</td><td>A GitHub file naming who must review changes to which files.</td></tr>
+  <tr><td>Client ID</td><td>Public identifier of the CLI application at your identity provider. Not a secret.</td></tr>
+  <tr><td>Dry run</td><td>A rehearsal that shows what would change without changing it.</td></tr>
+  <tr><td>Environment</td><td>A named deployment target (development, staging, production), implemented as a GitHub Environment.</td></tr>
+  <tr><td>Exit code</td><td>The number a command returns to signal success or the kind of failure.</td></tr>
+  <tr><td>Issuer</td><td>The address of your identity provider that Stratos signs in against.</td></tr>
+  <tr><td>Keyring</td><td>The operating system's secure store for secrets.</td></tr>
+  <tr><td>Managed block</td><td>A section of a file (marked by comment lines) that Stratos owns; the rest is yours.</td></tr>
+  <tr><td>MCP server</td><td>A tool server that AI assistants can call (Model Context Protocol).</td></tr>
+  <tr><td>OIDC / PKCE</td><td>The standard, secret-less browser sign-in protocol the CLI uses.</td></tr>
+  <tr><td>Project</td><td>A repository plus its standard Stratos setup.</td></tr>
+  <tr><td>Role</td><td>viewer, developer, maintainer or admin: decides what you may do.</td></tr>
+  <tr><td>Skill</td><td>A packaged, checksum-verified capability added to a project's Claude Code setup.</td></tr>
+  <tr><td>Workspace</td><td>A prepared working copy of a project on your computer.</td></tr>
+</table>
+<h2>16.2 One-page quick reference</h2>
+<table>
+  <tr><th>I want to...</th><th>Command</th></tr>
+  <tr><td>Install</td><td><code>npm install -g @stratos-technologies-fzco/stratos-cli</code></td></tr>
+  <tr><td>Check my setup</td><td><code>stratos doctor</code></td></tr>
+  <tr><td>Sign in / out / who am I</td><td><code>stratos login</code> / <code>logout</code> / <code>whoami</code></td></tr>
+  <tr><td>See or change settings</td><td><code>stratos config list</code> / <code>set KEY VALUE</code></td></tr>
+  <tr><td>Create a project</td><td><code>stratos project create NAME --dry-run</code>, then without <code>--dry-run</code></td></tr>
+  <tr><td>Set up this folder</td><td><code>stratos init --dry-run --diff</code>, then <code>stratos init</code></td></tr>
+  <tr><td>Get a working copy</td><td><code>stratos workspace create NAME --project P</code></td></tr>
+  <tr><td>List repositories</td><td><code>stratos repo list</code></td></tr>
+  <tr><td>Deploy</td><td><code>stratos deploy dev|staging|production --project P</code></td></tr>
+  <tr><td>Check a deployment</td><td><code>stratos deploy status --project P</code></td></tr>
+  <tr><td>Roll back</td><td><code>stratos deploy rollback -e ENV --project P</code></td></tr>
+  <tr><td>Ask an AI question</td><td><code>stratos ai ask "question"</code></td></tr>
+  <tr><td>Search knowledge</td><td><code>stratos knowledge search "words"</code></td></tr>
+  <tr><td>Review activity</td><td><code>stratos audit list</code> / <code>audit summary</code></td></tr>
+  <tr><td>Undo a file change</td><td><code>stratos backup list</code>, <code>stratos backup restore ID</code></td></tr>
+  <tr><td>Clear local cache</td><td><code>stratos cache clear</code></td></tr>
+  <tr><td>Script-friendly output</td><td><code>stratos -o json COMMAND</code></td></tr>
+  <tr><td>See details of a failure</td><td><code>stratos --debug COMMAND</code></td></tr>
+</table>
+<h2>16.3 Document information</h2>
+<p>Applies to Stratos CLI 0.1.0. Source and generated command reference: <code>stratos-cli/docs/</code>. Where this manual and <code>stratos COMMAND --help</code> differ, the built-in help is authoritative for the version you have installed.</p>
+
+</body>
+</html>

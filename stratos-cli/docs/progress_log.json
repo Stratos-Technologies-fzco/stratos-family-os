@@ -191,6 +191,65 @@
         "The platform's interface description was intentionally left empty, because the platform itself has not been designed yet and inventing it would mislead. A test makes sure anything added later is complete.",
         "Nothing from this layer has been published to GitHub yet."
       ]
+    },
+    {
+      "id": 9,
+      "date": "21 September 2026",
+      "area": "Documentation: User Manual",
+      "title": "Complete user manual (PDF) for everyone who uses the tool",
+      "status": "Complete",
+      "summary": "A 37-page user manual in PDF form was written so that any user can install, set up, use and, above all, fix problems with the tool on their own.",
+      "delivered": [
+        "Getting started: requirements, installation on Windows, Mac and Linux, how to switch the tool on in a terminal (the step that trips up most first-time users), first-time setup and how to sign in, including what to ask the company's sign-in administrators for.",
+        "Everyday use: every command explained in plain language with examples, who is allowed to do what (viewer, developer, maintainer, administrator), and step-by-step routines such as starting a project, releasing a change, rolling one back and reviewing activity.",
+        "Settings and file locations: every setting with its default, how settings override each other, how to set passwords and keys safely, and where the tool keeps its files on each type of computer.",
+        "Safety: how to preview any change, how to restore a file the tool changed, how the all-or-nothing behaviour works, and what the activity record contains.",
+        "Troubleshooting: a five-minute diagnosis routine, fixes by symptom, fixes by error number, a lookup table of over 100 error messages with cause and remedy, what each health-check line means, and dedicated guides for network, secure-storage, GitHub-access and stuck-release problems.",
+        "Also included: frequently asked questions, what information to gather when asking for help, who to contact for each type of problem, a glossary and a one-page quick reference."
+      ],
+      "notes": [
+        "The manual is stored as docs/Stratos_CLI_User_Manual.pdf, with its editable source in docs/manual/. It describes version 0.1.0 and should be refreshed when commands change.",
+        "Not yet published to GitHub."
+      ]
+    },
+    {
+      "id": 10,
+      "date": "21 September 2026",
+      "area": "Distribution: npm installation",
+      "title": "The tool can now be installed with a single npm command",
+      "status": "Complete and tested locally; not yet published",
+      "summary": "Colleagues can now install the tool the way most developers install tools: one 'npm install' command, with nothing to switch on afterwards.",
+      "delivered": [
+        "An installable package was created that contains the tool. When installed, it prepares its own private Python workspace, so the user's own Python is left untouched, and it adds the 'stratos' command to the computer.",
+        "It was tested end to end on this computer from a clean location: the install completed, the version displayed correctly, the health check ran, and a mistyped command returned the correct error number.",
+        "If Python 3.12 or newer is missing, or the internet is blocked, the installer explains exactly what to do instead of failing silently, and the first use of the tool retries the setup.",
+        "The user manual now has a full installation section for this method: requirements, install, update, repair, remove, installing without administrator rights, and a table of installation problems with fixes. The quick reference and FAQ were updated too.",
+        "A single command builds the package, and an automatic test keeps its version number in step with the tool's."
+      ],
+      "notes": [
+        "Users still need Node.js 18+ and Python 3.12+ on their computers, because the tool itself is written in Python.",
+        "The package name (@stratos-technologies-fzco/stratos-cli) was later changed to follow the company's GitHub organisation (see entry 11).",
+        "Nothing from this step is on GitHub yet."
+      ]
+    },
+    {
+      "id": 11,
+      "date": "21 September 2026",
+      "area": "Distribution: publishing preparation",
+      "title": "Everything needed to publish the installer package is ready; the final publish awaits credentials",
+      "status": "Prepared and rehearsed; not yet published",
+      "summary": "The installable package was prepared for the company's private-style package registry (GitHub Packages) and rehearsed end to end without actually publishing.",
+      "delivered": [
+        "The package was renamed to match the company's GitHub organisation, which the registry requires, and told which registry to publish to.",
+        "A rehearsal ('dry run') of the publish confirmed exactly what would be published: six files, 160 KB, no secrets, correct name and version.",
+        "A publishing guide (docs/PUBLISHING.md) describes who may publish, the one-time preparation, the release checklist, and what cannot be undone.",
+        "The user manual now explains the one-time registry sign-in each user needs, and adds fixes for the common 'not found', 'unauthorized' and 'forbidden' messages."
+      ],
+      "notes": [
+        "The real publish has not been done. It needs a person who belongs to the company's GitHub organisation and a GitHub access token with permission to write packages; the accounts available to this project have neither.",
+        "Because the code repository is public, the package will also be publicly downloadable, although GitHub still asks every user to sign in with a token to install it.",
+        "The change is not yet on GitHub."
+      ]
     }
   ]
 }

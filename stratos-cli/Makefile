@@ -1,6 +1,6 @@
 PYTHON ?= python
 
-.PHONY: help setup install lint format typecheck test integration-test e2e coverage check security audit sbom build verify-package docs release clean mock-services
+.PHONY: help setup install lint format typecheck test integration-test e2e coverage check security audit sbom build verify-package npm-pack docs release clean mock-services
 
 help:            ## Show targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | sed 's/:.*##/ -/'
@@ -49,6 +49,9 @@ build:           ## Build wheel and sdist
 
 verify-package:  ## Build, install in a clean venv and smoke-test the wheel
 	$(PYTHON) scripts/verify_package.py
+
+npm-pack:        ## Build the npm installer package (npm/*.tgz)
+	$(PYTHON) scripts/build_npm_package.py
 
 docs:            ## Regenerate docs/CLI_REFERENCE.md and the progress log
 	$(PYTHON) scripts/gen_cli_reference.py

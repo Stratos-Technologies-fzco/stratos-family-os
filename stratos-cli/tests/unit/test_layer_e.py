@@ -198,3 +198,17 @@ def test_cli_reference_lists_every_command() -> None:
     text = (Path(__file__).parents[2] / "docs" / "CLI_REFERENCE.md").read_text("utf-8")
     for name in LAZY_COMMANDS:
         assert f"stratos {name}" in text, f"{name} missing from CLI_REFERENCE.md"
+
+
+def test_npm_package_version_matches_python_version() -> None:
+    import json
+    import tomllib
+
+    root = Path(__file__).parents[2]
+    python_version = tomllib.loads((root / "pyproject.toml").read_text("utf-8"))["project"][
+        "version"
+    ]
+    npm = json.loads((root / "npm" / "package.json").read_text("utf-8"))
+    assert npm["version"] == python_version
+    assert npm["bin"]["stratos"] == "bin/stratos.js"
+    assert (root / "npm" / "bin" / "stratos.js").is_file()
