@@ -9,3 +9,4 @@ node_modules/
 npm/wheels/
 npm/runtime/
 npm/*.tgz
+.coverage

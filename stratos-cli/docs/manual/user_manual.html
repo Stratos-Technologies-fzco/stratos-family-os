@@ -267,6 +267,11 @@ stratos doctor</pre>
 <h3>No browser available (remote server, SSH, container)</h3>
 <pre>stratos login --no-browser</pre>
 <p>Stratos prints the sign-in address. Open it on a computer that has a browser. Note that the redirect returns to <code>127.0.0.1</code> on the machine where Stratos runs, so this works when you can reach that port (for example through port forwarding), not from an unrelated computer.</p>
+<h3>Trying Stratos without signing in (local testing only)</h3>
+<p>To evaluate Stratos on your own computer before sign-in is configured, turn on the local testing switch. Stratos then treats you as a signed-in local administrator and never contacts the identity provider.</p>
+<pre>PowerShell:  $env:STRATOS_DEV_AUTH_BYPASS = "1"
+bash:        export STRATOS_DEV_AUTH_BYPASS=1</pre>
+<p>Turn it off by removing the variable. <strong>Warning:</strong> the switch grants full administrator rights and gives no access to real company systems. Never enable it on shared or production machines.</p>
 <h2>5.2 Who am I, and am I still signed in?</h2>
 <pre>stratos whoami          identity and roles
 stratos auth status     session state (local check; tokens are never shown)</pre>
@@ -634,6 +639,7 @@ stratos deploy dev --project my-app --yes</pre>
   <tr><td>AZURE_OPENAI_API_KEY</td><td>Azure OpenAI</td></tr>
   <tr><td>CONFLUENCE_EMAIL, CONFLUENCE_API_TOKEN</td><td>Confluence knowledge source</td></tr>
   <tr><td>SHAREPOINT_TOKEN or MS_GRAPH_TOKEN</td><td>SharePoint knowledge source</td></tr>
+  <tr><td>STRATOS_DEV_AUTH_BYPASS=1</td><td>Local testing only: skip sign-in and act as a local administrator</td></tr>
   <tr><td>STRATOS_DEBUG=1</td><td>Show full error details (same as <code>--debug</code>)</td></tr>
 </table>
 <p>A settings file may refer to a variable as <code>${NAME}</code>; the value is read at run time and is never written to disk by Stratos.</p>

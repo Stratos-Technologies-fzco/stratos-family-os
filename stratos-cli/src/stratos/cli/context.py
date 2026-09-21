@@ -4,6 +4,7 @@ Everything expensive is built lazily, so `--help` never touches configuration, t
 the network or any client, and unrelated commands never load AI, GitHub or knowledge clients.
 """
 
+import os
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
@@ -71,6 +72,11 @@ class CliContext:
         from stratos.infrastructure.auth.loopback import LoopbackReceiver
         from stratos.infrastructure.auth.oidc import OidcProvider
         from stratos.infrastructure.secrets import KeyringSecretStore
+
+        if os.environ.get("STRATOS_DEV_AUTH_BYPASS") == "1":
+            from stratos.application.auth_service import DevAuthService
+
+            return DevAuthService()  # type: ignore[return-value]  # duck-typed local stand-in
 
         auth = self.settings.auth
         if not auth.issuer or not auth.client_id:
