@@ -1,0 +1,196 @@
+{
+  "title": "Stratos CLI: Project Progress Log",
+  "subtitle": "Stratos Technologies FZCO  ·  Enterprise Developer Platform CLI",
+  "intro": "This document records, in plain business terms, what has been built on the Stratos CLI project and why it matters. It is a running log: a new entry is added every time something is changed or added, so earlier entries are never removed. Technical detail lives in the engineering documentation; this log is written for business, product and management readers.",
+  "entries": [
+    {
+      "id": 1,
+      "date": "21 September 2026",
+      "area": "Project setup",
+      "title": "Project workspace created",
+      "status": "Complete",
+      "summary": "The organised home for the Stratos CLI project was created, following the agreed structure.",
+      "delivered": [
+        "A dedicated project folder with clearly separated areas for the product itself, its automated checks, its documentation, and its release and build tooling.",
+        "The product area is divided into layers that mirror how the platform is meant to work: what the user sees, the business rules, the connections to outside services (such as GitHub and AI providers), settings, and activity records.",
+        "Placeholders for the full set of company documents: architecture, security, API, command reference, developer guide, contributing guide and troubleshooting.",
+        "Placeholders for the automated quality, security and release pipelines."
+      ],
+      "value": "Every later piece of work now has an agreed place to live. This keeps the project orderly as more people and features are added, and makes it easier to review, audit and hand over.",
+      "next": "Fill the workspace with the first working capabilities (see Entry 2)."
+    },
+    {
+      "id": 2,
+      "date": "21 September 2026",
+      "area": "Layer A: Foundation",
+      "title": "Foundation layer built (modules M01 to M06)",
+      "status": "Complete and tested",
+      "summary": "The six foundation modules from the Module Structure document were built. Everything else in the platform will stand on these.",
+      "delivered": [
+        "Command entry point (M01): the 'stratos' command now exists, with built-in help, a version display, a detailed-logging option, a troubleshooting option, and a choice of output style. It starts quickly because heavier parts load only when needed.",
+        "Consistent output (M02): every message and result the tool shows goes through one place. Results can be shown as a table, JSON, YAML, plain text, or silently, and use a restrained colour scheme (green for success, orange for warnings, red for errors, blue for information).",
+        "Settings (M03): the tool reads settings from several places in a clear order of priority (the user's command, then environment settings, then project, user and organisation defaults). Users can view, change and reset settings with 'stratos config'. The default GitHub organisation is Stratos-Technologies-fzco.",
+        "Predictable failures (M04): every kind of problem produces a clear, friendly message and a fixed exit number (0 to 10), so both people and automated systems know what happened. Technical error details are hidden unless troubleshooting is switched on.",
+        "Activity records and secret protection (M05): the tool keeps structured records of what it does, each tagged so a single action can be traced. A shared protection step automatically hides passwords, access tokens, keys and similar secrets everywhere they might appear. No usage data is collected or sent anywhere.",
+        "Core business vocabulary (M06): the shared definitions the rest of the platform will use, including the standard list of error types, output styles and exit numbers."
+      ],
+      "value": "This delivers the security, consistency and reliability expectations set out for the platform: secrets are protected by default, failures are predictable, settings cannot silently hold sensitive data, and nothing is collected about users. It also lowers the cost of every future feature, because each one can reuse these building blocks instead of solving the same problems again.",
+      "quality": "34 automated checks were written and all pass. They cover the priority order of settings, the hiding of every category of secret, every exit number, each output style, and confirmation that asking for help does not start any external connections. Code style and type-safety checks are also clean.",
+      "next": "Layer B: connecting to the Platform API and signing users in, with access control and audit records.",
+      "decisions": [
+        "Where organisation-wide default settings should be stored on a user's computer (a sensible location was chosen for now).",
+        "The automated build tool 'uv' is not installed on the development machine, so the dependency lock file is still to be generated."
+      ]
+    },
+    {
+      "id": 3,
+      "date": "21 September 2026",
+      "area": "Source control",
+      "title": "Project code published to GitHub for review",
+      "status": "Complete",
+      "summary": "The project was uploaded to the company's GitHub space so it can be reviewed and shared.",
+      "delivered": [
+        "A separate review copy (a branch called 'stratos-cli') was created inside the existing 'stratos-family-os' repository of the Stratos-Technologies-fzco organisation, in its own 'stratos-cli' folder.",
+        "The main version of that repository was not changed.",
+        "Internal planning material (the Module Structure document) was deliberately left out of the upload."
+      ],
+      "value": "The work is now backed up and visible to reviewers. Using a separate branch means nothing existing can be disturbed, and the team decides when to merge.",
+      "decisions": [
+        "The repository is public, so the uploaded code can be seen by anyone. Confirm this is acceptable, or move the project to a private repository.",
+        "A dedicated 'Stratos-CLI' repository could not be created because the account does not yet have permission to create repositories in the organisation."
+      ],
+      "next": "Decide on the long-term home of the code and grant repository-creation permission if a dedicated repository is wanted."
+    },
+    {
+      "id": 4,
+      "date": "21 September 2026",
+      "area": "Layer B: Connectivity & Trust",
+      "title": "Sign-in, access control, platform connection and audit trail built (modules M07 to M10)",
+      "status": "Complete and tested",
+      "summary": "The four modules that let the tool prove who a user is, decide what they may do, talk to the Stratos platform safely, and keep a record of sensitive actions.",
+      "delivered": [
+        "Secure sign-in (M08): users sign in through their organisation's identity system in a web browser, using the industry-standard method that never handles their password. New commands: 'stratos login', 'logout', 'whoami' and 'auth status / token'. The design supports Microsoft Entra ID, Okta, Google Workspace and similar providers.",
+        "Safe credential storage (M08): sign-in credentials are kept only in the computer's built-in secure vault. If no vault is available the tool stops rather than saving anything in readable form. Signing out removes everything.",
+        "Access control (M09): every person is given a role (viewer, developer, maintainer or administrator) by their organisation's identity system. Sensitive actions check the role first, and anyone without a role gets read-only access. Refusals are clear and are recorded.",
+        "Platform connection (M07): one shared, well-behaved channel to the Stratos platform. It uses encryption only, retries temporary problems with increasing pauses, respects the platform's 'slow down' requests, tags every request so problems can be traced, and never repeats a risky action such as a deletion unless it is safe to do so. It refuses to follow links to other websites so credentials cannot be sent astray.",
+        "Audit trail (M10): nine sensitive actions (creating or deleting projects and repositories, running agents, deploying and rolling back, installing tools) can now be recorded with who, when, what, on which item and the outcome, including failures and refusals. New commands 'stratos audit list' and 'audit get' let authorised people review the trail. Secrets are never written to it.",
+        "Written security documentation: a security overview and a formal design decision record for the security approach."
+      ],
+      "value": "This delivers the platform's top priority, security, and its enterprise governance expectations. Staff sign in with existing company accounts, access follows least privilege, all traffic is encrypted, credentials are never stored in the open, and there is a reviewable record of sensitive activity. Later features (repositories, deployments, agents) can plug into these controls instead of building their own.",
+      "quality": "95 automated checks now pass in total (61 new). They cover the sign-in security steps, credential storage, expired-session renewal, every role against every permission, retry and slow-down behaviour, refusal to repeat risky actions, error handling, the audit record for each sensitive action, and confirmation that no secret appears in output or records. Code style and type-safety checks are clean.",
+      "decisions": [
+        "The role-to-permission table (who may do what) is a proposed default and needs business approval before real use.",
+        "No live identity provider or platform backend exists yet, so sign-in and platform calls were tested against simulated services only. Sign-in needs the organisation's identity provider address and client ID to be supplied.",
+        "Audit records are kept in a local file on each user's computer until the platform can store them centrally.",
+        "The platform connection assumes standard conventions for paging through long lists, pending the published platform API description."
+      ],
+      "next": "Layer C: Enterprise Integrations (GitHub repositories, organisations and teams, Claude Code, skills, MCP, AI providers, agents and the knowledge base)."
+    },
+    {
+      "id": 5,
+      "date": "21 September 2026",
+      "area": "Layer C: Enterprise Integrations",
+      "title": "GitHub, organisation and teams, Claude Code, skills, MCP, AI, agents and knowledge base built (modules M11 to M18)",
+      "status": "Complete and tested",
+      "summary": "The eight modules that connect the tool to the company's working tools were built, together with the safety and speed foundations they rely on.",
+      "delivered": [
+        "GitHub repositories (M11): create, list, view, clone, configure and archive repositories. Creating is safe to repeat (it never makes duplicates), every action can be previewed first with a dry run, and risky actions such as archiving or making a repository public ask for confirmation. Branch protection and code-ownership rules can be applied automatically. Creations, configuration changes and archiving are recorded in the audit trail.",
+        "Organisation and teams (M12): view organisation details, members, teams, what each team can access, and the organisation policy. Information is remembered for a short time so the tool stays fast, and nothing sensitive is remembered.",
+        "Claude Code (M13): the tool detects whether Claude Code is installed and never assumes it is. It can add company instructions and coding standards to a project without overwriting what developers wrote, and every change is backed up and can be undone.",
+        "Skills (M14): staff can browse, install, update and remove approved skills. Before installing, the tool checks the skill has not been tampered with, works with this version of the tool, and shows the permissions it asks for so a person can approve them. Skills are only copied, never run by the tool.",
+        "MCP tool servers (M15): staff can list, install, configure and check tool servers, but only ones the organisation allows. Passwords and keys are never written into shared files; they must be read from each person's own environment. Existing settings are backed up first and can be restored.",
+        "AI assistants (M16): ask questions from the command line. The tool is not tied to one vendor: Anthropic (Claude) is the first supported provider and others can be added. Answers appear as they are written, with secrets hidden, and the tool loads the AI software only when it is actually needed.",
+        "Agents (M17): ready-made code-review and security-review assistants, plus the ability to define new ones. Agents get the least access by default, every run is recorded in the audit trail, and their logs hide secrets.",
+        "Knowledge base (M18): search company documents (such as runbooks and architecture notes) with results ranked by relevance. Documents are read on demand and never copied elsewhere.",
+        "Safe-change foundations (M24 and M25, started early): the preview-before-change mode, the confirmation step, protection for configuration files (backup, compare, merge, undo) and the short-term memory for non-sensitive information."
+      ],
+      "value": "Developers can now do the day-to-day work of creating repositories, adopting approved tools and skills, asking AI questions, running reviews and finding company knowledge from one command, with security built in. Every change can be previewed, risky steps need confirmation, secrets are never stored in shared files or shown, and sensitive actions leave an audit record. This is the core of the platform's promise of safe, governed developer productivity.",
+      "quality": "187 automated checks now pass in total (92 new). They cover repeat-safe creation, previews that change nothing, cancelled confirmations, tampered skills being rejected, secrets being kept out of tool configuration, access limits on agents, ranking of search results, secrets hidden even when an answer is streamed in pieces, and the AI software not loading unless needed. The GitHub connection was also checked read-only against the real GitHub service. Two defects found during testing were fixed: long results were being wrapped and broke machine-readable output, and yes/no settings were wrongly hidden as if they were secrets.",
+      "decisions": [
+        "Skills, MCP servers, agents and knowledge currently come from local folders; connecting them to shared company registries needs the platform backend or an agreed location.",
+        "Agents currently perform a single question-and-answer step with optional knowledge context. Skills and tool servers listed on an agent are recorded but not yet used when it runs; a full multi-step tool-using agent is a later decision.",
+        "Using AI, knowledge search or agents requires being signed in. Confirm this is wanted, or whether AI questions should also work without sign-in.",
+        "Five extra audited actions (repository configure and archive, skill removal, tool-server configuration, agent creation) were added beyond the nine in the specification, with matching permissions in the proposed role table.",
+        "The GitHub connection uses the person's GitHub token (from an environment setting or their GitHub CLI login); Stratos never stores it. An organisation owner must invite the account before repository creation in the Stratos-Technologies-fzco organisation will work."
+      ],
+      "next": "Layer D: Developer Workflow (project lifecycle, project initialisation, workspaces, environments and deployment, diagnostics and status)."
+    },
+    {
+      "id": 6,
+      "date": "21 September 2026",
+      "area": "Layers A to C: gap closure",
+      "title": "Remaining specification gaps closed: fuller GitHub, more AI and knowledge sources, working agents, governance and delivery pipelines",
+      "status": "Complete and tested",
+      "summary": "Every gap identified in the earlier review of Layers A to C was closed, so those layers now match the specification apart from items that depend on things that do not exist yet (the Stratos platform backend and a company licence decision).",
+      "delivered": [
+        "GitHub (M11): the tool can now also show branches, pull requests, issues, labels and workflow runs, and can apply a standard set of labels, the company merge policy, security scanning features and restricted GitHub Actions to a repository. Each is safe to repeat, can be previewed first, and is recorded in the audit trail.",
+        "Claude Code (M13): agents can be exported so Claude Code can use them, with only the access the agent is allowed (read-only by default). Files that developers wrote themselves are never overwritten. Claude Code can also be told how to search company knowledge. A new health check, 'stratos doctor', reports whether Claude Code and the other tools are set up; 'version' and 'status' were added too.",
+        "AI providers (M16): OpenAI and Azure OpenAI now work alongside Anthropic, so the organisation can choose (or restrict) which AI vendor and which models are used.",
+        "Agents (M17): agents can now work through a task in several steps: read project files, look up company knowledge, use the installed skills, and call approved tool servers. Every step is checked against the agent's permissions; secret files and anything outside the project are blocked; results hide secrets; and there is a limit on the number of steps so nothing can run away. Tool servers only start when installed, allowed by policy, and explicitly permitted for that agent, and are always shut down afterwards.",
+        "Knowledge base (M18): company knowledge can now come from Markdown folders, PDF folders, GitHub repositories, Confluence and SharePoint. Remote sources are read on demand and never copied to disk.",
+        "Platform connection (M07): a second, asynchronous version of the connection layer was added for work that benefits from doing many things at once, following exactly the same safety rules as the original.",
+        "Governance (M09 and M10): the organisation can now set policies (for example, forbid public repositories, or limit which AI providers and models are allowed). Blocked actions are refused and recorded. A new 'audit summary' report shows usage over a period and raises alerts for repeated denials, a high failure rate, or one person being denied repeatedly.",
+        "Delivery and supply-chain controls (M27): automated pipelines now test the tool on Windows and Linux, check code quality, scan dependencies for known vulnerabilities, review dependency changes, run static security analysis, scan for leaked secrets, produce a software bill of materials, and build signed releases.",
+        "Documentation and packaging: the architecture, security, development, contributing, troubleshooting and SDK guides were written; a complete command reference is now generated from the tool itself so it cannot go out of date; the README and change log were completed; and the dependency lock file was generated."
+      ],
+      "value": "The platform can now be adopted end to end by developers with governance in place: the organisation controls which repositories, AI models, tool servers and agent capabilities are allowed, can see what is happening, and is protected by automated security checks on every change. Agents are genuinely useful (they can look at code and company knowledge) without being given more access than they need.",
+      "quality": "241 automated checks pass in total (54 new), and code style and strict type checks are clean. New checks cover the multi-step agent loop (including attempts to read secret files or escape the project), a real tool server started and shut down during tests, every new knowledge source, the new AI providers, the policy rules and audit alerts, and the pipeline files. The package builds correctly, the dependency scan found no problems in the project's own dependencies, and a software bill of materials (95 components) was produced. A live run on a Windows computer also revealed that success messages crashed on older console settings; this was fixed (plain-text symbols are now used where needed) and a check was added so it cannot return.",
+      "decisions": [
+        "Confluence, SharePoint, OpenAI and Azure OpenAI were tested against simulated responses only. Connecting them to real accounts needs credentials and a test on the real service.",
+        "SharePoint needs an access token supplied from outside (no interactive Microsoft sign-in was built).",
+        "The company LICENSE file is still empty on purpose: choosing a licence is a legal decision for the company.",
+        "The automated pipelines run only when the project sits at the top level of its own GitHub repository (GitHub ignores them inside a sub-folder). A secret-scanning licence key may be needed for organisation repositories, and security actions should be pinned to exact versions once the repository is final.",
+        "Still outside Layers A to C by design: the Stratos platform backend (so no platform endpoints exist), and the Layer D workflow modules (projects, workspaces, environments and deployments)."
+      ],
+      "next": "Layer D: Developer Workflow (project lifecycle, project initialisation, workspaces, environments and deployment)."
+    },
+    {
+      "id": 7,
+      "date": "21 September 2026",
+      "area": "Layer D: Developer Workflow",
+      "title": "Projects, setup, workspaces, environments and deployments built (modules M19 to M23)",
+      "status": "Complete and tested",
+      "summary": "The day-to-day developer workflow was built: creating a whole project in one command, bringing an existing folder into the standard setup, provisioning personal workspaces, managing environments, and deploying and rolling back releases.",
+      "delivered": [
+        "Project lifecycle (M19): 'stratos project create' sets up a project end to end in 14 steps: registers it, creates the GitHub repository, applies labels, branch protection, code owners, a starter automated-test pipeline, the company merge and security policy, a development environment, the AI settings, and Claude Code instructions, skills, tool servers and knowledge links. It is safe to repeat, can be previewed, and if it stops part-way the same command carries on where it left off without duplicating anything. Nothing is deleted automatically on failure. Projects can be listed, viewed, updated (description, code owners) and removed; removal asks for confirmation and can also archive the repository.",
+        "Project setup (M20): 'stratos init' brings an existing folder into the standard setup: it detects what is already there, adds only what is missing, shows exactly what changed in existing files, keeps a backup, and undoes everything if a step fails. Running it twice changes nothing the second time. It also stops Claude Code from reading .env files while keeping the developer's own rules.",
+        "Workspaces (M21): 'stratos workspace' creates a developer's working copy of a project: it copies the code, applies the standard setup, prepares Python or Node.js if asked, creates the .env file from the example (never overwriting an existing one), and installs a safety check that blocks commits containing passwords, keys or .env files. Installing software packages only happens when explicitly requested, because it runs other people's code. Workspaces can be listed, viewed, reconnected (including adopting a copy that already exists) and deleted, and deletion refuses to throw away unsaved work.",
+        "Environments and deployments (M22): environments (development, staging, production) can be listed, created and deleted. 'stratos deploy' requests a release to development, staging or production, reports status, and rolls back to the previous release that actually succeeded. Production releases, rollbacks and deletions ask for confirmation, and a failed request is never retried automatically. The tool records the request; the project's own automated pipeline carries out the rollout and reports the real result, so the tool never claims a release succeeded on its own.",
+        "Health checks (M23): 'stratos doctor' now also checks uv, Docker, the project setup, which credential settings exist (names only), and the person's permissions. An optional online mode tests the internet connection, GitHub and the platform address without sending any credentials. 'version' and 'status' now show more (computer type, project, workspaces, environments).",
+        "How it works without a platform backend: because the Stratos platform does not exist yet, GitHub is used for what it already provides (repositories, environments, deployments), and lists of projects and workspaces are kept on the developer's computer until the platform can hold them."
+      ],
+      "value": "A developer can go from nothing to a governed, protected, tested and deployable project in one command, and from a fresh laptop to a ready workspace in another, with the same standards applied every time. Every risky step is previewable, confirmable and recorded in the audit trail, and the tool never overwrites people's own files or reports a deployment as successful without evidence.",
+      "quality": "306 automated checks pass in total (65 new), with code style and strict type checks clean. New checks cover resuming a project after a mid-way failure, running setup twice, preserving developers' existing files, undoing a failed setup, refusing to overwrite work or foreign folders, duplicate-deployment detection, rolling back past a failed release, confirmation prompts and cancellation, and that a failed deployment request is attempted only once. The commit safety check was tested for real inside a genuine git repository (it blocked a .env file and a fake API key and allowed normal commits). The new GitHub calls were also checked read-only against the real GitHub service, and the health check was run for real on this computer. One robustness defect found in testing (a damaged registry file caused a confusing error) was fixed.",
+      "decisions": [
+        "Projects and workspaces are recorded on each developer's own computer until the platform can store them centrally, so 'project list' shows only projects created from that computer.",
+        "Deployments depend on the project's own pipeline listening for GitHub deployment events; without one, a deployment stays 'queued'. Confirm this matches how teams intend to release.",
+        "Staging and production environments are protected to deploy only from protected branches where the GitHub plan allows it; otherwise they are created unprotected.",
+        "The starter pipelines (Python or Node.js) are deliberately minimal; the company may want its own templates.",
+        "Extra audited actions and permissions were added beyond the specification (project update and setup, workspace create and delete, environment create and delete) and placed in the proposed role table: developers create and update; maintainers delete environments, roll back and manage tool servers.",
+        "Still open from earlier: the company LICENSE file, and real-account tests for Confluence, SharePoint, OpenAI and Azure OpenAI."
+      ],
+      "next": "Layer E completion (full operation safety, caching and performance work, quality gates), or connecting the platform backend once it exists."
+    },
+    {
+      "id": 8,
+      "date": "21 September 2026",
+      "area": "Layer E: Cross-Cutting Engineering",
+      "title": "Safety, speed, quality checks, delivery, documentation and developer setup built (modules M24 to M29)",
+      "status": "Complete and tested",
+      "summary": "The behind-the-scenes qualities that make the tool dependable were added: safer changes with an undo, faster start-up, automated quality checks, a repeatable way to build and release, complete decision records, and a one-step setup for new team members.",
+      "delivered": [
+        "Operation safety (M24): multi-step changes such as 'init' and skill installation now behave as a single unit: if any step fails, every earlier change is undone automatically. Two new commands let people undo Stratos's own edits: 'stratos backup list' shows the saved copies taken before any file was changed, and 'stratos backup restore' puts one back (after previewing it, asking for confirmation and recording it in the audit trail). Restoring first saves the current version, so a restore can itself be reversed.",
+        "Speed (M25): the tool now starts noticeably lighter. Showing the list of commands no longer loads any of the features behind them; they load only when used. A new 'stratos cache' command shows what is stored locally, removes stale entries and clears the cache. Nothing confidential is ever stored there.",
+        "Code health: the central wiring file was cut roughly in half by moving related parts into their own files, and automated tests now fail if anyone breaks the intended separation between the parts of the product.",
+        "Quality checks (M26): besides the existing detailed tests, there are now tests that exercise several parts together and tests that run the real command exactly as a user would. Overall test coverage is about 91% (measured with branch coverage) and the build fails if it drops below 90%.",
+        "Build and release (M27): the automated pipeline now checks style and types, runs the tests on Linux, Windows and Mac with two Python versions, runs the whole-product tests, and finally builds the installable package, installs it in a clean environment and starts it. A make-based command list gives developers the same steps locally, and a check ensures the version number is consistent and well-formed.",
+        "Documentation (M28): decision records now exist for every layer (including earlier layers written up after the fact and a new one for this layer), plus an implementation plan, an up-to-date command reference that is checked automatically, and a pull-request checklist that defines 'done'.",
+        "Developer setup (M29): one command sets up a new machine, and a small local stand-in for the sign-in service and platform lets people work offline."
+      ],
+      "notes": [
+        "The platform's interface description was intentionally left empty, because the platform itself has not been designed yet and inventing it would mislead. A test makes sure anything added later is complete.",
+        "Nothing from this layer has been published to GitHub yet."
+      ]
+    }
+  ]
+}

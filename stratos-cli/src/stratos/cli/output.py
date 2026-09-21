@@ -1,0 +1,189 @@
+"""Central rendering layer. All user-facing output goes through here."""
+
+import json
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
+from typing import Any
+
+import yaml
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.prompt import Confirm
+from rich.syntax import Syntax
+from rich.table import Table
+
+from stratos.domain.enums import OutputFormat
+from stratos.utils.redaction import SecretRedactor
+from stratos.utils.validation import sanitize, sanitize_text
+
+# Semantic palette: success green, warning orange, error red, info blue, AI purple, security cyan.
+STYLES = {
+    "success": "green",
+    "warning": "dark_orange",
+    "error": "red",
+    "info": "blue",
+    "ai": "medium_purple",
+    "security": "cyan",
+}
+
+
+SYMBOLS = {"success": "✔", "info": "ℹ", "warning": "!", "error": "✖"}
+ASCII_SYMBOLS = {"success": "OK", "info": "i", "warning": "!", "error": "x"}
+
+
+def _can_encode(console: Console, text: str) -> bool:
+    """Legacy Windows code pages (cp1252...) cannot show ✔ ✖ ℹ; printing them would crash."""
+    try:
+        text.encode(console.encoding or "utf-8")
+    except (UnicodeEncodeError, LookupError):
+        return False
+    return True
+
+
+class ConsoleRenderer:
+    def __init__(
+        self,
+        fmt: OutputFormat = OutputFormat.TABLE,
+        *,
+        redactor: SecretRedactor | None = None,
+        console: Console | None = None,
+        err_console: Console | None = None,
+    ) -> None:
+        self.format = fmt
+        self._redactor = redactor or SecretRedactor()
+        self._out = console or Console()
+        self._err = err_console or Console(stderr=True)
+        self._stream_buf = ""
+
+    # ---- data ----------------------------------------------------------------------------
+    def data(
+        self,
+        rows: Sequence[Mapping[str, Any]] | Mapping[str, Any],
+        *,
+        title: str | None = None,
+    ) -> None:
+        clean = sanitize(self._redactor.redact(rows if isinstance(rows, Mapping) else list(rows)))
+        if self.format is OutputFormat.QUIET:
+            return
+        if self.format is OutputFormat.JSON:
+            self._out.print(
+                Syntax(json.dumps(clean, indent=2, default=str), "json", background_color="default")
+                if self._out.is_terminal
+                else json.dumps(clean, indent=2, default=str),
+                markup=False,
+                highlight=False,
+                soft_wrap=True,
+            )
+        elif self.format is OutputFormat.YAML:
+            self._out.print(
+                yaml.safe_dump(clean, sort_keys=False, default_flow_style=False).rstrip(),
+                markup=False,
+                highlight=False,
+                soft_wrap=True,
+            )
+        elif self.format is OutputFormat.PLAIN:
+            for row in [clean] if isinstance(clean, dict) else clean:
+                self._out.print(
+                    "\t".join(str(v) for v in row.values()),
+                    markup=False,
+                    highlight=False,
+                    soft_wrap=True,
+                )
+        else:
+            self._out.print(self._table(clean, title))
+
+    @staticmethod
+    def _table(clean: Any, title: str | None) -> Table:
+        records: list[dict[str, Any]]
+        if isinstance(clean, dict):
+            table = Table(title=title, show_header=True, header_style="bold")
+            table.add_column("Key")
+            table.add_column("Value")
+            for key, value in clean.items():
+                table.add_row(str(key), str(value))
+            return table
+        records = clean
+        table = Table(title=title, show_header=True, header_style="bold")
+        columns = list(records[0]) if records else []
+        for col in columns:
+            table.add_column(str(col))
+        for record in records:
+            table.add_row(*(str(record.get(c, "")) for c in columns))
+        return table
+
+    # ---- messages ------------------------------------------------------------------------
+    def _message(self, style: str, kind: str, message: str, *, err: bool = False) -> None:
+        if self.format is OutputFormat.QUIET and not err:
+            return
+        console = self._err if err else self._out
+        symbol = SYMBOLS[kind] if _can_encode(console, SYMBOLS[kind]) else ASCII_SYMBOLS[kind]
+        text = sanitize_text(self._redactor.redact_text(message))
+        console.print(f"[{STYLES[style]}]{symbol}[/] ", end="")
+        console.print(text, markup=False, highlight=False)
+
+    def success(self, message: str) -> None:
+        self._message("success", "success", message)
+
+    def info(self, message: str) -> None:
+        self._message("info", "info", message)
+
+    def warning(self, message: str) -> None:
+        self._message("warning", "warning", message, err=True)
+
+    def error(self, message: str, *, hint: str | None = None) -> None:
+        self._message("error", "error", message, err=True)
+        if hint:
+            self._err.print(
+                f"  Hint: {self._redactor.redact_text(hint)}", markup=False, highlight=False
+            )
+
+    def debug(self, message: str) -> None:
+        """Diagnostic detail (e.g. tracebacks) on stderr; only used under --debug."""
+        self._err.print(self._redactor.redact_text(message), markup=False, highlight=False)
+
+    # ---- streaming: line-buffered so redaction never misses a secret split across chunks ----
+    def stream_begin(self) -> None:
+        self._stream_buf = ""
+
+    def _emit_line(self, line: str) -> None:
+        self._out.print(
+            sanitize_text(self._redactor.redact_text(line)), markup=False, highlight=False
+        )
+
+    def stream_write(self, chunk: str) -> None:
+        self._stream_buf += chunk
+        while "\n" in self._stream_buf:
+            line, self._stream_buf = self._stream_buf.split("\n", 1)
+            self._emit_line(line)
+
+    def stream_end(self) -> None:
+        if self._stream_buf:
+            self._emit_line(self._stream_buf)
+        self._stream_buf = ""
+
+    def secret(self, value: str) -> None:
+        """Print a secret verbatim. Bypasses redaction; only for explicit opt-in commands."""
+        self._out.print(value, markup=False, highlight=False, soft_wrap=True)
+
+    def panel(self, body: str, *, title: str | None = None, style: str = "info") -> None:
+        if self.format is not OutputFormat.QUIET:
+            self._out.print(
+                Panel(self._redactor.redact_text(body), title=title, border_style=STYLES[style])
+            )
+
+    # ---- interaction ---------------------------------------------------------------------
+    @contextmanager
+    def status(self, message: str) -> Iterator[None]:
+        """Spinner for long operations (suppressed for machine-readable formats)."""
+        if self.format in (OutputFormat.TABLE, OutputFormat.PLAIN) and self._err.is_terminal:
+            with Progress(
+                SpinnerColumn(), TextColumn("{task.description}"), console=self._err, transient=True
+            ) as progress:
+                progress.add_task(message, total=None)
+                yield
+        else:
+            yield
+
+    def confirm(self, message: str, *, default: bool = False) -> bool:
+        return Confirm.ask(message, default=default, console=self._err)

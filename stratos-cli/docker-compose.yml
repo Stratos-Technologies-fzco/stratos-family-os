@@ -1,0 +1,13 @@
+# Local development environment: run the full quality gate in a clean container.
+#   docker compose run --rm check
+services:
+  check:
+    image: python:3.12-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    command: >
+      sh -c "pip install -q -e '.[openai,pdf]' pytest ruff mypy types-PyYAML &&
+             ruff check . && ruff format --check . && mypy && pytest -q"

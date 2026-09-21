@@ -1,0 +1,10 @@
+openapi: 3.1.0
+info:
+  title: Stratos Platform API (placeholder)
+  version: 0.0.0
+  description: >
+    The Stratos Platform API does not exist yet, so no endpoints are defined here and none are
+    assumed by the CLI. This file is the place to publish the contract once it is designed; the
+    SDK conventions the CLI already relies on (TLS only, Bearer tokens, request ids, RFC 8288 Link
+    pagination, 429 with Retry-After) are described in docs/API.md.
+paths: {}
