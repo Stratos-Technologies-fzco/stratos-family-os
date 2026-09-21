@@ -11,7 +11,7 @@ from typing import Any
 
 import httpx
 import pytest
-from devfakes import SHA_MAIN, SHA_V1, DevFake, git_clone_fake
+from devfakes import SHA_MAIN, SHA_V1, DevFake, git_clone_fake, init_adapters
 from test_layer_c import BASE, NOW, audit_results, gh, make_audit, make_guard, make_require
 from typer.testing import CliRunner
 
@@ -110,7 +110,7 @@ def make_workspace_service(
     svc = WorkspaceService(
         store, projects, require, audit, guard, root=tmp_path / "root", default_org=ORG,
         clone=clone or fake_clone(),
-        init_factory=lambda path: InitService(path, require, audit, guard, org=ORG, ai_provider="claude", ai_model="m"),
+        init_factory=lambda path: InitService(path, require, audit, guard, org=ORG, ai_provider="claude", ai_model="m", **init_adapters()),
         run=the_runner, which=which, clock=lambda: NOW,
     )  # fmt: skip
     return svc, store, the_runner, (out, err, asked)

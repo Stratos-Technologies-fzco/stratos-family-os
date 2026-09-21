@@ -18,13 +18,14 @@ from stratos.application.audit_service import AuditService
 from stratos.application.mcp_service import McpService
 from stratos.application.safety import OperationGuard
 from stratos.application.skill_service import SkillService
+from stratos.application.transaction import Transaction
 from stratos.domain.enums import AuditAction, Permission
 from stratos.domain.exceptions import ConfigurationError, ValidationError
+from stratos.domain.interfaces import ClaudeProject, FileProtector
 from stratos.domain.models.auth import Identity
+from stratos.domain.models.files import WriteResult
 from stratos.domain.models.workflow import ProjectManifest
-from stratos.infrastructure.claude.manager import ClaudeCodeManager
-from stratos.infrastructure.filesystem.config_files import ConfigFileProtector, WriteResult
-from stratos.infrastructure.filesystem.templates import (
+from stratos.domain.standards import (
     CLAUDE_DENY_RULES,
     DEFAULT_INSTRUCTIONS,
     GITIGNORE_LINES,
@@ -83,8 +84,12 @@ class InitService:
         knowledge_sources: Callable[[], list[str]] = list,
         skills: Callable[[], SkillService] | None = None,
         mcp: Callable[[], McpService] | None = None,
+        protector_factory: Callable[[bool], FileProtector],
+        claude_factory: Callable[[Path, FileProtector], ClaudeProject],
         redactor: SecretRedactor | None = None,
     ) -> None:
+        self._protector_factory = protector_factory
+        self._claude_factory = claude_factory
         self._dir = project_dir
         self._require = require
         self._audit = audit
@@ -101,7 +106,7 @@ class InitService:
     def detect(self) -> dict[str, str]:
         """What is already in place (read-only)."""
         d = self._dir
-        claude = ClaudeCodeManager(d, ConfigFileProtector(self._redactor))
+        claude = self._claude_factory(d, self._protector_factory(False))
         try:
             manifest = read_manifest(d)
             project = f"yes ({manifest.name})" if manifest else "no"
@@ -146,13 +151,13 @@ class InitService:
                 f"Unknown template '{template}'.", hint=f"Use one of: {', '.join(TEMPLATES)}."
             )
         dry = self._guard.options.dry_run
-        protector = ConfigFileProtector(self._redactor, dry_run=dry)
-        claude = ClaudeCodeManager(self._dir, protector)
-        results: list[WriteResult] = []
+        protector = self._protector_factory(dry)
+        claude = self._claude_factory(self._dir, protector)
+        tx = Transaction(protector)
         items: list[InitItem] = []
 
         def record(label: str, result: WriteResult, note: str = "") -> None:
-            results.append(result)
+            tx.record(result)
             if dry:
                 status = "would-change" if result.changed else "unchanged"
             else:
@@ -162,7 +167,7 @@ class InitService:
             items.append(InitItem(label, status, note, result.diff if result.changed else ""))
 
         def run_steps() -> None:
-            items.append(self._manifest(protector, results, name, template, skills, mcp, dry))
+            items.append(self._manifest(protector, tx, name, template, skills, mcp, dry))
             record(
                 "CLAUDE.md instructions", claude.apply_instructions(organisation=self._instructions)
             )
@@ -196,20 +201,16 @@ class InitService:
             run_steps()
             self._guard.preview("init", [f"{i.name}: {i.status}" for i in items])
             return items
-        try:
-            with self._audit.record(AuditAction.PROJECT_INIT, "project", str(self._dir.name)):
-                run_steps()
-        except BaseException:
-            for result in reversed(results):  # leave the folder as it was
-                protector.rollback(result)
-            raise
+        # any failure rolls every recorded write back, leaving the folder as it was
+        with tx, self._audit.record(AuditAction.PROJECT_INIT, "project", str(self._dir.name)):
+            run_steps()
         return items
 
     # ---- pieces --------------------------------------------------------------------------
     def _manifest(
         self,
-        protector: ConfigFileProtector,
-        results: list[WriteResult],
+        protector: FileProtector,
+        tx: Transaction,
         name: str | None,
         template: str | None,
         skills: tuple[str, ...],
@@ -235,12 +236,12 @@ class InitService:
             "ai": {"provider": self._ai[0], "model": self._ai[1]},
         }
         result = protector.write_text(path, yaml.safe_dump(data, sort_keys=False))
-        results.append(result)
+        tx.record(result)
         return InitItem(
             "Project manifest", "would-change" if dry else "created", project_name, result.diff
         )
 
-    def _gitignore(self, protector: ConfigFileProtector) -> WriteResult:
+    def _gitignore(self, protector: FileProtector) -> WriteResult:
         path = self._dir / ".gitignore"
         existing = path.read_text(encoding="utf-8") if path.is_file() else ""
         have = {line.strip() for line in existing.splitlines()}
@@ -251,9 +252,7 @@ class InitService:
         block = ("\n" if base.strip() else "") + "# Stratos\n" + "\n".join(missing) + "\n"
         return protector.write_text(path, base + block)
 
-    def _claude_settings(
-        self, protector: ConfigFileProtector, claude: ClaudeCodeManager
-    ) -> WriteResult:
+    def _claude_settings(self, protector: FileProtector, claude: ClaudeProject) -> WriteResult:
         """Deny Claude Code access to .env files, keeping any rules the developer already set."""
         current = protector.read_json(claude.settings_path)
         raw = current.get("permissions")

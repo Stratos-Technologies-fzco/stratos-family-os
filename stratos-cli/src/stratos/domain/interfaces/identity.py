@@ -1,3 +1,5 @@
+"""Ports for identity providers, credential storage and login callbacks."""
+
 from collections.abc import Callable
 from typing import Protocol
 

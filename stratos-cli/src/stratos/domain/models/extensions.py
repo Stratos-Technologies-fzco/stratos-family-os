@@ -34,6 +34,12 @@ class McpServerSpec(StratosModel):
     version: str = ""
 
 
+class McpToolInfo(StratosModel):
+    name: str
+    description: str = ""
+    input_schema: dict[str, Any] = {"type": "object", "properties": {}}
+
+
 # ---- AI ---------------------------------------------------------------------------------
 class ModelInfo(StratosModel):
     id: str

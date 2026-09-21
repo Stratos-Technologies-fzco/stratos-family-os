@@ -1,3 +1,5 @@
+"""Ports (Protocols) that services depend on and adapters implement."""
+
 from collections.abc import Mapping, Sequence
 from typing import Any, Protocol
 
@@ -41,6 +43,13 @@ from stratos.domain.interfaces.identity import (  # noqa: E402
     IdentityProvider,
     SecretStore,
 )
+from stratos.domain.interfaces.services import (  # noqa: E402
+    BackupCatalog,
+    Cache,
+    ClaudeProject,
+    FileProtector,
+    McpToolClient,
+)
 from stratos.domain.interfaces.stores import ProjectStore, WorkspaceStore  # noqa: E402
 
 __all__ = [
@@ -49,11 +58,16 @@ __all__ = [
     "AgentRegistry",
     "AgentRunLog",
     "AuditStore",
+    "BackupCatalog",
+    "Cache",
     "CallbackReceiver",
+    "ClaudeProject",
+    "FileProtector",
     "GitHubPort",
     "IdentityProvider",
     "KnowledgeProvider",
     "McpRegistry",
+    "McpToolClient",
     "ProjectStore",
     "Renderer",
     "SecretStore",

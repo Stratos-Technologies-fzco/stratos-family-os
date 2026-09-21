@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 import yaml
-from devfakes import DevFake
+from devfakes import DevFake, init_adapters
 from test_gaps import settings_with
 from test_layer_c import (
     GOOD,
@@ -369,7 +369,7 @@ def make_init(
     svc = InitService(
         folder, require, make_audit(tmp_path, ident), guard, org=ORG, ai_provider="claude", ai_model="m",
         instructions="Org rule one", knowledge_sources=lambda: ["Markdown folder: docs"],
-        skills=skills, mcp=mcp,
+        skills=skills, mcp=mcp, **init_adapters(),
     )  # fmt: skip
     return svc, folder, (out, err)
 

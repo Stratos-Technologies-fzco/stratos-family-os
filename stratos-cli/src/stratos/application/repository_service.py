@@ -20,7 +20,6 @@ from stratos.domain.models.github import (
     Workflow,
     WorkflowRun,
 )
-from stratos.infrastructure.github.git import clone_repository
 from stratos.utils.validation import validate_name
 
 Require = Callable[[Permission], Identity]
@@ -35,7 +34,7 @@ class RepositoryService:
         guard: OperationGuard,
         default_org: str,
         *,
-        clone: Callable[..., Path] = clone_repository,
+        clone: Callable[..., Path],
         policy: PolicyService | None = None,
     ) -> None:
         self._gh = github

@@ -73,6 +73,8 @@ def walk(cmd: object, path: list[str], ctx: typer.Context, out: list[str]) -> No
     if is_group:
         for sub in cmd.list_commands(ctx):  # type: ignore[attr-defined]
             child = cmd.get_command(ctx, sub)  # type: ignore[attr-defined]
+            if child is not None and hasattr(child, "load"):
+                child = child.load()  # lazy placeholders stand in for the real command
             if child is None:
                 continue
             child_ctx = typer.Context(child, info_name=sub, parent=ctx)

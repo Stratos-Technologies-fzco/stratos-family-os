@@ -5,7 +5,6 @@ index.json: {"skills": [{"name", "version", "description", "source", "checksum",
                           "path": "optional folder, defaults to name"}]}
 """
 
-import hashlib
 import json
 from pathlib import Path
 
@@ -13,16 +12,10 @@ from pydantic import ValidationError as PydanticValidationError
 
 from stratos.domain.exceptions import ConfigurationError, ResourceNotFoundError
 from stratos.domain.models.extensions import SkillManifest
+from stratos.utils.checksum import compute_checksum
 
 MAX_SKILL_BYTES = 5 * 1024 * 1024
-
-
-def compute_checksum(files: dict[str, bytes]) -> str:
-    """Order-independent sha256 over (path, content-hash) pairs."""
-    digest = hashlib.sha256()
-    for rel in sorted(files):
-        digest.update(f"{rel}\x00{hashlib.sha256(files[rel]).hexdigest()}\n".encode())
-    return digest.hexdigest()
+__all__ = ["LocalSkillRegistry", "compute_checksum"]
 
 
 class LocalSkillRegistry:

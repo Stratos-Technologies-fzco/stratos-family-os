@@ -14,3 +14,4 @@
 ### Notes
 - Remote knowledge sources (Confluence, SharePoint) and the OpenAI/Azure providers were verified against mocked responses only.
 - The Platform API contract is not published; no platform endpoints are assumed.
+- **Cross-cutting engineering (M24-M29):** `Transaction` rollback for multi-step operations; `stratos backup list | restore`; `stratos cache status | prune | clear`; lazy command loading (`--help` imports no command module); composition root split and enforced by architecture tests; integration and end-to-end suites; 90% coverage gate; uv-based CI with macOS and package verification; `make setup`, `scripts/verify_package.py`, `scripts/mock_services.py`; ADR-001..009 and ADR-014; implementation plan; PR template.

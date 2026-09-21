@@ -25,7 +25,7 @@ pdf = ["pypdf>=4"]
 stratos = "stratos.cli.app:app"
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML", "openai>=1.40", "pypdf>=4", "pip-audit", "cyclonedx-bom", "build"]
+dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML", "openai>=1.40", "pypdf>=4", "pip-audit", "cyclonedx-bom", "build", "pytest-cov>=5"]
 
 [build-system]
 requires = ["hatchling"]
@@ -36,6 +36,20 @@ packages = ["src/stratos"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "integration: several layers together, external services faked",
+    "e2e: runs the real entry point in a subprocess",
+]
+addopts = "--strict-markers"
+
+[tool.coverage.run]
+source = ["stratos"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+exclude_lines = ['pragma: no cover', 'if TYPE_CHECKING:', '^\s*\.\.\.$']
 
 [tool.ruff]
 line-length = 100
@@ -46,7 +60,7 @@ select = ["E", "F", "I", "B", "UP"]
 ignore = ["B008"]  # typer.Option in defaults is the Typer idiom
 
 [tool.ruff.lint.per-file-ignores]
-"src/stratos/infrastructure/filesystem/templates.py" = ["E501"]  # shell script text
+"src/stratos/domain/standards.py" = ["E501"]  # shell script text
 "tests/**" = ["E501", "E731", "B023"]  # long fixtures and inline lambdas are fine in tests
 
 [tool.mypy]

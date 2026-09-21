@@ -4,18 +4,15 @@ Everything expensive is built lazily, so `--help` never touches configuration, t
 the network or any client, and unrelated commands never load AI, GitHub or knowledge clients.
 """
 
-import os
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from platformdirs import user_cache_dir
-
 from stratos.cli.output import ConsoleRenderer
 from stratos.config.loader import load_settings
 from stratos.config.settings import Settings
-from stratos.domain.enums import AgentPermission, Permission
+from stratos.domain.enums import Permission
 from stratos.domain.exceptions import AuthenticationError, ConfigurationError
 from stratos.domain.models.auth import Identity
 from stratos.utils.redaction import SecretRedactor
@@ -26,6 +23,7 @@ if TYPE_CHECKING:
     from stratos.application.audit_service import AuditService
     from stratos.application.auth_service import AuthService
     from stratos.application.authorization import AuthorizationService
+    from stratos.application.backup_service import BackupService
     from stratos.application.claude_service import ClaudeIntegrationService
     from stratos.application.deployment_service import DeploymentService, EnvironmentService
     from stratos.application.diagnostics import Facts
@@ -39,9 +37,8 @@ if TYPE_CHECKING:
     from stratos.application.safety import OperationGuard
     from stratos.application.skill_service import SkillService
     from stratos.application.workspace_service import WorkspaceService
-    from stratos.domain.interfaces import AIProvider, KnowledgeProvider
+    from stratos.domain.interfaces import AIProvider, ClaudeProject, KnowledgeProvider
     from stratos.infrastructure.api.client import PlatformApiClient
-    from stratos.infrastructure.claude.manager import ClaudeCodeManager
     from stratos.infrastructure.filesystem.cache import TtlCache
     from stratos.infrastructure.filesystem.config_files import ConfigFileProtector
     from stratos.infrastructure.filesystem.registry_store import (
@@ -144,6 +141,18 @@ class CliContext:
     def default_org(self) -> str:
         return self.settings.github.organization
 
+    def backup_service(self, *, dry_run: bool = False, yes: bool = False) -> "BackupService":
+        from stratos.application.backup_service import BackupService
+        from stratos.infrastructure.filesystem.backups import LocalBackupCatalog
+
+        return BackupService(
+            LocalBackupCatalog(self.project_dir),
+            self.protector,
+            self.require,
+            self.audit,
+            self.guard(dry_run=dry_run, yes=yes),
+        )
+
     # ---- GitHub (M11, M12) ---------------------------------------------------------------
     @cached_property
     def github(self) -> "GitHubService":
@@ -169,6 +178,7 @@ class CliContext:
         self, *, dry_run: bool = False, yes: bool = False
     ) -> "RepositoryService":
         from stratos.application.repository_service import RepositoryService
+        from stratos.infrastructure.github.git import clone_repository
 
         return RepositoryService(
             self.github,
@@ -176,6 +186,7 @@ class CliContext:
             self.audit,
             self.guard(dry_run=dry_run, yes=yes),
             self.default_org,
+            clone=clone_repository,
             policy=self.policy,
         )
 
@@ -184,11 +195,7 @@ class CliContext:
         from stratos.application.org_service import OrgService
 
         return OrgService(
-            self.github,
-            self.require,
-            self.cache,
-            self.default_org,
-            self.policy.summary,
+            self.github, self.require, self.cache, self.default_org, self.policy.summary
         )
 
     @cached_property
@@ -199,241 +206,65 @@ class CliContext:
 
     # ---- Claude Code, skills, MCP (M13-M15) ----------------------------------------------
     @cached_property
-    def claude(self) -> "ClaudeCodeManager":
-        from stratos.infrastructure.claude.manager import ClaudeCodeManager
+    def claude(self) -> "ClaudeProject":
+        from stratos.cli.wiring.extensions import claude_manager
 
-        return ClaudeCodeManager(self.project_dir, self.protector)
+        return claude_manager(self)
 
     def claude_service(self, *, dry_run: bool = False) -> "ClaudeIntegrationService":
-        from stratos.application.claude_service import ClaudeIntegrationService
-        from stratos.infrastructure.filesystem.agent_registry import FilesystemAgentRegistry
+        from stratos.cli.wiring.extensions import claude_service
 
-        return ClaudeIntegrationService(
-            self.claude,
-            FilesystemAgentRegistry(self.project_dir),
-            self.require,
-            self.audit,
-            self.guard(dry_run=dry_run),
-        )
-
-    def knowledge_source_labels(self) -> list[str]:
-        k = self.settings.knowledge
-        labels = [f"Markdown folder: {p}" for p in k.paths]
-        labels += [f"PDF folder: {p}" for p in k.pdf_paths]
-        labels += [f"GitHub: {g}" for g in k.github]
-        if k.confluence_url:
-            labels.append(f"Confluence: {k.confluence_url}")
-        labels += [f"SharePoint: {s}" for s in k.sharepoint_sites]
-        return labels
-
-    def _registry_root(self, configured: str | None, key: str) -> Path:
-        if not configured:
-            raise ConfigurationError(
-                f"No registry is configured for {key}.",
-                hint=f"Run `stratos config set {key} <directory>`.",
-            )
-        return Path(configured).expanduser()
-
-    def _claude_for(self, project_dir: Path | None) -> "ClaudeCodeManager":
-        from stratos.infrastructure.claude.manager import ClaudeCodeManager
-
-        if project_dir is None:
-            return self.claude
-        return ClaudeCodeManager(project_dir, self.protector)
+        return claude_service(self, dry_run=dry_run)
 
     def skill_service(
         self, *, dry_run: bool = False, yes: bool = False, project_dir: Path | None = None
     ) -> "SkillService":
-        from stratos import __version__
-        from stratos.application.skill_service import SkillService
-        from stratos.infrastructure.filesystem.skill_registry import LocalSkillRegistry
+        from stratos.cli.wiring.extensions import skill_service
 
-        root = self._registry_root(self.settings.skills.registry, "skills.registry")
-        return SkillService(
-            LocalSkillRegistry(root),
-            self._claude_for(project_dir),
-            self.protector,
-            self.require,
-            self.audit,
-            self.guard(dry_run=dry_run, yes=yes),
-            self.cache,
-            stratos_version=__version__,
-            registry_id=str(root.resolve()),
-        )
+        return skill_service(self, dry_run=dry_run, yes=yes, project_dir=project_dir)
 
     def mcp_service(
         self, *, dry_run: bool = False, yes: bool = False, project_dir: Path | None = None
     ) -> "McpService":
-        from stratos.application.mcp_service import McpService
-        from stratos.infrastructure.mcp.registry import LocalMcpRegistry
+        from stratos.cli.wiring.extensions import mcp_service
 
-        root = self._registry_root(self.settings.mcp.registry, "mcp.registry")
-        return McpService(
-            LocalMcpRegistry(root),
-            self._claude_for(project_dir),
-            self.require,
-            self.audit,
-            self.guard(dry_run=dry_run, yes=yes),
-            self.cache,
-            allowed=self.settings.mcp.allowed,
-            environ=os.environ,
-            registry_id=str(root.resolve()),
-        )
+        return mcp_service(self, dry_run=dry_run, yes=yes, project_dir=project_dir)
 
     # ---- AI, knowledge, agents (M16-M18) -------------------------------------------------
     @cached_property
     def ai_provider(self) -> "AIProvider":
-        from stratos.infrastructure.ai import api_key_env_for, create_provider
+        from stratos.cli.wiring.extensions import ai_provider
 
-        ai = self.settings.ai
-        return create_provider(
-            ai.provider,
-            api_key=os.environ.get(api_key_env_for(ai.provider)),
-            default_model=ai.model,
-            azure_endpoint=ai.azure_endpoint,
-            azure_api_version=ai.azure_api_version,
-        )
+        return ai_provider(self)
 
     @cached_property
     def ai_service(self) -> "AIService":
-        from stratos.application.ai_service import AIService
-        from stratos.infrastructure.ai import api_key_env_for
+        from stratos.cli.wiring.extensions import ai_service
 
-        ai = self.settings.ai
-        return AIService(
-            lambda: self.ai_provider,
-            self.require,
-            provider_name=ai.provider,
-            default_model=ai.model,
-            max_tokens=ai.max_tokens,
-            api_key_configured=bool(os.environ.get(api_key_env_for(ai.provider))),
-            check_provider=self.policy.check_provider,
-            check_model=self.policy.check_model,
-        )
+        return ai_service(self)
 
-    def _knowledge_providers(self) -> "list[KnowledgeProvider]":
-        """One provider per configured source; nothing is created for unconfigured ones."""
-        from stratos.infrastructure.api.async_client import AsyncPlatformApiClient
-        from stratos.infrastructure.github.service import GITHUB_HEADERS
-        from stratos.infrastructure.github.token import GithubTokenProvider
-        from stratos.infrastructure.knowledge import remote
-        from stratos.infrastructure.knowledge.markdown import MarkdownKnowledgeProvider
-        from stratos.infrastructure.knowledge.pdf import PdfKnowledgeProvider
+    def knowledge_source_labels(self) -> list[str]:
+        from stratos.cli.wiring.extensions import knowledge_source_labels
 
-        k = self.settings.knowledge
-        cache_dir = Path(user_cache_dir("stratos", appauthor=False))
-        providers: list[KnowledgeProvider] = []
-        if k.paths:
-            manifest = cache_dir / "knowledge-manifest.json"
-            roots = [Path(p).expanduser() for p in k.paths]
-            providers.append(MarkdownKnowledgeProvider(roots, manifest, redactor=self.redactor))
-        if k.pdf_paths:
-            manifest = cache_dir / "knowledge-pdf-manifest.json"
-            roots = [Path(p).expanduser() for p in k.pdf_paths]
-            providers.append(PdfKnowledgeProvider(roots, manifest, redactor=self.redactor))
-        if k.github:
-            client = AsyncPlatformApiClient(
-                self.settings.github.api_url,
-                GithubTokenProvider(),
-                default_headers=GITHUB_HEADERS,
-                send_correlation=False,
-            )
-            manifest = cache_dir / "knowledge-github-manifest.json"
-            providers.append(
-                remote.GitHubKnowledgeProvider(client, k.github, manifest, redactor=self.redactor)
-            )
-        if k.confluence_url:
-            client = AsyncPlatformApiClient(
-                k.confluence_url,
-                remote.basic_auth_from_env(os.environ),
-                auth_scheme="Basic",
-                send_correlation=False,
-            )
-            providers.append(
-                remote.ConfluenceKnowledgeProvider(
-                    client, spaces=k.confluence_spaces, redactor=self.redactor
-                )
-            )
-        if k.sharepoint_sites:
-            client = AsyncPlatformApiClient(
-                "https://graph.microsoft.com",
-                remote.env_token(os.environ, "SHAREPOINT_TOKEN", "MS_GRAPH_TOKEN"),
-                send_correlation=False,
-            )
-            providers.append(
-                remote.SharePointKnowledgeProvider(
-                    client, k.sharepoint_sites, redactor=self.redactor
-                )
-            )
-        if not providers:
-            raise ConfigurationError(
-                "No knowledge sources are configured.",
-                hint=(
-                    "Set one of: knowledge.paths, knowledge.pdf_paths, knowledge.github, "
-                    "knowledge.confluence_url, knowledge.sharepoint_sites."
-                ),
-            )
-        return providers
+        return knowledge_source_labels(self)
+
+    def knowledge_providers(self) -> "list[KnowledgeProvider]":
+        from stratos.cli.wiring.extensions import knowledge_providers
+
+        return knowledge_providers(self)
 
     @cached_property
     def knowledge_service(self) -> "KnowledgeService":
-        from stratos.application.knowledge_service import KnowledgeService
+        from stratos.cli.wiring.extensions import knowledge_service
 
-        return KnowledgeService(self._knowledge_providers, self.require)
-
-    def _load_skill(self, name: str) -> str | None:
-        """Text of an installed skill's SKILL.md, or None."""
-        from stratos.utils.validation import validate_slug
-
-        try:
-            validate_slug(name, "skill name")
-        except Exception:  # noqa: BLE001 - invalid names simply are not installed
-            return None
-        path = self.claude.skills_dir / name / "SKILL.md"
-        return path.read_text(encoding="utf-8", errors="replace") if path.is_file() else None
+        return knowledge_service(self)
 
     def agent_service(self, *, dry_run: bool = False, yes: bool = False) -> "AgentService":
-        from stratos.application.agent_runner import AgentRunner
-        from stratos.application.agent_service import AgentService
-        from stratos.infrastructure.filesystem.agent_registry import (
-            FilesystemAgentRegistry,
-            FilesystemAgentRunLog,
-        )
+        from stratos.cli.wiring.extensions import agent_service
 
-        s = self.settings
-        try:
-            allowed = {AgentPermission(p) for p in s.agents.allowed_permissions}
-        except ValueError as exc:
-            raise ConfigurationError(
-                "agents.allowed_permissions contains an unknown value."
-            ) from exc
-        mcp_allowed = s.mcp.allowed
-        runner = AgentRunner(
-            lambda: self.ai_provider,
-            self.knowledge_service,
-            self.project_dir,
-            self.redactor,
-            default_model=s.ai.model,
-            max_tokens=s.ai.max_tokens,
-            max_steps=s.agents.max_steps,
-            mcp_configs=self.claude.mcp_servers,
-            mcp_allowed=lambda name: mcp_allowed is None or name in mcp_allowed,
-            environ=os.environ,
-            skill_loader=self._load_skill,
-        )
-        return AgentService(
-            FilesystemAgentRegistry(self.project_dir),
-            FilesystemAgentRunLog(self.project_dir, self.redactor),
-            runner,
-            self.require,
-            self.audit,
-            self.guard(dry_run=dry_run, yes=yes),
-            allowed_permissions=allowed,
-            check_model=self.policy.check_model,
-            default_model=s.ai.model,
-        )
+        return agent_service(self, dry_run=dry_run, yes=yes)
 
-    # ---- Layer D: projects, init, workspaces, environments, deployments ---
+    # ---- Layer D: projects, init, workspaces, environments, deployments ------------------
     @cached_property
     def project_store(self) -> "LocalProjectStore":
         from stratos.infrastructure.filesystem.registry_store import LocalProjectStore
@@ -446,244 +277,47 @@ class CliContext:
 
         return LocalWorkspaceStore()
 
-    def org_instructions(self) -> str:
-        from stratos.infrastructure.filesystem.templates import DEFAULT_INSTRUCTIONS
-        from stratos.utils.files import read_text_limited
-
-        configured = self.settings.project.instructions_file
-        return (
-            read_text_limited(Path(configured).expanduser(), 50_000)
-            if configured
-            else DEFAULT_INSTRUCTIONS
-        )
-
     def project_service(self, *, dry_run: bool = False, yes: bool = False) -> "ProjectService":
-        from stratos import __version__
-        from stratos.application.project_service import ProjectService
-        from stratos.infrastructure.filesystem.skill_registry import LocalSkillRegistry
-        from stratos.infrastructure.mcp.registry import LocalMcpRegistry
+        from stratos.cli.wiring.workflow import project_service
 
-        s = self.settings
-        allowed = s.mcp.allowed
-        skills_root, mcp_root = s.skills.registry, s.mcp.registry
-        return ProjectService(
-            self.project_store,
-            self.github,
-            self.require,
-            self.audit,
-            self.guard(dry_run=dry_run, yes=yes),
-            self.policy,
-            default_org=self.default_org,
-            default_environment=s.defaults.environment,
-            ai_provider=s.ai.provider,
-            ai_model=s.ai.model,
-            instructions=self.org_instructions(),
-            knowledge_sources=self.knowledge_source_labels,
-            skills=lambda: (
-                LocalSkillRegistry(Path(skills_root).expanduser()) if skills_root else None
-            ),
-            mcp=lambda: LocalMcpRegistry(Path(mcp_root).expanduser()) if mcp_root else None,
-            mcp_allowed=lambda name: allowed is None or name in allowed,
-            stratos_version=__version__,
-        )
+        return project_service(self, dry_run=dry_run, yes=yes)
 
     def init_service(
         self, project_dir: Path | None = None, *, dry_run: bool = False, yes: bool = False
     ) -> "InitService":
-        from stratos.application.init_service import InitService
+        from stratos.cli.wiring.workflow import init_service
 
-        s = self.settings
-        target = project_dir or self.project_dir
-        return InitService(
-            target,
-            self.require,
-            self.audit,
-            self.guard(dry_run=dry_run, yes=yes),
-            org=self.default_org,
-            ai_provider=s.ai.provider,
-            ai_model=s.ai.model,
-            instructions=self.org_instructions(),
-            knowledge_sources=self.knowledge_source_labels,
-            skills=lambda: self.skill_service(yes=yes, project_dir=target),
-            mcp=lambda: self.mcp_service(yes=yes, project_dir=target),
-            redactor=self.redactor,
-        )
+        return init_service(self, project_dir, dry_run=dry_run, yes=yes)
 
     def workspace_service(self, *, dry_run: bool = False, yes: bool = False) -> "WorkspaceService":
-        from stratos.application.workspace_service import WorkspaceService
-        from stratos.infrastructure.github.git import clone_repository
+        from stratos.cli.wiring.workflow import workspace_service
 
-        configured = self.settings.workspace.root
-        root = Path(configured).expanduser() if configured else Path.home() / "stratos-workspaces"
-        return WorkspaceService(
-            self.workspace_store,
-            self.project_store,
-            self.require,
-            self.audit,
-            self.guard(dry_run=dry_run, yes=yes),
-            root=root,
-            default_org=self.default_org,
-            clone=lambda org, name, dest: clone_repository(org, name, dest),
-            init_factory=lambda path: self.init_service(path, dry_run=dry_run, yes=yes),
-        )
+        return workspace_service(self, dry_run=dry_run, yes=yes)
 
     def environment_service(
         self, *, dry_run: bool = False, yes: bool = False
     ) -> "EnvironmentService":
-        from stratos.application.deployment_service import EnvironmentService
+        from stratos.cli.wiring.workflow import environment_service
 
-        return EnvironmentService(
-            self.project_store, self.github, self.require, self.audit,
-            self.guard(dry_run=dry_run, yes=yes),
-            default_org=self.default_org,
-            default_environment=self.settings.defaults.environment,
-        )  # fmt: skip
+        return environment_service(self, dry_run=dry_run, yes=yes)
 
     def deployment_service(
         self, *, dry_run: bool = False, yes: bool = False
     ) -> "DeploymentService":
-        from stratos.application.deployment_service import DeploymentService
+        from stratos.cli.wiring.workflow import deployment_service
 
-        return DeploymentService(
-            self.project_store, self.github, self.require, self.audit,
-            self.guard(dry_run=dry_run, yes=yes),
-            default_org=self.default_org,
-            default_environment=self.settings.defaults.environment,
-        )  # fmt: skip
+        return deployment_service(self, dry_run=dry_run, yes=yes)
 
     def resolve_project(
         self, project: str | None, org: str | None = None
     ) -> tuple[str, str | None]:
-        """Project name (and organisation): the option, else this folder's manifest."""
-        from stratos.application.init_service import read_manifest
-        from stratos.domain.exceptions import ValidationError
+        from stratos.cli.wiring.workflow import resolve_project
 
-        if project:
-            return project, org
-        manifest = read_manifest(self.project_dir)
-        if manifest is None:
-            raise ValidationError(
-                "No project specified.",
-                hint="Use --project NAME, or run inside a folder set up with `stratos init`.",
-            )
-        return manifest.name, org or manifest.organisation or None
+        return resolve_project(self, project, org)
 
     # ---- diagnostics (M23) ---------------------------------------------------------------
     def diagnostics_facts(self, *, online: bool = False) -> "Facts":
         """Gather facts for `stratos doctor`. Network probes only when `online` is set."""
-        import shutil
-        import sys
+        from stratos.cli.wiring.diagnostics import gather_facts
 
-        from stratos.application.diagnostics import Facts
-        from stratos.infrastructure.ai import api_key_env_for
-
-        config_error: str | None = None
-        try:
-            settings = self.settings
-        except ConfigurationError as exc:
-            config_error = exc.message
-            settings = load_settings(
-                {},
-                env={},
-                org_path=Path(os.devnull),
-                user_path=Path(os.devnull),
-                project_path=Path(os.devnull),
-            )  # defaults, for the other checks
-        keyring_backend: str | None
-        try:
-            import keyring
-
-            backend = keyring.get_keyring()
-            keyring_backend = (
-                f"{type(backend).__module__.split('.')[-2:][0]}.{type(backend).__name__}"
-            )
-        except Exception:  # noqa: BLE001 - any failure means "not usable"
-            keyring_backend = None
-        auth_ok = bool(settings.auth.issuer and settings.auth.client_id)
-        signed_in: bool | None = None
-        if auth_ok:
-            try:
-                signed_in = self.auth_service.status().authenticated
-            except Exception:  # noqa: BLE001
-                signed_in = False
-        gh_token = bool(os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN"))
-        if not gh_token and shutil.which("gh"):
-            import subprocess
-
-            try:
-                out = subprocess.run(
-                    ["gh", "auth", "status"],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
-                    check=False,
-                )
-                gh_token = out.returncode == 0
-            except (OSError, subprocess.SubprocessError):
-                gh_token = False
-        level, detail = self.claude.detect().doctor_check()
-        k = settings.knowledge
-        sources = len(k.paths) + len(k.pdf_paths) + len(k.github) + len(k.sharepoint_sites)
-        sources += 1 if k.confluence_url else 0
-        from stratos.application.init_service import read_manifest
-        from stratos.domain.exceptions import ConfigurationError as ConfigError
-
-        try:
-            manifest_state = "valid" if read_manifest(self.project_dir) else "missing"
-        except ConfigError as exc:
-            manifest_state = f"invalid: {exc.message}"
-        credential_vars = tuple(
-            n
-            for n in (
-                "GITHUB_TOKEN",
-                "GH_TOKEN",
-                "ANTHROPIC_API_KEY",
-                "OPENAI_API_KEY",
-                "AZURE_OPENAI_API_KEY",
-                "CONFLUENCE_API_TOKEN",
-                "SHAREPOINT_TOKEN",
-            )
-            if os.environ.get(n)
-        )  # names only; values are never read into the report
-        permissions: tuple[str, ...] | None = None
-        if signed_in:
-            try:
-                permissions = tuple(
-                    sorted(
-                        p.value
-                        for p in self.authorization.permissions_for(self.auth_service.whoami())
-                    )
-                )
-            except Exception:  # noqa: BLE001
-                permissions = None
-        probes: dict[str, tuple[bool, str]] | None = None
-        if online:
-            from stratos.infrastructure.api.probes import http_probe, tcp_probe
-
-            probes = {
-                "Network (github.com)": tcp_probe("github.com", 443),
-                "GitHub API": http_probe(settings.github.api_url.rstrip("/") + "/rate_limit"),
-                "Platform API": http_probe(str(settings.api.endpoint), any_response=True),
-            }
-        return Facts(
-            python=(sys.version_info.major, sys.version_info.minor),
-            config_error=config_error,
-            keyring_backend=keyring_backend,
-            auth_configured=auth_ok,
-            signed_in=signed_in,
-            git_found=shutil.which("git") is not None,
-            github_token_found=gh_token,
-            claude_level=level,
-            claude_detail=detail,
-            ai_provider=settings.ai.provider,
-            ai_key_configured=bool(os.environ.get(api_key_env_for(settings.ai.provider))),
-            skills_registry=bool(settings.skills.registry),
-            mcp_registry=bool(settings.mcp.registry),
-            knowledge_sources=sources,
-            uv_found=shutil.which("uv") is not None,
-            docker_found=shutil.which("docker") is not None,
-            project_manifest=manifest_state,
-            credential_env_vars=credential_vars,
-            permissions=permissions,
-            online=probes,
-        )
+        return gather_facts(self, online=online)

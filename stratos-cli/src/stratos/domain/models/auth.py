@@ -1,3 +1,5 @@
+"""Identity, token and session models. Credentials never print in full."""
+
 from datetime import UTC, datetime, timedelta
 
 from pydantic import SecretStr

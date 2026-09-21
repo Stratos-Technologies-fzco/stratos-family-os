@@ -1,3 +1,5 @@
+"""Domain model base class."""
+
 from pydantic import BaseModel, ConfigDict
 
 

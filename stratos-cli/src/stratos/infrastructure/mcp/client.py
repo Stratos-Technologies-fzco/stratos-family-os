@@ -10,24 +10,17 @@ import os
 import shutil
 from asyncio.subprocess import Process
 from collections.abc import Awaitable, Callable, Mapping
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from stratos import __version__
 from stratos.domain.exceptions import APIError, DependencyError
+from stratos.domain.models.extensions import McpToolInfo
 from stratos.utils.redaction import SecretRedactor, is_env_reference
 
 PROTOCOL_VERSION = "2024-11-05"
 _BASE_ENV = ("PATH", "HOME", "USERPROFILE", "SYSTEMROOT", "TEMP", "TMP", "LANG", "PATHEXT")
 _redactor = SecretRedactor()
-
-
-@dataclass(frozen=True)
-class McpToolInfo:
-    name: str
-    description: str
-    input_schema: dict[str, Any]
 
 
 def build_server_env(config_env: Mapping[str, str], environ: Mapping[str, str]) -> dict[str, str]:

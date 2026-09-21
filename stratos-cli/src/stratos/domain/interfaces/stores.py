@@ -1,3 +1,5 @@
+"""Ports for the project and workspace registries."""
+
 from typing import Protocol
 
 from stratos.domain.models.workflow import ProjectRecord, WorkspaceRecord

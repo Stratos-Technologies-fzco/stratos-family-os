@@ -14,12 +14,10 @@ from stratos.domain.exceptions import (
     StratosError,
     ValidationError,
 )
-from stratos.domain.interfaces import McpRegistry
+from stratos.domain.interfaces import Cache, ClaudeProject, McpRegistry
 from stratos.domain.models.auth import Identity
 from stratos.domain.models.extensions import McpServerSpec
-from stratos.infrastructure.claude.manager import ClaudeCodeManager
-from stratos.infrastructure.filesystem.cache import TtlCache
-from stratos.infrastructure.filesystem.config_files import WriteResult
+from stratos.domain.models.files import WriteResult
 from stratos.utils.redaction import SecretRedactor, is_sensitive_key
 
 Require = Callable[[Permission], Identity]
@@ -86,11 +84,11 @@ class McpService:
     def __init__(
         self,
         registry: McpRegistry,
-        claude: ClaudeCodeManager,
+        claude: ClaudeProject,
         require: Require,
         audit: AuditService,
         guard: OperationGuard,
-        cache: TtlCache,
+        cache: Cache,
         *,
         allowed: list[str] | None,
         environ: Mapping[str, str],

@@ -1,3 +1,5 @@
+"""Structured logging with correlation IDs (re-exports)."""
+
 from stratos.logging.logger import (
     configure_logging,
     get_correlation_ids,

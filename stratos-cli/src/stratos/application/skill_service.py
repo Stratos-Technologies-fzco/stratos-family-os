@@ -14,15 +14,13 @@ from packaging.version import InvalidVersion, Version
 
 from stratos.application.audit_service import AuditService
 from stratos.application.safety import OperationGuard
+from stratos.application.transaction import Transaction
 from stratos.domain.enums import AuditAction, AuditResult, Permission
 from stratos.domain.exceptions import ResourceNotFoundError, StratosError, ValidationError
-from stratos.domain.interfaces import SkillRegistry
+from stratos.domain.interfaces import Cache, ClaudeProject, FileProtector, SkillRegistry
 from stratos.domain.models.auth import Identity
 from stratos.domain.models.extensions import SkillManifest
-from stratos.infrastructure.claude.manager import ClaudeCodeManager
-from stratos.infrastructure.filesystem.cache import TtlCache
-from stratos.infrastructure.filesystem.config_files import ConfigFileProtector
-from stratos.infrastructure.filesystem.skill_registry import compute_checksum
+from stratos.utils.checksum import compute_checksum
 
 Require = Callable[[Permission], Identity]
 CACHE_TTL = 300.0
@@ -61,12 +59,12 @@ class SkillService:
     def __init__(
         self,
         registry: SkillRegistry,
-        claude: ClaudeCodeManager,
-        protector: ConfigFileProtector,
+        claude: ClaudeProject,
+        protector: FileProtector,
         require: Require,
         audit: AuditService,
         guard: OperationGuard,
-        cache: TtlCache,
+        cache: Cache,
         *,
         stratos_version: str,
         registry_id: str,
@@ -152,26 +150,20 @@ class SkillService:
                 f"Skill '{name}' declares these permissions:", list(manifest.permissions)
             )
         details = {"version": manifest.version, "checksum": manifest.checksum}
-        with self._audit.record(AuditAction.SKILL_INSTALL, "skill", name, details):
-            results = self._claude.install_skill(name, files)
-            try:
-                self._protector.merge_json(
-                    self._lock_path,
-                    {
-                        "skills": {
-                            name: {
-                                "version": manifest.version,
-                                "checksum": manifest.checksum,
-                                "permissions": list(manifest.permissions),
-                            }
-                        }
-                    },
-                    forbid_secrets=False,
-                )
-            except BaseException:
-                for r in reversed(results):
-                    self._protector.rollback(r)
-                raise
+        with (
+            self._audit.record(AuditAction.SKILL_INSTALL, "skill", name, details),
+            Transaction(self._protector) as tx,
+        ):
+            for written in self._claude.install_skill(name, files):
+                tx.record(written)
+            lock_entry = {
+                "version": manifest.version,
+                "checksum": manifest.checksum,
+                "permissions": list(manifest.permissions),
+            }
+            self._protector.merge_json(
+                self._lock_path, {"skills": {name: lock_entry}}, forbid_secrets=False
+            )
         return InstallOutcome(name, manifest.version, "updated" if lock else "installed")
 
     def update(self, name: str | None = None) -> list[InstallOutcome]:

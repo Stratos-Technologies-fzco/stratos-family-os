@@ -10,24 +10,17 @@ import os
 import shutil
 import tempfile
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from stratos.config.loader import deep_merge
 from stratos.domain.exceptions import ConfigurationError, ValidationError
+from stratos.domain.models.files import WriteResult
+
+__all__ = ["ConfigFileProtector", "WriteResult"]
 from stratos.utils.managed_block import BEGIN, END, set_managed_block  # noqa: F401
 from stratos.utils.redaction import SecretRedactor
-
-
-@dataclass(frozen=True)
-class WriteResult:
-    path: Path
-    changed: bool
-    created: bool
-    backup: Path | None
-    diff: str
 
 
 class ConfigFileProtector:

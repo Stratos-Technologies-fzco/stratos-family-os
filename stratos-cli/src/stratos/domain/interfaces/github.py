@@ -1,3 +1,5 @@
+"""Port for everything the application layer needs from GitHub."""
+
 from typing import Protocol
 
 from stratos.domain.models.github import (

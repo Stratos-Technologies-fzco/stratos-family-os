@@ -37,16 +37,17 @@ from stratos.domain.models.workflow import (
     ProjectSpec,
     StepOutcome,
 )
-from stratos.infrastructure.claude.manager import knowledge_block, safe_relative
-from stratos.infrastructure.filesystem.skill_registry import compute_checksum
-from stratos.infrastructure.filesystem.templates import (
+from stratos.domain.standards import (
     CI_PATH,
     CI_TEMPLATES,
     DEFAULT_INSTRUCTIONS,
     DEFAULT_LABELS,
     TEMPLATES,
+    knowledge_block,
 )
+from stratos.utils.checksum import compute_checksum
 from stratos.utils.managed_block import set_managed_block
+from stratos.utils.paths import safe_relative
 from stratos.utils.redaction import SecretRedactor
 from stratos.utils.validation import validate_name, validate_slug
 

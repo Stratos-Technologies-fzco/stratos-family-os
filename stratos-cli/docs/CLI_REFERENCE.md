@@ -220,6 +220,68 @@ stratos auth token [OPTIONS]
 |---|---|---|
 | `--reveal` | option | Print the full access token (for scripts). |
 
+## `stratos backup`
+
+List and restore backups of files Stratos changed.
+
+### `stratos backup list`
+
+List backups taken before Stratos changed a file, newest first.
+
+```
+stratos backup list [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--file` | option | Only backups of files containing this text. |
+
+### `stratos backup restore`
+
+Put a backed-up version back. The current version is backed up first.
+
+```
+stratos backup restore [OPTIONS] {backup}
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `BACKUP` | argument **required** | Backup id or file name (see `backup list`). |
+| `--dry-run` | option | Show what would happen; change nothing. |
+| `--yes`, `-y` | option | Skip confirmation prompts (for automation). |
+
+## `stratos cache`
+
+Inspect and clear the local metadata cache.
+
+### `stratos cache status`
+
+Show cached datasets, their size, and how many entries have expired.
+
+```
+stratos cache status [OPTIONS]
+```
+
+### `stratos cache prune`
+
+Remove expired entries.
+
+```
+stratos cache prune [OPTIONS]
+```
+
+### `stratos cache clear`
+
+Delete cached metadata (it is refetched on demand; nothing is lost).
+
+```
+stratos cache clear [OPTIONS]
+```
+
+| Name | Kind | Description |
+|---|---|---|
+| `--namespace` | option | Only this dataset. |
+
 ## `stratos config`
 
 View and change Stratos configuration.

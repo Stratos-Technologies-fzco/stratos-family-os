@@ -29,7 +29,7 @@ from stratos.domain.exceptions import (
 from stratos.domain.interfaces import ProjectStore, WorkspaceStore
 from stratos.domain.models.auth import Identity
 from stratos.domain.models.workflow import WorkspaceRecord
-from stratos.infrastructure.filesystem.templates import HOOK_MARKER, PRE_COMMIT_HOOK
+from stratos.domain.standards import HOOK_MARKER, PRE_COMMIT_HOOK
 from stratos.utils.redaction import SecretRedactor
 from stratos.utils.validation import validate_name
 

@@ -1,3 +1,5 @@
+"""Audit event and summary models."""
+
 from datetime import datetime
 
 from stratos.domain.enums import AuditAction, AuditResult

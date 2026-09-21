@@ -5,10 +5,10 @@ from typing import Any
 
 from stratos.domain.enums import Permission
 from stratos.domain.exceptions import ResourceNotFoundError
+from stratos.domain.interfaces import Cache
 from stratos.domain.interfaces.github import GitHubPort
 from stratos.domain.models.auth import Identity
 from stratos.domain.models.github import Member, OrgInfo, Team, TeamRepoPermission
-from stratos.infrastructure.filesystem.cache import TtlCache
 from stratos.utils.validation import validate_name
 
 Require = Callable[[Permission], Identity]
@@ -20,7 +20,7 @@ class OrgService:
         self,
         github: GitHubPort,
         require: Require,
-        cache: TtlCache,
+        cache: Cache,
         default_org: str,
         local_policy: Callable[[], dict[str, Any]] = dict,
     ) -> None:
@@ -72,7 +72,7 @@ class OrgService:
 
 class TeamService:
     def __init__(
-        self, github: GitHubPort, require: Require, cache: TtlCache, default_org: str
+        self, github: GitHubPort, require: Require, cache: Cache, default_org: str
     ) -> None:
         self._gh = github
         self._require = require

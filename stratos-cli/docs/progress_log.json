@@ -170,6 +170,27 @@
         "Still open from earlier: the company LICENSE file, and real-account tests for Confluence, SharePoint, OpenAI and Azure OpenAI."
       ],
       "next": "Layer E completion (full operation safety, caching and performance work, quality gates), or connecting the platform backend once it exists."
+    },
+    {
+      "id": 8,
+      "date": "21 September 2026",
+      "area": "Layer E: Cross-Cutting Engineering",
+      "title": "Safety, speed, quality checks, delivery, documentation and developer setup built (modules M24 to M29)",
+      "status": "Complete and tested",
+      "summary": "The behind-the-scenes qualities that make the tool dependable were added: safer changes with an undo, faster start-up, automated quality checks, a repeatable way to build and release, complete decision records, and a one-step setup for new team members.",
+      "delivered": [
+        "Operation safety (M24): multi-step changes such as 'init' and skill installation now behave as a single unit: if any step fails, every earlier change is undone automatically. Two new commands let people undo Stratos's own edits: 'stratos backup list' shows the saved copies taken before any file was changed, and 'stratos backup restore' puts one back (after previewing it, asking for confirmation and recording it in the audit trail). Restoring first saves the current version, so a restore can itself be reversed.",
+        "Speed (M25): the tool now starts noticeably lighter. Showing the list of commands no longer loads any of the features behind them; they load only when used. A new 'stratos cache' command shows what is stored locally, removes stale entries and clears the cache. Nothing confidential is ever stored there.",
+        "Code health: the central wiring file was cut roughly in half by moving related parts into their own files, and automated tests now fail if anyone breaks the intended separation between the parts of the product.",
+        "Quality checks (M26): besides the existing detailed tests, there are now tests that exercise several parts together and tests that run the real command exactly as a user would. Overall test coverage is about 91% (measured with branch coverage) and the build fails if it drops below 90%.",
+        "Build and release (M27): the automated pipeline now checks style and types, runs the tests on Linux, Windows and Mac with two Python versions, runs the whole-product tests, and finally builds the installable package, installs it in a clean environment and starts it. A make-based command list gives developers the same steps locally, and a check ensures the version number is consistent and well-formed.",
+        "Documentation (M28): decision records now exist for every layer (including earlier layers written up after the fact and a new one for this layer), plus an implementation plan, an up-to-date command reference that is checked automatically, and a pull-request checklist that defines 'done'.",
+        "Developer setup (M29): one command sets up a new machine, and a small local stand-in for the sign-in service and platform lets people work offline."
+      ],
+      "notes": [
+        "The platform's interface description was intentionally left empty, because the platform itself has not been designed yet and inventing it would mislead. A test makes sure anything added later is complete.",
+        "Nothing from this layer has been published to GitHub yet."
+      ]
     }
   ]
 }

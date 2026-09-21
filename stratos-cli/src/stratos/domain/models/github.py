@@ -1,3 +1,5 @@
+"""GitHub-related domain models (repositories, teams, pull requests, ...)."""
+
 from stratos.domain.models import StratosModel
 
 

@@ -10,6 +10,7 @@ from typing import Any
 
 from platformdirs import user_cache_dir
 
+from stratos.domain.models.files import CacheNamespaceStats
 from stratos.utils.redaction import SecretRedactor
 
 
@@ -75,3 +76,39 @@ class TtlCache:
         except ValueError:
             pass  # contains a secret: use it once, never store it
         return value
+
+    # ---- administration (`stratos cache ...`) --------------------------------------------
+    def _files(self) -> list[Path]:
+        return sorted(self._dir.glob("*.json")) if self._dir.is_dir() else []
+
+    def stats(self) -> list[CacheNamespaceStats]:
+        now = self._clock()
+        out: list[CacheNamespaceStats] = []
+        for path in self._files():
+            data = self._load(path.stem)
+            expired = sum(1 for v in data.values() if v.get("expires", 0) <= now)
+            out.append(CacheNamespaceStats(path.stem, len(data), expired, path.stat().st_size))
+        return out
+
+    def prune(self) -> int:
+        """Remove expired entries everywhere; returns how many were removed."""
+        now = self._clock()
+        removed = 0
+        for path in self._files():
+            data = self._load(path.stem)
+            live = {k: v for k, v in data.items() if v.get("expires", 0) > now}
+            removed += len(data) - len(live)
+            if not live:
+                path.unlink(missing_ok=True)
+            elif len(live) != len(data):
+                path.write_text(json.dumps(live), encoding="utf-8")
+        return removed
+
+    def clear(self, namespace: str | None = None) -> int:
+        """Delete one namespace (or everything); returns how many entries were removed."""
+        removed = 0
+        for path in self._files():
+            if namespace is None or path.stem == self._file(namespace).stem:
+                removed += len(self._load(path.stem))
+                path.unlink(missing_ok=True)
+        return removed

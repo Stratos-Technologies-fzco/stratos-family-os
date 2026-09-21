@@ -53,7 +53,7 @@ class DevFake(RichFake):
         self.descriptions[f"{org}/{name}"] = description
         return self.repos[f"{org}/{name}"]
 
-    # ---- files ----------------------------------------------------------------------------------
+    # ---- files ---------------------------------------------------------------------------
     def get_file(self, org: str, repo: str, path: str, *, ref: str | None = None) -> str | None:
         data = self.files.get((repo, path))
         return None if data is None else data.decode("utf-8", errors="replace")
@@ -71,7 +71,7 @@ class DevFake(RichFake):
     def text(self, repo: str, path: str) -> str:
         return self.files[(repo, path)].decode("utf-8")
 
-    # ---- environments ----------------------------------------------------------------------------
+    # ---- environments --------------------------------------------------------------------
     def create_environment(
         self, org: str, repo: str, name: str, *, protected: bool = False
     ) -> EnvironmentInfo:
@@ -89,7 +89,7 @@ class DevFake(RichFake):
     def delete_environment(self, org: str, repo: str, name: str) -> None:
         self.envs.pop(name, None)
 
-    # ---- deployments -------------------------------------------------------------------------------
+    # ---- deployments ---------------------------------------------------------------------
     def resolve_ref(self, org: str, repo: str, ref: str) -> str:
         if ref in self.refs:
             return self.refs[ref]
@@ -155,3 +155,14 @@ def git_clone_fake(remote: str) -> Any:
         return dest
 
     return clone
+
+
+def init_adapters() -> dict[str, Any]:
+    """The adapter factories `InitService` is given (normally built in cli/wiring)."""
+    from stratos.infrastructure.claude.manager import ClaudeCodeManager
+    from stratos.infrastructure.filesystem.config_files import ConfigFileProtector
+
+    return {
+        "protector_factory": lambda dry: ConfigFileProtector(dry_run=dry),
+        "claude_factory": lambda folder, protector: ClaudeCodeManager(folder, protector),
+    }

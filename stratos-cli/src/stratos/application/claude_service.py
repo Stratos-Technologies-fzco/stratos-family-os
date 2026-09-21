@@ -6,10 +6,9 @@ from stratos.application.audit_service import AuditService
 from stratos.application.safety import OperationGuard
 from stratos.domain.enums import AuditAction, Permission
 from stratos.domain.exceptions import ResourceNotFoundError
-from stratos.domain.interfaces import AgentRegistry
+from stratos.domain.interfaces import AgentRegistry, ClaudeProject
 from stratos.domain.models.auth import Identity
-from stratos.infrastructure.claude.manager import ClaudeCodeManager, ClaudeStatus
-from stratos.infrastructure.filesystem.config_files import WriteResult
+from stratos.domain.models.files import ClaudeStatus, WriteResult
 
 Require = Callable[[Permission], Identity]
 
@@ -17,7 +16,7 @@ Require = Callable[[Permission], Identity]
 class ClaudeIntegrationService:
     def __init__(
         self,
-        claude: ClaudeCodeManager,
+        claude: ClaudeProject,
         agents: AgentRegistry,
         require: Require,
         audit: AuditService,

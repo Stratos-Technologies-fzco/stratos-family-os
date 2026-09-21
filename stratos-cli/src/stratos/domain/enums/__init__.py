@@ -1,3 +1,5 @@
+"""Enumerations: output formats, exit codes, permissions, roles, audit actions."""
+
 from enum import IntEnum, StrEnum
 
 
@@ -49,6 +51,7 @@ class AuditAction(StrEnum):
     MCP_CONFIGURE = "mcp.configure"  # extension beyond the spec list
     AGENT_CREATE = "agent.create"  # extension beyond the spec list
     CLAUDE_CONFIGURE = "claude.configure"  # extension beyond the spec list
+    BACKUP_RESTORE = "backup.restore"  # extension beyond the spec list
     PROJECT_UPDATE = "project.update"  # extension beyond the spec list
     PROJECT_INIT = "project.init"  # extension beyond the spec list
     WORKSPACE_CREATE = "workspace.create"  # extension beyond the spec list

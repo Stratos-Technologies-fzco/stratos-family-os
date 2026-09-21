@@ -27,12 +27,12 @@ from stratos.domain.enums import AgentPermission
 from stratos.domain.exceptions import (
     APIError,
     AuthorizationError,
+    DependencyError,
     StratosError,
     ValidationError,
 )
-from stratos.domain.interfaces import AIProvider
+from stratos.domain.interfaces import AIProvider, McpToolClient
 from stratos.domain.models.extensions import AgentDefinition, ChatMessage, ToolSpec
-from stratos.infrastructure.mcp.client import McpStdioClient, build_server_env
 from stratos.logging import get_logger
 from stratos.utils.redaction import SecretRedactor
 from stratos.utils.validation import sanitize_text
@@ -41,7 +41,7 @@ log = get_logger("agent")
 MAX_SKILL_CHARS = 20_000
 TOOL_TIMEOUT = 60.0
 
-McpFactory = Callable[[str, dict[str, Any]], McpStdioClient]
+McpFactory = Callable[[str, dict[str, Any]], McpToolClient]
 SkillLoader = Callable[[str], str | None]
 
 
@@ -70,7 +70,6 @@ class AgentRunner:
         mcp_configs: Callable[[], Mapping[str, Mapping[str, Any]]] = dict,
         mcp_allowed: Callable[[str], bool] = lambda name: True,
         mcp_factory: McpFactory | None = None,
-        environ: Mapping[str, str] | None = None,
         skill_loader: SkillLoader = lambda name: None,
         tool_timeout: float = TOOL_TIMEOUT,
     ) -> None:
@@ -83,14 +82,9 @@ class AgentRunner:
         self._max_steps = max_steps
         self._mcp_configs = mcp_configs
         self._mcp_allowed = mcp_allowed
-        self._environ = environ or {}
-        self._mcp_factory = mcp_factory or self._default_mcp_factory
+        self._mcp_factory = mcp_factory
         self._skill_loader = skill_loader
         self._tool_timeout = tool_timeout
-
-    def _default_mcp_factory(self, name: str, config: dict[str, Any]) -> McpStdioClient:
-        env = build_server_env(config.get("env") or {}, self._environ)
-        return McpStdioClient(config["command"], list(config.get("args", [])), env)
 
     # ---- preparation ---------------------------------------------------------------------
     def _system_prompt(self, agent: AgentDefinition) -> str:
@@ -117,7 +111,7 @@ class AgentRunner:
         return chosen
 
     async def _start_mcp(
-        self, agent: AgentDefinition, stack: list[McpStdioClient]
+        self, agent: AgentDefinition, stack: list[McpToolClient]
     ) -> dict[str, RuntimeTool]:
         tools: dict[str, RuntimeTool] = {}
         if not agent.mcp_servers:
@@ -137,6 +131,8 @@ class AgentRunner:
                 raise AuthorizationError(
                     f"MCP server '{server}' is not permitted by organisation policy."
                 )
+            if self._mcp_factory is None:
+                raise DependencyError("MCP servers are not available in this configuration.")
             client = self._mcp_factory(server, dict(config))
             await client.start()
             stack.append(client)
@@ -153,7 +149,7 @@ class AgentRunner:
 
     @staticmethod
     def _mcp_handler(
-        client: McpStdioClient, tool: str
+        client: McpToolClient, tool: str
     ) -> Callable[[dict[str, Any]], Awaitable[str]]:
         async def handler(args: dict[str, Any]) -> str:
             text, is_error = await client.call_tool(tool, args)
@@ -174,7 +170,7 @@ class AgentRunner:
         if context:
             prompt += "\n<knowledge>\n" + "\n".join(context) + "\n</knowledge>"
 
-        clients: list[McpStdioClient] = []
+        clients: list[McpToolClient] = []
         try:
             toolbox = {**self._static_tools(agent), **await self._start_mcp(agent, clients)}
             return await self._converse(agent, system, prompt, toolbox, context_ids)

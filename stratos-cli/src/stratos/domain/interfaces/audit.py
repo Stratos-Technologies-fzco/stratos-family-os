@@ -1,3 +1,5 @@
+"""Port for audit-event storage."""
+
 from datetime import datetime
 from typing import Protocol
 
