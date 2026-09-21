@@ -35,7 +35,7 @@ class OidcProvider:
         self._clock = clock
         self._discovery: dict[str, Any] | None = None
 
-    # ---- discovery -----------------------------------------------------
+    # ---- discovery -----------------------------------------------------------------------
     def _get_json(self, method: str, url: str, **kwargs: Any) -> dict[str, Any]:
         try:
             response = self._http.request(method, url, **kwargs)
@@ -63,7 +63,7 @@ class OidcProvider:
             self._discovery = doc
         return self._discovery
 
-    # ---- IdentityProvider ---------------------------------------------
+    # ---- IdentityProvider ----------------------------------------------------------------
     def authorization_url(self, redirect_uri: str, state: str, code_challenge: str) -> str:
         query = urlencode(
             {

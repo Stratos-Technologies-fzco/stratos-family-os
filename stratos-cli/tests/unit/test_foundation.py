@@ -227,3 +227,27 @@ def test_config_errors_map_to_exit_8(isolated: Path) -> None:
     assert runner.invoke(app, ["config", "get", "nope.key"]).exit_code == ExitCode.CONFIGURATION
     assert runner.invoke(app, ["config", "set", "api.endpoint", "bad"]).exit_code == 8
     assert runner.invoke(app, ["config", "set", "api.token", "x"]).exit_code == 8
+
+
+def test_messages_do_not_crash_on_legacy_windows_code_pages() -> None:
+    """cp1252 cannot encode the check/cross symbols; the renderer must fall back to ASCII."""
+    import io
+
+    def legacy() -> tuple[Console, io.BytesIO]:
+        raw = io.BytesIO()
+        stream = io.TextIOWrapper(raw, encoding="cp1252", errors="strict")
+        return Console(file=stream, force_terminal=False, width=100), raw
+
+    (out, out_raw), (err, err_raw) = legacy(), legacy()
+    r = ConsoleRenderer(OutputFormat.TABLE, console=out, err_console=err)
+    r.success("done")
+    r.info("note")
+    r.warning("careful")
+    r.error("bad", hint="fix it")
+    out.file.flush()
+    err.file.flush()
+    shown = out_raw.getvalue().decode("cp1252") + err_raw.getvalue().decode("cp1252")
+    assert "OK done" in shown and "i note" in shown and "x bad" in shown and "Hint: fix it" in shown
+    utf, utf_raw = Console(record=True, width=80, force_terminal=False), None
+    ConsoleRenderer(OutputFormat.TABLE, console=utf).success("done")
+    assert "\u2714 done" in utf.export_text() and utf_raw is None  # real terminals keep the symbols

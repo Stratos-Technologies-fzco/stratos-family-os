@@ -16,11 +16,16 @@ class ApiSettings(BaseModel):
 class GithubSettings(BaseModel):
     model_config = ConfigDict(extra="forbid")
     organization: str = DEFAULT_GITHUB_ORG
+    api_url: str = "https://api.github.com"
 
 
 class AiSettings(BaseModel):
     model_config = ConfigDict(extra="forbid")
     provider: str = "claude"
+    model: str = "claude-sonnet-5"
+    max_tokens: int = 1024
+    azure_endpoint: str | None = None
+    azure_api_version: str = "2024-10-21"
 
 
 class DefaultsSettings(BaseModel):
@@ -37,6 +42,52 @@ class AuthSettings(BaseModel):
     scopes: str = "openid profile email offline_access"
 
 
+class SkillsSettings(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    registry: str | None = None  # directory containing index.json
+
+
+class McpSettings(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    registry: str | None = None  # directory containing index.json
+    allowed: list[str] | None = None  # organisation allow-list; None means unrestricted
+
+
+class KnowledgeSettings(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    paths: list[str] = Field(default_factory=list)  # directories of Markdown documents
+    pdf_paths: list[str] = Field(default_factory=list)  # directories of PDF documents
+    github: list[str] = Field(default_factory=list)  # org/repo or org/repo:path
+    confluence_url: str | None = None  # https://<site>.atlassian.net
+    confluence_spaces: list[str] = Field(default_factory=list)
+    sharepoint_sites: list[str] = Field(default_factory=list)  # host:/sites/name
+
+
+class AgentsSettings(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    allowed_permissions: list[str] = Field(default_factory=lambda: ["knowledge_read", "repo_read"])
+    max_steps: int = 6
+
+
+class PolicySettings(BaseModel):
+    """Organisation policy. Normally set in the organisation-level configuration file."""
+
+    model_config = ConfigDict(extra="forbid")
+    allow_public_repos: bool = True
+    allowed_ai_providers: list[str] | None = None  # None means any supported provider
+    allowed_ai_models: list[str] | None = None  # None means any model
+
+
+class MonitoringSettings(BaseModel):
+    """Thresholds used by `stratos audit summary` to raise alerts."""
+
+    model_config = ConfigDict(extra="forbid")
+    window_days: int = 7
+    denied_threshold: int = 5
+    failure_rate_threshold: float = 0.25
+    min_events_for_rate: int = 5
+
+
 class Settings(BaseSettings):
     """Resolved configuration. Environment variables use the STRATOS_ prefix
     and `__` for nesting, e.g. STRATOS_API__ENDPOINT."""
@@ -51,6 +102,12 @@ class Settings(BaseSettings):
     ai: AiSettings = Field(default_factory=AiSettings)
     auth: AuthSettings = Field(default_factory=AuthSettings)
     defaults: DefaultsSettings = Field(default_factory=DefaultsSettings)
+    skills: SkillsSettings = Field(default_factory=SkillsSettings)
+    mcp: McpSettings = Field(default_factory=McpSettings)
+    knowledge: KnowledgeSettings = Field(default_factory=KnowledgeSettings)
+    agents: AgentsSettings = Field(default_factory=AgentsSettings)
+    policy: PolicySettings = Field(default_factory=PolicySettings)
+    monitoring: MonitoringSettings = Field(default_factory=MonitoringSettings)
 
     @classmethod
     def settings_customise_sources(

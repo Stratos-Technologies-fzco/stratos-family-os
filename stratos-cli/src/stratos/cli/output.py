@@ -28,6 +28,19 @@ STYLES = {
 }
 
 
+SYMBOLS = {"success": "✔", "info": "ℹ", "warning": "!", "error": "✖"}
+ASCII_SYMBOLS = {"success": "OK", "info": "i", "warning": "!", "error": "x"}
+
+
+def _can_encode(console: Console, text: str) -> bool:
+    """Legacy Windows code pages (cp1252...) cannot show ✔ ✖ ℹ; printing them would crash."""
+    try:
+        text.encode(console.encoding or "utf-8")
+    except (UnicodeEncodeError, LookupError):
+        return False
+    return True
+
+
 class ConsoleRenderer:
     def __init__(
         self,
@@ -41,8 +54,9 @@ class ConsoleRenderer:
         self._redactor = redactor or SecretRedactor()
         self._out = console or Console()
         self._err = err_console or Console(stderr=True)
+        self._stream_buf = ""
 
-    # ---- data ----------------------------------------------------------
+    # ---- data ----------------------------------------------------------------------------
     def data(
         self,
         rows: Sequence[Mapping[str, Any]] | Mapping[str, Any],
@@ -59,17 +73,22 @@ class ConsoleRenderer:
                 else json.dumps(clean, indent=2, default=str),
                 markup=False,
                 highlight=False,
+                soft_wrap=True,
             )
         elif self.format is OutputFormat.YAML:
             self._out.print(
                 yaml.safe_dump(clean, sort_keys=False, default_flow_style=False).rstrip(),
                 markup=False,
                 highlight=False,
+                soft_wrap=True,
             )
         elif self.format is OutputFormat.PLAIN:
             for row in [clean] if isinstance(clean, dict) else clean:
                 self._out.print(
-                    "\t".join(str(v) for v in row.values()), markup=False, highlight=False
+                    "\t".join(str(v) for v in row.values()),
+                    markup=False,
+                    highlight=False,
+                    soft_wrap=True,
                 )
         else:
             self._out.print(self._table(clean, title))
@@ -93,25 +112,27 @@ class ConsoleRenderer:
             table.add_row(*(str(record.get(c, "")) for c in columns))
         return table
 
-    # ---- messages ------------------------------------------------------
-    def _message(self, style: str, symbol: str, message: str, *, err: bool = False) -> None:
+    # ---- messages ------------------------------------------------------------------------
+    def _message(self, style: str, kind: str, message: str, *, err: bool = False) -> None:
         if self.format is OutputFormat.QUIET and not err:
             return
+        console = self._err if err else self._out
+        symbol = SYMBOLS[kind] if _can_encode(console, SYMBOLS[kind]) else ASCII_SYMBOLS[kind]
         text = sanitize_text(self._redactor.redact_text(message))
-        (self._err if err else self._out).print(f"[{STYLES[style]}]{symbol}[/] ", end="")
-        (self._err if err else self._out).print(text, markup=False, highlight=False)
+        console.print(f"[{STYLES[style]}]{symbol}[/] ", end="")
+        console.print(text, markup=False, highlight=False)
 
     def success(self, message: str) -> None:
-        self._message("success", "✔", message)
+        self._message("success", "success", message)
 
     def info(self, message: str) -> None:
-        self._message("info", "ℹ", message)
+        self._message("info", "info", message)
 
     def warning(self, message: str) -> None:
-        self._message("warning", "!", message, err=True)
+        self._message("warning", "warning", message, err=True)
 
     def error(self, message: str, *, hint: str | None = None) -> None:
-        self._message("error", "✖", message, err=True)
+        self._message("error", "error", message, err=True)
         if hint:
             self._err.print(
                 f"  Hint: {self._redactor.redact_text(hint)}", markup=False, highlight=False
@@ -120,6 +141,26 @@ class ConsoleRenderer:
     def debug(self, message: str) -> None:
         """Diagnostic detail (e.g. tracebacks) on stderr; only used under --debug."""
         self._err.print(self._redactor.redact_text(message), markup=False, highlight=False)
+
+    # ---- streaming: line-buffered so redaction never misses a secret split across chunks ----
+    def stream_begin(self) -> None:
+        self._stream_buf = ""
+
+    def _emit_line(self, line: str) -> None:
+        self._out.print(
+            sanitize_text(self._redactor.redact_text(line)), markup=False, highlight=False
+        )
+
+    def stream_write(self, chunk: str) -> None:
+        self._stream_buf += chunk
+        while "\n" in self._stream_buf:
+            line, self._stream_buf = self._stream_buf.split("\n", 1)
+            self._emit_line(line)
+
+    def stream_end(self) -> None:
+        if self._stream_buf:
+            self._emit_line(self._stream_buf)
+        self._stream_buf = ""
 
     def secret(self, value: str) -> None:
         """Print a secret verbatim. Bypasses redaction; only for explicit opt-in commands."""
@@ -131,7 +172,7 @@ class ConsoleRenderer:
                 Panel(self._redactor.redact_text(body), title=title, border_style=STYLES[style])
             )
 
-    # ---- interaction ---------------------------------------------------
+    # ---- interaction ---------------------------------------------------------------------
     @contextmanager
     def status(self, message: str) -> Iterator[None]:
         """Spinner for long operations (suppressed for machine-readable formats)."""

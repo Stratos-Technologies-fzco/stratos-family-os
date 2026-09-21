@@ -85,6 +85,64 @@
         "The platform connection assumes standard conventions for paging through long lists, pending the published platform API description."
       ],
       "next": "Layer C: Enterprise Integrations (GitHub repositories, organisations and teams, Claude Code, skills, MCP, AI providers, agents and the knowledge base)."
+    },
+    {
+      "id": 5,
+      "date": "21 September 2026",
+      "area": "Layer C: Enterprise Integrations",
+      "title": "GitHub, organisation and teams, Claude Code, skills, MCP, AI, agents and knowledge base built (modules M11 to M18)",
+      "status": "Complete and tested",
+      "summary": "The eight modules that connect the tool to the company's working tools were built, together with the safety and speed foundations they rely on.",
+      "delivered": [
+        "GitHub repositories (M11): create, list, view, clone, configure and archive repositories. Creating is safe to repeat (it never makes duplicates), every action can be previewed first with a dry run, and risky actions such as archiving or making a repository public ask for confirmation. Branch protection and code-ownership rules can be applied automatically. Creations, configuration changes and archiving are recorded in the audit trail.",
+        "Organisation and teams (M12): view organisation details, members, teams, what each team can access, and the organisation policy. Information is remembered for a short time so the tool stays fast, and nothing sensitive is remembered.",
+        "Claude Code (M13): the tool detects whether Claude Code is installed and never assumes it is. It can add company instructions and coding standards to a project without overwriting what developers wrote, and every change is backed up and can be undone.",
+        "Skills (M14): staff can browse, install, update and remove approved skills. Before installing, the tool checks the skill has not been tampered with, works with this version of the tool, and shows the permissions it asks for so a person can approve them. Skills are only copied, never run by the tool.",
+        "MCP tool servers (M15): staff can list, install, configure and check tool servers, but only ones the organisation allows. Passwords and keys are never written into shared files; they must be read from each person's own environment. Existing settings are backed up first and can be restored.",
+        "AI assistants (M16): ask questions from the command line. The tool is not tied to one vendor: Anthropic (Claude) is the first supported provider and others can be added. Answers appear as they are written, with secrets hidden, and the tool loads the AI software only when it is actually needed.",
+        "Agents (M17): ready-made code-review and security-review assistants, plus the ability to define new ones. Agents get the least access by default, every run is recorded in the audit trail, and their logs hide secrets.",
+        "Knowledge base (M18): search company documents (such as runbooks and architecture notes) with results ranked by relevance. Documents are read on demand and never copied elsewhere.",
+        "Safe-change foundations (M24 and M25, started early): the preview-before-change mode, the confirmation step, protection for configuration files (backup, compare, merge, undo) and the short-term memory for non-sensitive information."
+      ],
+      "value": "Developers can now do the day-to-day work of creating repositories, adopting approved tools and skills, asking AI questions, running reviews and finding company knowledge from one command, with security built in. Every change can be previewed, risky steps need confirmation, secrets are never stored in shared files or shown, and sensitive actions leave an audit record. This is the core of the platform's promise of safe, governed developer productivity.",
+      "quality": "187 automated checks now pass in total (92 new). They cover repeat-safe creation, previews that change nothing, cancelled confirmations, tampered skills being rejected, secrets being kept out of tool configuration, access limits on agents, ranking of search results, secrets hidden even when an answer is streamed in pieces, and the AI software not loading unless needed. The GitHub connection was also checked read-only against the real GitHub service. Two defects found during testing were fixed: long results were being wrapped and broke machine-readable output, and yes/no settings were wrongly hidden as if they were secrets.",
+      "decisions": [
+        "Skills, MCP servers, agents and knowledge currently come from local folders; connecting them to shared company registries needs the platform backend or an agreed location.",
+        "Agents currently perform a single question-and-answer step with optional knowledge context. Skills and tool servers listed on an agent are recorded but not yet used when it runs; a full multi-step tool-using agent is a later decision.",
+        "Using AI, knowledge search or agents requires being signed in. Confirm this is wanted, or whether AI questions should also work without sign-in.",
+        "Five extra audited actions (repository configure and archive, skill removal, tool-server configuration, agent creation) were added beyond the nine in the specification, with matching permissions in the proposed role table.",
+        "The GitHub connection uses the person's GitHub token (from an environment setting or their GitHub CLI login); Stratos never stores it. An organisation owner must invite the account before repository creation in the Stratos-Technologies-fzco organisation will work."
+      ],
+      "next": "Layer D: Developer Workflow (project lifecycle, project initialisation, workspaces, environments and deployment, diagnostics and status)."
+    },
+    {
+      "id": 6,
+      "date": "21 September 2026",
+      "area": "Layers A to C: gap closure",
+      "title": "Remaining specification gaps closed: fuller GitHub, more AI and knowledge sources, working agents, governance and delivery pipelines",
+      "status": "Complete and tested",
+      "summary": "Every gap identified in the earlier review of Layers A to C was closed, so those layers now match the specification apart from items that depend on things that do not exist yet (the Stratos platform backend and a company licence decision).",
+      "delivered": [
+        "GitHub (M11): the tool can now also show branches, pull requests, issues, labels and workflow runs, and can apply a standard set of labels, the company merge policy, security scanning features and restricted GitHub Actions to a repository. Each is safe to repeat, can be previewed first, and is recorded in the audit trail.",
+        "Claude Code (M13): agents can be exported so Claude Code can use them, with only the access the agent is allowed (read-only by default). Files that developers wrote themselves are never overwritten. Claude Code can also be told how to search company knowledge. A new health check, 'stratos doctor', reports whether Claude Code and the other tools are set up; 'version' and 'status' were added too.",
+        "AI providers (M16): OpenAI and Azure OpenAI now work alongside Anthropic, so the organisation can choose (or restrict) which AI vendor and which models are used.",
+        "Agents (M17): agents can now work through a task in several steps: read project files, look up company knowledge, use the installed skills, and call approved tool servers. Every step is checked against the agent's permissions; secret files and anything outside the project are blocked; results hide secrets; and there is a limit on the number of steps so nothing can run away. Tool servers only start when installed, allowed by policy, and explicitly permitted for that agent, and are always shut down afterwards.",
+        "Knowledge base (M18): company knowledge can now come from Markdown folders, PDF folders, GitHub repositories, Confluence and SharePoint. Remote sources are read on demand and never copied to disk.",
+        "Platform connection (M07): a second, asynchronous version of the connection layer was added for work that benefits from doing many things at once, following exactly the same safety rules as the original.",
+        "Governance (M09 and M10): the organisation can now set policies (for example, forbid public repositories, or limit which AI providers and models are allowed). Blocked actions are refused and recorded. A new 'audit summary' report shows usage over a period and raises alerts for repeated denials, a high failure rate, or one person being denied repeatedly.",
+        "Delivery and supply-chain controls (M27): automated pipelines now test the tool on Windows and Linux, check code quality, scan dependencies for known vulnerabilities, review dependency changes, run static security analysis, scan for leaked secrets, produce a software bill of materials, and build signed releases.",
+        "Documentation and packaging: the architecture, security, development, contributing, troubleshooting and SDK guides were written; a complete command reference is now generated from the tool itself so it cannot go out of date; the README and change log were completed; and the dependency lock file was generated."
+      ],
+      "value": "The platform can now be adopted end to end by developers with governance in place: the organisation controls which repositories, AI models, tool servers and agent capabilities are allowed, can see what is happening, and is protected by automated security checks on every change. Agents are genuinely useful (they can look at code and company knowledge) without being given more access than they need.",
+      "quality": "241 automated checks pass in total (54 new), and code style and strict type checks are clean. New checks cover the multi-step agent loop (including attempts to read secret files or escape the project), a real tool server started and shut down during tests, every new knowledge source, the new AI providers, the policy rules and audit alerts, and the pipeline files. The package builds correctly, the dependency scan found no problems in the project's own dependencies, and a software bill of materials (95 components) was produced. A live run on a Windows computer also revealed that success messages crashed on older console settings; this was fixed (plain-text symbols are now used where needed) and a check was added so it cannot return.",
+      "decisions": [
+        "Confluence, SharePoint, OpenAI and Azure OpenAI were tested against simulated responses only. Connecting them to real accounts needs credentials and a test on the real service.",
+        "SharePoint needs an access token supplied from outside (no interactive Microsoft sign-in was built).",
+        "The company LICENSE file is still empty on purpose: choosing a licence is a legal decision for the company.",
+        "The automated pipelines run only when the project sits at the top level of its own GitHub repository (GitHub ignores them inside a sub-folder). A secret-scanning licence key may be needed for organisation repositories, and security actions should be pinned to exact versions once the repository is final.",
+        "Still outside Layers A to C by design: the Stratos platform backend (so no platform endpoints exist), and the Layer D workflow modules (projects, workspaces, environments and deployments)."
+      ],
+      "next": "Layer D: Developer Workflow (project lifecycle, project initialisation, workspaces, environments and deployment)."
     }
   ]
 }

@@ -3,6 +3,7 @@
 import contextlib
 import json
 import os
+from datetime import datetime
 from pathlib import Path
 
 from platformdirs import user_state_dir
@@ -46,12 +47,19 @@ class LocalAuditStore:
         return events
 
     def list(
-        self, *, limit: int = 50, action: AuditAction | None = None, user: str | None = None
+        self,
+        *,
+        limit: int = 50,
+        action: AuditAction | None = None,
+        user: str | None = None,
+        since: datetime | None = None,
     ) -> list[AuditEvent]:
         events = [
             e
             for e in reversed(self._read())
-            if (action is None or e.action == action) and (user is None or e.user == user)
+            if (action is None or e.action == action)
+            and (user is None or e.user == user)
+            and (since is None or e.timestamp >= since)
         ]
         return events[:limit]
 

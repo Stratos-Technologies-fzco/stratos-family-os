@@ -22,6 +22,14 @@ _PATTERNS: tuple[re.Pattern[str], ...] = (
 )
 
 
+_ENV_REF = re.compile(r"^\$\{[A-Za-z_][A-Za-z0-9_]*\}$")
+
+
+def is_env_reference(value: object) -> bool:
+    """`${NAME}` points at an environment variable; it is not a secret itself."""
+    return isinstance(value, str) and bool(_ENV_REF.match(value))
+
+
 def is_sensitive_key(key: str) -> bool:
     return bool(_SENSITIVE_KEY.search(key))
 
@@ -38,14 +46,19 @@ class SecretRedactor:
         if isinstance(value, str):
             return self.redact_text(value)
         if isinstance(value, dict):
-            return {
-                k: REDACTED
-                if isinstance(k, str) and is_sensitive_key(k) and v not in (None, "")
-                else self.redact(v)
-                for k, v in value.items()
-            }
+            return {k: self._redact_item(k, v) for k, v in value.items()}
         if isinstance(value, list):
             return [self.redact(v) for v in value]
         if isinstance(value, tuple):
             return tuple(self.redact(v) for v in value)
         return value
+
+    def _redact_item(self, key: object, value: Any) -> Any:
+        masked = (
+            isinstance(key, str)
+            and is_sensitive_key(key)
+            and isinstance(value, str)
+            and value != ""
+            and not is_env_reference(value)
+        )
+        return REDACTED if masked else self.redact(value)

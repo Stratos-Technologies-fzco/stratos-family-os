@@ -42,3 +42,35 @@ def get(ctx: typer.Context, event_id: str) -> None:
     cli: CliContext = ctx.obj
     cli.require(Permission.AUDIT_READ)
     cli.renderer.data(cli.audit.get_event(event_id).model_dump(mode="json"), title="Audit event")
+
+
+@app.command()
+def summary(
+    ctx: typer.Context,
+    days: int | None = typer.Option(
+        None, "--days", min=1, max=365, help="Period (default: configured)."
+    ),
+) -> None:
+    """Usage analytics and monitoring alerts over a period."""
+    cli: CliContext = ctx.obj
+    cli.require(Permission.AUDIT_READ)
+    m = cli.settings.monitoring
+    result = cli.audit.summary(
+        days=days or m.window_days,
+        denied_threshold=m.denied_threshold,
+        failure_rate_threshold=m.failure_rate_threshold,
+        min_events_for_rate=m.min_events_for_rate,
+    )
+    cli.renderer.data(
+        {
+            "since": result.since.isoformat(timespec="seconds") if result.since else "-",
+            "events": result.total,
+            "failure_rate": result.failure_rate,
+            "by_result": ", ".join(f"{k}={v}" for k, v in sorted(result.by_result.items())) or "-",
+            "by_action": ", ".join(f"{k}={v}" for k, v in sorted(result.by_action.items())) or "-",
+            "by_user": ", ".join(f"{k}={v}" for k, v in sorted(result.by_user.items())) or "-",
+        },
+        title="Audit summary",
+    )
+    for alert in result.alerts:
+        cli.renderer.warning(f"ALERT: {alert}")

@@ -27,6 +27,27 @@ Security is the first-listed platform priority. This document describes the cont
 - `validate_slug` restricts names to lowercase letters, digits, `.`, `_`, `-`.
 - All rendered text is stripped of terminal escape sequences and control characters.
 
+## Integrations (Layer C)
+- **Skills** are checked (checksum, compatibility, declared permissions) before anything is written, need approval for declared permissions, and are copied, never executed. Paths that try to escape the skill folder are rejected.
+- **MCP servers** are installed only if organisation policy allows them. Secrets are never written to `.mcp.json`: sensitive settings must be `${VAR}` references; secret-looking arguments, unsafe commands and unsupported transports are rejected.
+- **Configuration files** owned by developers (`.mcp.json`, `.claude/settings.json`, `CLAUDE.md`) are merged or edited only inside a Stratos block, backed up first, and can be rolled back.
+- **Agents** run with least privilege: an agent's permissions must be allowed by `agents.allowed_permissions` (default read-only). Input is stripped of control characters, size-limited and passed as data, not instructions. Run logs are redacted.
+- **Knowledge** documents are read at query time and never copied into a cache; results are redacted and lookups are confined to the configured folders.
+- **GitHub** calls validate names, respect rate limits, and never place a token in a URL or a clone command. Destructive actions (archive, public repository) need confirmation; every change supports `--dry-run`.
+- **Cache** never stores a value that contains a secret.
+- **Agent tools** are read-only and confined to the project folder: `.env`, keys, `.git`, `.mcp.json`, virtual environments and paths outside the project are blocked; output is redacted and size-limited. Every tool call is re-checked against the agent's permissions, and a step limit stops runaway loops.
+- **MCP servers run only when** installed, allowed by `mcp.allowed`, and the agent holds `run_commands` (not allowed by default). They receive a minimal environment (never the caller's whole environment), have time limits, and are always terminated after the run.
+- **Skills** used by an agent are added to its instructions; they are never executed as code.
+- **Claude subagents** exported from agents get read-only tools unless the agent's permissions grant more; developer-authored subagent files are never overwritten.
+- **Remote knowledge** (GitHub, Confluence, SharePoint) is read live and never cached; credentials come from the environment and are never written to configuration. SharePoint downloads use pre-authenticated HTTPS URLs without sending credentials.
+
+## Organisation policy and monitoring
+- `policy.allow_public_repos`, `policy.allowed_ai_providers`, `policy.allowed_ai_models`, `mcp.allowed` and `agents.allowed_permissions` are enforced in services (normally set in the organisation configuration layer). Refusals exit with code 4 and are audited as `denied`.
+- `stratos audit summary` gives usage analytics and alerts (many denials, high failure rate, a user repeatedly denied); thresholds are `monitoring.*`.
+
+## Supply chain (CI)
+Dependency audit (`pip-audit`), pull-request dependency review, CodeQL static analysis, secret scanning (gitleaks; organisation repositories need a `GITLEAKS_LICENSE` secret), a CycloneDX SBOM on every push and release, and a release pipeline that signs build provenance. Pin workflow actions to commit SHAs once the repository is final.
+
 ## Audit
 - Sensitive actions emit events (user, organisation, time, action, resource, resource ID, result, request ID). Failures and denials are recorded. Events pass through the redactor before being written.
 - Until the Platform API provides audit storage, events go to a local append-only file (owner-only permissions where the OS supports it).

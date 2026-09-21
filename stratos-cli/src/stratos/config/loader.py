@@ -143,7 +143,14 @@ def set_value(path: Path, dotted_key: str, value: str) -> Settings:
         node = child
     node[leaf] = value
     reject_secrets(data, dotted_key)
-    settings = validate(data)  # raises on unknown keys / bad values
+    try:
+        settings = validate(data)  # raises on unknown keys / bad values
+    except ConfigurationError as first:
+        node[leaf] = [v.strip() for v in value.split(",") if v.strip()]  # list-valued settings
+        try:
+            settings = validate(data)
+        except ConfigurationError:
+            raise first from None
     write_yaml(path, data)
     return settings
 

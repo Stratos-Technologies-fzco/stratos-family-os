@@ -8,7 +8,7 @@ Retry policy (bounded, exponential backoff, Retry-After honoured):
 
 import random
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Mapping
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from typing import Any
@@ -39,6 +39,10 @@ MAX_RETRY_AFTER = 60.0
 
 def _retry_after(response: httpx.Response) -> float | None:
     raw = response.headers.get("Retry-After")
+    if not raw and response.headers.get("X-RateLimit-Remaining") == "0":
+        reset = response.headers.get("X-RateLimit-Reset", "")  # epoch seconds (GitHub style)
+        if reset.isdigit():
+            return max(0.0, float(reset) - datetime.now(UTC).timestamp())
     if not raw:
         return None
     try:
@@ -49,6 +53,76 @@ def _retry_after(response: httpx.Response) -> float | None:
         return max(0.0, (parsedate_to_datetime(raw) - datetime.now(UTC)).total_seconds())
     except (TypeError, ValueError):
         return None
+
+
+def is_rate_limited(response: httpx.Response) -> bool:
+    """429, or a GitHub-style primary rate limit (403 with no requests remaining)."""
+    return response.status_code == 429 or (
+        response.status_code == 403 and response.headers.get("X-RateLimit-Remaining") == "0"
+    )
+
+
+def compute_backoff(
+    attempt: int,
+    retry_after: float | None,
+    base: float,
+    cap: float,
+    jitter: Callable[[], float],
+) -> float:
+    if retry_after is not None:
+        return retry_after
+    delay = base * float(2**attempt)
+    jitter_value: float = jitter()
+    return min(delay + jitter_value * base, cap)
+
+
+def build_headers(
+    *,
+    request_id: str,
+    authenticated: bool,
+    idempotency_key: str | None,
+    token_provider: AccessTokenProvider | None,
+    auth_scheme: str,
+    default_headers: Mapping[str, str],
+    send_correlation: bool,
+) -> dict[str, str]:
+    headers = {
+        "Accept": "application/json",
+        "User-Agent": f"stratos-cli/{__version__}",
+        "X-Request-ID": request_id,
+    }
+    if send_correlation:
+        headers["X-Correlation-ID"] = get_correlation_ids()[1]
+    headers.update(default_headers)
+    if authenticated and token_provider is not None:
+        headers["Authorization"] = f"{auth_scheme} {token_provider()}"
+    if idempotency_key:
+        headers["Idempotency-Key"] = idempotency_key
+    return headers
+
+
+def error_for(response: httpx.Response, request_id: str) -> StratosError:
+    status = response.status_code
+    detail = f"HTTP {status}"
+    try:
+        body = response.json()
+        if isinstance(body, dict):
+            for key in ("message", "detail", "error"):
+                if isinstance(body.get(key), str):
+                    detail = body[key]
+                    break
+    except ValueError:
+        pass
+    message = f"{sanitize_text(_redactor.redact_text(detail))[:300]} (request {request_id})"
+    if status == 401:
+        return AuthenticationError(message, hint="Run `stratos login`.")
+    if status == 403:
+        return AuthorizationError(message)
+    if status == 404:
+        return ResourceNotFoundError(message)
+    if status in (400, 409, 422):
+        return ValidationError(message)
+    return APIError(message)
 
 
 class PlatformApiClient:
@@ -64,6 +138,9 @@ class PlatformApiClient:
         max_backoff: float = 30.0,
         sleep: Callable[[float], None] = time.sleep,
         jitter: Callable[[], float] = random.random,
+        default_headers: Mapping[str, str] | None = None,
+        send_correlation: bool = True,
+        auth_scheme: str = "Bearer",
     ) -> None:
         self._base_url = require_secure_url(base_url.rstrip("/"), "api.endpoint")
         self._token_provider = token_provider
@@ -72,11 +149,14 @@ class PlatformApiClient:
         self._max_backoff = max_backoff
         self._sleep = sleep
         self._jitter = jitter
+        self._default_headers = dict(default_headers or {})
+        self._send_correlation = send_correlation
+        self._auth_scheme = auth_scheme
         self._http = httpx.Client(
             base_url=self._base_url, timeout=timeout, transport=transport, follow_redirects=False
         )
 
-    # ---- lifecycle -----------------------------------------------------
+    # ---- lifecycle -----------------------------------------------------------------------
     def close(self) -> None:
         self._http.close()
 
@@ -86,7 +166,7 @@ class PlatformApiClient:
     def __exit__(self, *exc: object) -> None:
         self.close()
 
-    # ---- public API ----------------------------------------------------
+    # ---- public API ----------------------------------------------------------------------
     def request(
         self,
         method: str,
@@ -144,7 +224,7 @@ class PlatformApiClient:
             target = self._same_host(next_url) if next_url else None
             query = None  # the next link already carries its query string
 
-    # ---- internals -----------------------------------------------------
+    # ---- internals -----------------------------------------------------------------------
     def _same_host(self, url: str) -> str:
         """Refuse to follow pagination links to another host (would leak the bearer token)."""
         resolved = self._http.base_url.join(url)
@@ -158,24 +238,20 @@ class PlatformApiClient:
     def _headers(
         self, request_id: str, authenticated: bool, idempotency_key: str | None
     ) -> dict[str, str]:
-        headers = {
-            "Accept": "application/json",
-            "User-Agent": f"stratos-cli/{__version__}",
-            "X-Request-ID": request_id,
-            "X-Correlation-ID": get_correlation_ids()[1],
-        }
-        if authenticated and self._token_provider is not None:
-            headers["Authorization"] = f"Bearer {self._token_provider()}"
-        if idempotency_key:
-            headers["Idempotency-Key"] = idempotency_key
-        return headers
+        return build_headers(
+            request_id=request_id,
+            authenticated=authenticated,
+            idempotency_key=idempotency_key,
+            token_provider=self._token_provider,
+            auth_scheme=self._auth_scheme,
+            default_headers=self._default_headers,
+            send_correlation=self._send_correlation,
+        )
 
     def _backoff(self, attempt: int, retry_after: float | None) -> float:
-        if retry_after is not None:
-            return retry_after
-        delay = self._backoff_base * float(2**attempt)
-        jitter: float = self._jitter()
-        return min(delay + jitter * self._backoff_base, self._max_backoff)
+        return compute_backoff(
+            attempt, retry_after, self._backoff_base, self._max_backoff, self._jitter
+        )
 
     def _send(
         self,
@@ -218,7 +294,7 @@ class PlatformApiClient:
             if response.is_success:
                 return response
 
-            retryable = response.status_code == 429 or (
+            retryable = is_rate_limited(response) or (
                 response.status_code in RETRYABLE_STATUS and may_retry_failures
             )
             if retryable and attempt < self._max_retries:
@@ -231,24 +307,4 @@ class PlatformApiClient:
 
     @staticmethod
     def _error_for(response: httpx.Response, request_id: str) -> StratosError:
-        status = response.status_code
-        detail = f"HTTP {status}"
-        try:
-            body = response.json()
-            if isinstance(body, dict):
-                for key in ("message", "detail", "error"):
-                    if isinstance(body.get(key), str):
-                        detail = body[key]
-                        break
-        except ValueError:
-            pass
-        message = f"{sanitize_text(_redactor.redact_text(detail))[:300]} (request {request_id})"
-        if status == 401:
-            return AuthenticationError(message, hint="Run `stratos login`.")
-        if status == 403:
-            return AuthorizationError(message)
-        if status == 404:
-            return ResourceNotFoundError(message)
-        if status in (400, 409, 422):
-            return ValidationError(message)
-        return APIError(message)
+        return error_for(response, request_id)

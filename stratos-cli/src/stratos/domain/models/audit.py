@@ -17,3 +17,15 @@ class AuditEvent(StratosModel):
     result: AuditResult
     request_id: str
     details: dict[str, str] = {}
+
+
+class AuditSummary(StratosModel):
+    """Usage analytics and monitoring signals over a period."""
+
+    since: datetime | None = None
+    total: int = 0
+    by_action: dict[str, int] = {}
+    by_result: dict[str, int] = {}
+    by_user: dict[str, int] = {}
+    failure_rate: float = 0.0
+    alerts: tuple[str, ...] = ()

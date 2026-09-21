@@ -26,6 +26,15 @@ class Renderer(Protocol):
 
 
 from stratos.domain.interfaces.audit import AuditStore  # noqa: E402
+from stratos.domain.interfaces.extensions import (  # noqa: E402
+    AgentRegistry,
+    AgentRunLog,
+    AIProvider,
+    KnowledgeProvider,
+    McpRegistry,
+    SkillRegistry,
+)
+from stratos.domain.interfaces.github import GitHubPort  # noqa: E402
 from stratos.domain.interfaces.identity import (  # noqa: E402
     AccessTokenProvider,
     CallbackReceiver,
@@ -34,10 +43,17 @@ from stratos.domain.interfaces.identity import (  # noqa: E402
 )
 
 __all__ = [
+    "AIProvider",
     "AccessTokenProvider",
+    "AgentRegistry",
+    "AgentRunLog",
     "AuditStore",
     "CallbackReceiver",
+    "GitHubPort",
     "IdentityProvider",
+    "KnowledgeProvider",
+    "McpRegistry",
     "Renderer",
     "SecretStore",
+    "SkillRegistry",
 ]

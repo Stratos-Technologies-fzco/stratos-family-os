@@ -40,7 +40,7 @@ class AuthService:
         self._open_browser = open_browser
         self._clock = clock
 
-    # ---- storage keys --------------------------------------------------
+    # ---- storage keys --------------------------------------------------------------------
     def _key(self, name: str) -> str:
         return f"{self._issuer}|{name}"
 
@@ -84,7 +84,7 @@ class AuthService:
             self._store.delete(self._key(name))
         return existed
 
-    # ---- commands ------------------------------------------------------
+    # ---- commands ------------------------------------------------------------------------
     def login(
         self, on_url: Callable[[str], None] | None = None, *, open_browser: bool = True
     ) -> Identity:

@@ -17,11 +17,22 @@ from stratos.logging import configure_logging, level_for
 # Command groups, imported only when invoked (keeps `stratos --help` fast and
 # client-free). Later modules add entries here.
 LAZY_GROUPS: dict[str, str] = {
+    "agent": "stratos.cli.commands.agent:app",
+    "ai": "stratos.cli.commands.ai:app",
     "audit": "stratos.cli.commands.audit:app",
     "auth": "stratos.cli.commands.auth:app",
     "config": "stratos.cli.commands.config:app",
+    "doctor": "stratos.cli.commands.diagnostics:doctor_app",
+    "knowledge": "stratos.cli.commands.knowledge:app",
     "login": "stratos.cli.commands.auth:login_app",
     "logout": "stratos.cli.commands.auth:logout_app",
+    "mcp": "stratos.cli.commands.mcp:app",
+    "org": "stratos.cli.commands.org:app",
+    "repo": "stratos.cli.commands.repo:app",
+    "skill": "stratos.cli.commands.skill:app",
+    "status": "stratos.cli.commands.diagnostics:status_app",
+    "team": "stratos.cli.commands.team:app",
+    "version": "stratos.cli.commands.diagnostics:version_app",
     "whoami": "stratos.cli.commands.auth:whoami_app",
 }
 

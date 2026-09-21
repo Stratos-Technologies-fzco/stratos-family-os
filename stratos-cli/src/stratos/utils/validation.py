@@ -7,6 +7,7 @@ from urllib.parse import urlsplit
 from stratos.domain.exceptions import ConfigurationError, ValidationError
 
 _SLUG = re.compile(r"^[a-z0-9](?:[a-z0-9._-]{0,98}[a-z0-9])?$")
+_GH_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$")
 _ANSI = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[@-Z\\-_])")
 _CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 _LOOPBACK = {"localhost", "127.0.0.1", "::1"}
@@ -18,6 +19,16 @@ def validate_slug(value: str, field: str = "name") -> str:
         raise ValidationError(
             f"Invalid {field} '{value[:60]}'.",
             hint="Use 1-100 lowercase letters, digits, '.', '_' or '-'.",
+        )
+    return value
+
+
+def validate_name(value: str, field: str = "name") -> str:
+    """GitHub-style names (org, repository, team): letters, digits, '.', '_', '-'; max 100."""
+    if not _GH_NAME.match(value) or value in {".", ".."} or value.endswith(".git"):
+        raise ValidationError(
+            f"Invalid {field} '{value[:60]}'.",
+            hint="Use letters, digits, '.', '_' or '-' (max 100 characters).",
         )
     return value
 

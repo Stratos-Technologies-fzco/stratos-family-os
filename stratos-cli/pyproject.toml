@@ -13,13 +13,19 @@ dependencies = [
     "platformdirs>=4",
     "httpx>=0.27",
     "keyring>=25",
+    "packaging>=23",
+    "anthropic>=0.40",
 ]
+
+[project.optional-dependencies]
+openai = ["openai>=1.40"]
+pdf = ["pypdf>=4"]
 
 [project.scripts]
 stratos = "stratos.cli.app:app"
 
 [dependency-groups]
-dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML"]
+dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10", "types-PyYAML", "openai>=1.40", "pypdf>=4", "pip-audit", "cyclonedx-bom", "build"]
 
 [build-system]
 requires = ["hatchling"]
@@ -38,6 +44,9 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
 ignore = ["B008"]  # typer.Option in defaults is the Typer idiom
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["E501", "E731", "B023"]  # long fixtures and inline lambdas are fine in tests
 
 [tool.mypy]
 strict = true

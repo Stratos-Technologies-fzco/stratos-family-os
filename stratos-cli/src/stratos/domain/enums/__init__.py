@@ -43,6 +43,12 @@ class AuditAction(StrEnum):
     DEPLOYMENT_ROLLBACK = "deployment.rollback"
     MCP_INSTALL = "mcp.install"
     SKILL_INSTALL = "skill.install"
+    REPO_CONFIGURE = "repo.configure"  # extension beyond the spec list
+    REPO_ARCHIVE = "repo.archive"  # extension beyond the spec list
+    SKILL_REMOVE = "skill.remove"  # extension beyond the spec list
+    MCP_CONFIGURE = "mcp.configure"  # extension beyond the spec list
+    AGENT_CREATE = "agent.create"  # extension beyond the spec list
+    CLAUDE_CONFIGURE = "claude.configure"  # extension beyond the spec list
 
 
 class AuditResult(StrEnum):
@@ -72,9 +78,26 @@ class Permission(StrEnum):
     DEPLOYMENT_ROLLBACK = "deployment.rollback"
     MCP_INSTALL = "mcp.install"
     SKILL_INSTALL = "skill.install"
+    REPO_CONFIGURE = "repo.configure"
+    REPO_ARCHIVE = "repo.archive"
+    SKILL_REMOVE = "skill.remove"
+    MCP_CONFIGURE = "mcp.configure"
+    AGENT_CREATE = "agent.create"
+    CLAUDE_CONFIGURE = "claude.configure"
+
+
+class AgentPermission(StrEnum):
+    """Capabilities an agent may be granted. Least privilege: read-only by default."""
+
+    KNOWLEDGE_READ = "knowledge_read"
+    REPO_READ = "repo_read"
+    REPO_WRITE = "repo_write"
+    RUN_COMMANDS = "run_commands"
+    NETWORK = "network"
 
 
 __all__ = [
+    "AgentPermission",
     "AuditAction",
     "AuditResult",
     "ExitCode",
