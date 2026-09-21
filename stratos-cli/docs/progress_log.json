@@ -250,6 +250,24 @@
         "Because the code repository is public, the package will also be publicly downloadable, although GitHub still asks every user to sign in with a token to install it.",
         "The change is not yet on GitHub."
       ]
+    },
+    {
+      "id": 12,
+      "date": "21 September 2026",
+      "area": "Access: local testing convenience",
+      "title": "A switch now lets the team use the tool locally without signing in",
+      "status": "Delivered and tested",
+      "summary": "The tool normally requires staff to sign in with their company account. A deliberately opt-in switch now lets people try it on their own computer without that step.",
+      "delivered": [
+        "When the switch is turned on, the tool treats the user as a signed-in local administrator, so every feature can be tried without contacting the company login system.",
+        "When the switch is off, which is the default, sign-in works exactly as before.",
+        "The full existing test suite still passes and the quality checks are clean.",
+        "The user manual now has a short section explaining how to turn the switch on and off, with a clear warning, and lists it in the settings table."
+      ],
+      "value": "Team members can evaluate and demonstrate the tool immediately, without waiting for the company login system to be configured.",
+      "decisions": [
+        "The switch grants full administrator rights, so it must never be enabled on shared or production machines, and it does not give access to any real company systems."
+      ]
     }
   ]
 }

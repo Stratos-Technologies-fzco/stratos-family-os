@@ -159,3 +159,43 @@ class AuthService:
                 ) from None
             self._save(tokens, None)
         return tokens.access_token.get_secret_value()
+
+
+class DevAuthService:
+    """Local development stand-in for `AuthService`: always signed in, never contacts an IdP.
+
+    Enabled only by `STRATOS_DEV_AUTH_BYPASS=1` (see `CliContext.auth_service`). It stores nothing
+    and its token is not valid against any real platform API.
+    """
+
+    def __init__(self, identity: Identity | None = None) -> None:
+        self._identity = identity or Identity(
+            subject="dev-bypass",
+            email="dev@localhost",
+            name="Local Developer",
+            organisation="local",
+            roles=("admin",),
+        )
+
+    def login(
+        self, on_url: Callable[[str], None] | None = None, *, open_browser: bool = True
+    ) -> Identity:
+        return self._identity
+
+    def logout(self) -> bool:
+        return False
+
+    def status(self) -> SessionStatus:
+        return SessionStatus(
+            authenticated=True,
+            subject=self._identity.subject,
+            email=self._identity.email,
+            organisation=self._identity.organisation,
+            issuer="dev-bypass",
+        )
+
+    def whoami(self) -> Identity:
+        return self._identity
+
+    def access_token(self) -> str:
+        return "dev-bypass-token"
